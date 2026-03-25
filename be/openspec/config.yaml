@@ -1,0 +1,33 @@
+context: |
+  Project: Gym Management System - Backend API
+  Tech stack: Node.js, Express.js v4, MongoDB (Mongoose v8), JWT authentication, Swagger/OpenAPI docs
+  Language: JavaScript (CommonJS)
+  Structure:
+    - src/controllers/ — Route handler logic
+    - src/models/      — Mongoose schemas
+    - src/routes/      — Express routers
+    - src/middleware/  — Auth, error handling, rate limiting
+    - src/utils/       — Shared helpers
+    - src/config/      — DB connection, seed scripts
+  Auth: JWT-based with roles & permissions system (RBAC)
+  Validation: validator.js library
+  Security: helmet, express-rate-limit, express-mongo-sanitize
+  API Docs: Swagger with swagger-jsdoc + swagger-ui-express
+  Testing: Jest (unit + coverage)
+
+rules:
+  proposal:
+    - State which domain (auth, members, billing, trainers, etc.) is affected
+    - Note any breaking API changes
+    - Include rollback plan for DB schema changes
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Include negative/error scenarios (401, 403, 404, 400)
+    - Specify HTTP method, route path, and expected status codes
+  design:
+    - List affected files (controllers, models, routes, middleware)
+    - Diagram data flow if complex
+    - Note Mongoose schema changes explicitly
+  tasks:
+    - Group by: Model → Controller → Route → Middleware → Tests → Swagger docs
+    - Each task should be completable in one focused session
