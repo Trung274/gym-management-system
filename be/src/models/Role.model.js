@@ -7,7 +7,7 @@ const roleSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     lowercase: true,
-    enum: ['admin', 'user'], // Có thể thêm roles khác sau
+    enum: ['admin', 'user', 'manager', 'member', 'trainer'],
   },
   description: {
     type: String,

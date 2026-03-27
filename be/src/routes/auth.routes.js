@@ -61,7 +61,7 @@ router.post('/create-user',
  * @swagger
  * /api/v1/auth/login:
  *   post:
- *     summary: Login user
+ *     summary: Login user (Public)
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -91,7 +91,7 @@ router.post('/login', authController.login);
  * @swagger
  * /api/v1/auth/refresh-token:
  *   post:
- *     summary: Refresh access token
+ *     summary: Refresh access token (Public)
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -116,7 +116,7 @@ router.post('/refresh-token', authController.refreshToken);
  * @swagger
  * /api/v1/auth/logout:
  *   post:
- *     summary: Logout user
+ *     summary: Logout user (Protected)
  *     tags: [Authentication]
  *     security:
  *       - bearerAuth: []
@@ -141,7 +141,7 @@ router.post('/logout', protect, authController.logout);
  * @swagger
  * /api/v1/auth/me:
  *   get:
- *     summary: Get current user
+ *     summary: Get current user (Protected)
  *     tags: [Authentication]
  *     security:
  *       - bearerAuth: []

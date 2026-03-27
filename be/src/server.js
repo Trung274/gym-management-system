@@ -52,6 +52,11 @@ app.use(`/api/${API_VERSION}/auth`, require('./routes/auth.routes'));
 app.use(`/api/${API_VERSION}/users`, require('./routes/user.routes'));
 app.use(`/api/${API_VERSION}/roles`, require('./routes/role.routes'));
 app.use(`/api/${API_VERSION}/permissions`, require('./routes/permission.routes'));
+app.use(`/api/${API_VERSION}/staff`, require('./routes/staff.routes'));
+app.use(`/api/${API_VERSION}/members`, require('./routes/member.routes'));
+app.use(`/api/${API_VERSION}/subscription-plans`, require('./routes/subscriptionPlan.routes'));
+app.use(`/api/${API_VERSION}/trainers`, require('./routes/trainer.routes'));
+app.use(`/api/${API_VERSION}/bookings`, require('./routes/booking.routes'));
 
 // Root Route
 app.get('/', (req, res) => {

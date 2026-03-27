@@ -18,7 +18,7 @@ router.use(authorize('admin'));
  * @swagger
  * /api/v1/roles:
  *   get:
- *     summary: Get all roles
+ *     summary: Get all roles (Admin only)
  *     tags: [Roles]
  *     security:
  *       - bearerAuth: []
@@ -35,7 +35,7 @@ router.get('/',
  * @swagger
  * /api/v1/roles/{id}:
  *   get:
- *     summary: Get role by ID
+ *     summary: Get role by ID (Admin only)
  *     tags: [Roles]
  *     security:
  *       - bearerAuth: []
@@ -60,7 +60,7 @@ router.get('/:id',
  * @swagger
  * /api/v1/roles:
  *   post:
- *     summary: Create new role
+ *     summary: Create new role (Admin only)
  *     tags: [Roles]
  *     security:
  *       - bearerAuth: []
@@ -94,7 +94,7 @@ router.post('/',
  * @swagger
  * /api/v1/roles/{id}:
  *   put:
- *     summary: Update role
+ *     summary: Update role (Admin only)
  *     tags: [Roles]
  *     security:
  *       - bearerAuth: []
@@ -136,7 +136,7 @@ router.put('/:id',
  * @swagger
  * /api/v1/roles/{id}:
  *   delete:
- *     summary: Delete role
+ *     summary: Delete role (Admin only)
  *     tags: [Roles]
  *     security:
  *       - bearerAuth: []

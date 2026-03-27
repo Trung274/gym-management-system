@@ -18,7 +18,7 @@ router.use(authorize('admin'));
  * @swagger
  * /api/v1/permissions:
  *   get:
- *     summary: Get all permissions
+ *     summary: Get all permissions (Admin only)
  *     tags: [Permissions]
  *     security:
  *       - bearerAuth: []
@@ -41,7 +41,7 @@ router.get('/',
  * @swagger
  * /api/v1/permissions/{id}:
  *   get:
- *     summary: Get permission by ID
+ *     summary: Get permission by ID (Admin only)
  *     tags: [Permissions]
  *     security:
  *       - bearerAuth: []
@@ -66,7 +66,7 @@ router.get('/:id',
  * @swagger
  * /api/v1/permissions:
  *   post:
- *     summary: Create new permission
+ *     summary: Create new permission (Admin only)
  *     tags: [Permissions]
  *     security:
  *       - bearerAuth: []
@@ -101,7 +101,7 @@ router.post('/',
  * @swagger
  * /api/v1/permissions/{id}:
  *   put:
- *     summary: Update permission
+ *     summary: Update permission (Admin only)
  *     tags: [Permissions]
  *     security:
  *       - bearerAuth: []
@@ -124,7 +124,7 @@ router.put('/:id',
  * @swagger
  * /api/v1/permissions/{id}:
  *   put:
- *     summary: Update permission
+ *     summary: Update permission (Admin only)
  *     tags: [Permissions]
  *     security:
  *       - bearerAuth: []
@@ -156,7 +156,7 @@ router.put('/:id',
  * @swagger
  * /api/v1/permissions/{id}:
  *   delete:
- *     summary: Delete permission
+ *     summary: Delete permission (Admin only)
  *     tags: [Permissions]
  *     security:
  *       - bearerAuth: []

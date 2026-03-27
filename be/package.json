@@ -7,7 +7,12 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "jest --coverage",
-    "seed:roles": "node src/config/seedRolesPermissions.js"
+    "seed:roles": "node src/config/seedRolesPermissions.js",
+    "seed:staff": "node src/config/seedStaffPermissions.js",
+    "seed:members": "node src/config/seedMemberPermissions.js",
+    "seed:plans": "node src/config/seedSubscriptionPlans.js",
+    "seed:trainers": "node src/config/seedTrainerPermissions.js",
+    "seed:bookings": "node src/config/seedBookingPermissions.js"
   },
   "keywords": ["nodejs", "express", "mongodb", "jwt", "swagger"],
   "author": "",

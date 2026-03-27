@@ -43,7 +43,7 @@ router.get('/', protect, authorize('admin'), userController.getAllUsers);
  * @swagger
  * /api/v1/users/{id}:
  *   get:
- *     summary: Get user by ID
+ *     summary: Get user by ID (Protected)
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -65,7 +65,7 @@ router.get('/:id', protect, userController.getUserById);
  * @swagger
  * /api/v1/users/{id}:
  *   put:
- *     summary: Update user
+ *     summary: Update user (Protected)
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []

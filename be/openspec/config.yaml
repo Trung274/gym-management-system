@@ -1,23 +1,130 @@
 context: |
   Project: Gym Management System - Backend API
-  Tech stack: Node.js, Express.js v4, MongoDB (Mongoose v8), JWT authentication, Swagger/OpenAPI docs
+  Tech stack: Node.js, Express.js v4, MongoDB (Mongoose v8), JWT (access + refresh tokens), Swagger/OpenAPI docs
   Language: JavaScript (CommonJS)
-  Structure:
-    - src/controllers/ — Route handler logic
-    - src/models/      — Mongoose schemas
-    - src/routes/      — Express routers
-    - src/middleware/  — Auth, error handling, rate limiting
-    - src/utils/       — Shared helpers
-    - src/config/      — DB connection, seed scripts
-  Auth: JWT-based with roles & permissions system (RBAC)
-  Validation: validator.js library
-  Security: helmet, express-rate-limit, express-mongo-sanitize
-  API Docs: Swagger with swagger-jsdoc + swagger-ui-express
-  Testing: Jest (unit + coverage)
+
+  Directory structure:
+    src/server.js              — App entry: registers middleware and routes
+    src/config/database.js     — MongoDB connection
+    src/config/swagger.js      — swagger-jsdoc config
+    src/config/seed*.js        — Data seed scripts
+    src/controllers/           — Business logic per domain
+    src/middleware/auth.js     — protect / authorize / checkPermission / checkAnyPermission
+    src/middleware/errorHandler.js — Global error handler (4-param Express middleware)
+    src/models/                — Mongoose schemas
+    src/routes/                — Express routers (1 file = 1 domain)
+    src/utils/asyncHandler.js  — Async wrapper (eliminates try/catch in controllers)
+    src/utils/errorResponse.js — Custom Error class with statusCode
+
+  Existing codebase (already implemented — do NOT recreate):
+    Models:      User.model.js, Role.model.js, Permission.model.js
+    Controllers: auth.controller.js, user.controller.js, role.controller.js, permission.controller.js
+    Routes:      auth.routes.js, user.routes.js, role.routes.js, permission.routes.js
+    Existing API base path: /api/v1/
+
+  Auth system (RBAC):
+    - JWT access token + refresh token (stored in DB, deleted on logout)
+    - changedPasswordAfter() invalidates token after password change
+    - Middleware chain: protect → authorize() or checkPermission()
+    - protect: validates JWT, populates req.user (with role)
+    - authorize(...roleNames): checks req.user.role.name — requires role to be populated
+    - checkPermission(resource, action): RBAC permission check
+    - checkAnyPermission(permissions[]): OR logic, pass if any permission matches
+    - WARNING: using lean() bypasses pre-hooks that populate role — will break authorize()
+    - Admin role automatically bypasses all permission checks (no need to assign individually)
+    - req.user instance methods: hasPermission(resource, action), hasAnyPermission([{resource, action}])
+    - Permission format: resource:action (e.g. members:create, members:read, trainers:update)
+    - User can only belong to ONE role at a time
+
+  Environment variables (from .env):
+    NODE_ENV             — development | production
+    PORT                 — server port (default 5000)
+    MONGODB_URI          — MongoDB connection string
+    JWT_SECRET           — access token secret (≥32 chars in prod)
+    JWT_EXPIRE           — access token TTL (e.g. 7d)
+    JWT_REFRESH_SECRET   — refresh token secret
+    JWT_REFRESH_EXPIRE   — refresh token TTL (e.g. 30d)
+    API_VERSION          — API version prefix (default v1)
+    CORS_ORIGIN          — allowed frontend origin
+    RATE_LIMIT_WINDOW_MS — rate limit window in ms (default 900000)
+    RATE_LIMIT_MAX_REQUESTS — max requests per window (default 100)
+    Note: Rate limiting only enabled in production (NODE_ENV=production)
+
+  Security status:
+    DONE: helmet, CORS whitelist, rate limiting (prod only), mongo-sanitize,
+          body limit 10mb, bcryptjs password hashing (rounds=10), JWT rotation
+    MISSING: HTTPS enforcement (handle at reverse proxy), request logging, input validation library
+
+  API response format:
+    Success: { success: true, data: ..., count: ... }
+    Error:   { success: false, error: "message" }
+    Note: use "error" not "message" for error cases
+
+  Code conventions:
+    Controllers:
+      - ALWAYS wrap with asyncHandler — no manual try/catch
+      - Throw errors with: next(new ErrorResponse('message', statusCode))
+      - Example: const getItem = asyncHandler(async (req, res, next) => { ... })
+
+    Error handling order in server.js (ORDER MATTERS):
+      app.use(errorHandler)  ← must come BEFORE 404 handler
+      app.use((req, res) => res.status(404).json(...))
+      errorHandler auto-handles: CastError→404, DuplicateKey→400, ValidationError→400, JWT errors→401
+
+    Mongoose models:
+      - Always use { timestamps: true }
+      - Use { toJSON: { virtuals: true }, toObject: { virtuals: true } } if model has virtuals
+      - Add index for frequently queried fields
+      - Use select: false for sensitive fields (e.g. password)
+      - Override toJSON() to strip sensitive fields from responses
+
+    Routes:
+      - One file per domain: src/routes/<domain>.routes.js
+      - Register in server.js as: /api/${API_VERSION}/<domain>
+      - Write Swagger JSDoc annotations inside route files (not controllers)
+
+    Swagger JSDoc conventions:
+      - summary MUST end with a parenthetical showing WHO can access (role names):
+          No auth required:      summary: "Get gym schedule (Public)"
+          Any logged-in user:    summary: "Get my profile (Protected)"
+          Specific role:         summary: "Create a new user (Admin only)"
+          Multiple roles:        summary: "Get all staff (Admin, Manager)"
+        → The parenthetical = role names that CAN access this endpoint
+        → "Public" = no protect middleware, no token needed
+        → Always wrap in double quotes if summary contains special chars (YAML rule)
+      - Add `security: - bearerAuth: []` for ANY route using `protect` middleware
+      - Do NOT add security field for Public endpoints
+      - Response codes must match middleware used:
+          No middleware (Public) → only 2xx
+          protect only    → include 401 (Unauthorized)
+          authorize()     → include 401 + 403 (Forbidden)
+          checkPermission → include 401 + 403 (Forbidden - insufficient permission)
+      - Always include at least: success 2xx, 400 (bad request), and relevant auth codes
+
+    Seed files:
+      - DO NOT add new seeds into seedRolesPermissions.js — that file only handles core RBAC setup
+      - Create a SEPARATE seed file per domain: src/config/seed<Domain>.js (e.g. seedMembers.js)
+      - Add a new npm script in package.json: "seed:<domain>": "node src/config/seed<Domain>.js"
+      - Each seed file must: connect to DB, insert data idempotently, then disconnect
+      - seedRolesPermissions.js behavior: wipes and recreates all roles+permissions, preserves admin users
+
+    Adding a new module (standard checklist):
+      1. Create permissions via API or add to seed file (format: resource:action)
+      2. Create Model in src/models/<Domain>.model.js
+      3. Create Controller in src/controllers/<domain>.controller.js (use asyncHandler)
+      4. Create Routes in src/routes/<domain>.routes.js (add Swagger JSDoc here)
+      5. Register route in server.js: app.use('/api/v1/<domain>', require('./routes/<domain>.routes'))
+      6. Assign new permissions to relevant roles via API
+
+    Adding a field to an existing model (MUST update ALL of these):
+      1. Model — add field to Mongoose schema
+      2. Controller — add field to allowedFields (update), business logic (create/update actions)
+      3. Routes — add field to Swagger requestBody in ALL relevant endpoints
+      → Missing any of these creates a silent mismatch between schema, logic, and docs
 
 rules:
   proposal:
-    - State which domain (auth, members, billing, trainers, etc.) is affected
+    - State which domain is affected (auth, members, billing, trainers, etc.)
     - Note any breaking API changes
     - Include rollback plan for DB schema changes
   specs:
@@ -26,8 +133,8 @@ rules:
     - Specify HTTP method, route path, and expected status codes
   design:
     - List affected files (controllers, models, routes, middleware)
-    - Diagram data flow if complex
     - Note Mongoose schema changes explicitly
+    - Diagram data flow if complex
   tasks:
-    - Group by: Model → Controller → Route → Middleware → Tests → Swagger docs
+    - Group by: Model → Controller → Route → Swagger docs → Tests
     - Each task should be completable in one focused session
