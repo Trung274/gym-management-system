@@ -17,7 +17,9 @@ const app = express();
 // Security Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.CORS_ORIGIN, `https://${process.env.RENDER_EXTERNAL_HOSTNAME}`].filter(Boolean)
+    : (process.env.CORS_ORIGIN || '*'),
   credentials: true
 }));
 
