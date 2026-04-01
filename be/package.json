@@ -12,7 +12,8 @@
     "seed:members": "node src/config/seedMemberPermissions.js",
     "seed:plans": "node src/config/seedSubscriptionPlans.js",
     "seed:trainers": "node src/config/seedTrainerPermissions.js",
-    "seed:bookings": "node src/config/seedBookingPermissions.js"
+    "seed:bookings": "node src/config/seedBookingPermissions.js",
+    "seed:gym": "node src/config/seedGymInfo.js"
   },
   "keywords": ["nodejs", "express", "mongodb", "jwt", "swagger"],
   "author": "",

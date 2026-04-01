@@ -57,6 +57,7 @@ app.use(`/api/${API_VERSION}/members`, require('./routes/member.routes'));
 app.use(`/api/${API_VERSION}/subscription-plans`, require('./routes/subscriptionPlan.routes'));
 app.use(`/api/${API_VERSION}/trainers`, require('./routes/trainer.routes'));
 app.use(`/api/${API_VERSION}/bookings`, require('./routes/booking.routes'));
+app.use(`/api/${API_VERSION}/gym-info`, require('./routes/gymInfo.routes'));
 
 // Root Route
 app.get('/', (req, res) => {
