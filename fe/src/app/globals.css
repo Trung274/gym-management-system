@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/* ============================================================
+   DESIGN TOKEN SYSTEM — Light Mode (default)
+   ============================================================ */
+:root {
+  /* Primary brand color — gym orange/red vibe */
+  --color-primary-50:  #fff7ed;
+  --color-primary-100: #ffedd5;
+  --color-primary-200: #fed7aa;
+  --color-primary-300: #fdba74;
+  --color-primary-400: #fb923c;
+  --color-primary-500: #f97316;   /* main primary */
+  --color-primary-600: #ea6c0a;
+  --color-primary-700: #c2550a;
+  --color-primary-800: #9a3e0a;
+  --color-primary-900: #7c3409;
+
+  /* Secondary — cool slate/blue */
+  --color-secondary-50:  #f8fafc;
+  --color-secondary-100: #f1f5f9;
+  --color-secondary-200: #e2e8f0;
+  --color-secondary-300: #cbd5e1;
+  --color-secondary-400: #94a3b8;
+  --color-secondary-500: #64748b;  /* main secondary */
+  --color-secondary-600: #475569;
+  --color-secondary-700: #334155;
+  --color-secondary-800: #1e293b;
+  --color-secondary-900: #0f172a;
+
+  /* Success */
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+
+  /* Danger */
+  --color-danger-400:  #f87171;
+  --color-danger-500:  #ef4444;
+  --color-danger-600:  #dc2626;
+
+  /* Warning */
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;
+
+  /* Surface / Background */
+  --color-surface-base:    #ffffff;
+  --color-surface-raised:  #f8fafc;
+  --color-surface-overlay: #f1f5f9;
+  --color-surface-border:  #e2e8f0;
+
+  /* Text */
+  --color-text-primary:   #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted:     #94a3b8;
+  --color-text-inverse:   #ffffff;
+}
+
+/* ============================================================
+   DARK MODE OVERRIDES — enabled via class="dark" on <html>
+   ============================================================ */
+.dark {
+  --color-surface-base:    #0f172a;
+  --color-surface-raised:  #1e293b;
+  --color-surface-overlay: #1e293b;
+  --color-surface-border:  #334155;
+
+  --color-text-primary:   #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted:     #64748b;
+  --color-text-inverse:   #0f172a;
+}
+
+/* ============================================================
+   TAILWIND v4 — @theme inline maps CSS vars → utility classes
+   ============================================================ */
+@theme inline {
+  /* Fonts */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Primary palette → tw: bg-primary-500, text-primary-500 … */
+  --color-primary-50:  var(--color-primary-50);
+  --color-primary-100: var(--color-primary-100);
+  --color-primary-200: var(--color-primary-200);
+  --color-primary-300: var(--color-primary-300);
+  --color-primary-400: var(--color-primary-400);
+  --color-primary-500: var(--color-primary-500);
+  --color-primary-600: var(--color-primary-600);
+  --color-primary-700: var(--color-primary-700);
+  --color-primary-800: var(--color-primary-800);
+  --color-primary-900: var(--color-primary-900);
+
+  /* Secondary palette → tw: bg-secondary-500, text-secondary-500 … */
+  --color-secondary-50:  var(--color-secondary-50);
+  --color-secondary-100: var(--color-secondary-100);
+  --color-secondary-200: var(--color-secondary-200);
+  --color-secondary-300: var(--color-secondary-300);
+  --color-secondary-400: var(--color-secondary-400);
+  --color-secondary-500: var(--color-secondary-500);
+  --color-secondary-600: var(--color-secondary-600);
+  --color-secondary-700: var(--color-secondary-700);
+  --color-secondary-800: var(--color-secondary-800);
+  --color-secondary-900: var(--color-secondary-900);
+
+  /* Semantic colors → tw: bg-success-500, text-danger-500 … */
+  --color-success-400: var(--color-success-400);
+  --color-success-500: var(--color-success-500);
+  --color-success-600: var(--color-success-600);
+
+  --color-danger-400: var(--color-danger-400);
+  --color-danger-500: var(--color-danger-500);
+  --color-danger-600: var(--color-danger-600);
+
+  --color-warning-400: var(--color-warning-400);
+  --color-warning-500: var(--color-warning-500);
+
+  /* Surface tokens → tw: bg-surface-base, border-surface-border … */
+  --color-surface-base:    var(--color-surface-base);
+  --color-surface-raised:  var(--color-surface-raised);
+  --color-surface-overlay: var(--color-surface-overlay);
+  --color-surface-border:  var(--color-surface-border);
+
+  /* Text tokens → tw: text-text-primary, text-text-muted … */
+  --color-text-primary:   var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted:     var(--color-text-muted);
+  --color-text-inverse:   var(--color-text-inverse);
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+body {
+  background-color: var(--color-surface-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-geist-sans, Arial, Helvetica, sans-serif);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
