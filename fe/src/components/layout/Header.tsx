@@ -41,17 +41,17 @@ export default function Header() {
     const userInitial = (isMounted && user?.name?.charAt(0).toUpperCase()) || 'U';
 
     return (
-        <header className="bg-secondary-900 border-b border-secondary-800 sticky top-0 z-40">
+        <header className="bg-surface-base border-b border-surface-border sticky top-0 z-40">
             <div className="px-4 md:px-6 py-4 flex items-center justify-between">
                 {/* Left Section — Brand + Title */}
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-500 shadow">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-500 shadow shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-white">
                             <path d="M6.5 6.5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v3.5H13V6.5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1V14h-3.5v3.5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-11Z" />
                             <path d="M4 9.5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1v-5H4ZM19 9.5h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-5Z" />
                         </svg>
                     </div>
-                    <h2 className="text-lg md:text-xl font-bold text-text-inverse">Dashboard</h2>
+                    <h2 className="text-lg md:text-xl font-bold text-text-primary">Dashboard</h2>
                 </div>
 
                 {/* Right Section — Theme Toggle + Profile Dropdown */}
@@ -59,7 +59,7 @@ export default function Header() {
                     {/* Dark / Light toggle */}
                     <button
                         onClick={toggleTheme}
-                        className="p-2 rounded-lg text-text-muted hover:text-text-inverse hover:bg-secondary-800 transition-all duration-200"
+                        className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all duration-200"
                         aria-label={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
                         title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
                     >
@@ -79,12 +79,12 @@ export default function Header() {
                     <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                            className="group flex items-center gap-2 md:gap-3 px-2 py-1.5 rounded-xl hover:bg-secondary-800 transition-all duration-200 cursor-pointer"
+                            className="group flex items-center gap-2 md:gap-3 px-2 py-1.5 rounded-xl hover:bg-surface-overlay transition-all duration-200 cursor-pointer"
                         >
                             {/* Avatar */}
                             <div className="relative">
                                 {authLoading ? (
-                                    <div className="w-8 h-8 md:w-9 md:h-9 bg-secondary-700 rounded-full animate-pulse" />
+                                    <div className="w-8 h-8 md:w-9 md:h-9 bg-surface-overlay rounded-full animate-pulse" />
                                 ) : (
                                     <div className="w-8 h-8 md:w-9 md:h-9 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full border-2 border-primary-500/40 flex items-center justify-center shadow">
                                         <span className="text-white font-bold text-sm">
@@ -95,7 +95,7 @@ export default function Header() {
 
                                 {/* Online dot */}
                                 {isMounted && user?.isActive && (
-                                    <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-success-500 rounded-full border-2 border-secondary-900" />
+                                    <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-success-500 rounded-full border-2 border-surface-base" />
                                 )}
                             </div>
 
@@ -103,12 +103,12 @@ export default function Header() {
                             <div className="hidden lg:block text-left">
                                 {authLoading ? (
                                     <>
-                                        <div className="h-3.5 w-24 bg-secondary-700 rounded animate-pulse mb-1" />
-                                        <div className="h-3 w-32 bg-secondary-700 rounded animate-pulse" />
+                                        <div className="h-3.5 w-24 bg-surface-overlay rounded animate-pulse mb-1" />
+                                        <div className="h-3 w-32 bg-surface-overlay rounded animate-pulse" />
                                     </>
                                 ) : (
                                     <>
-                                        <p className="text-sm font-semibold text-text-inverse group-hover:text-primary-400 transition-colors leading-tight">
+                                        <p className="text-sm font-semibold text-text-primary group-hover:text-primary-500 transition-colors leading-tight">
                                             {displayName}
                                         </p>
                                         <p className="text-xs text-text-muted leading-tight">
@@ -125,7 +125,7 @@ export default function Header() {
                                 viewBox="0 0 24 24"
                                 strokeWidth={2}
                                 stroke="currentColor"
-                                className={`hidden sm:block w-4 h-4 text-text-muted group-hover:text-text-inverse transition-all duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                                className={`hidden sm:block w-4 h-4 text-text-muted group-hover:text-text-primary transition-all duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
                             >
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                             </svg>
