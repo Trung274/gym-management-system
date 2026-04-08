@@ -16,12 +16,17 @@ const { protect, checkPermission } = require('../middleware/auth');
  *   get:
  *     summary: Get all trainers (Public)
  *     tags: [Trainers]
- *     parameters:
  *       - in: query
  *         name: specialization
  *         schema:
  *           type: string
  *         description: Filter by specialization (e.g. yoga, strength, cardio)
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [active, inactive, all]
+ *         description: Filter by trainer status (default is active for public view)
  *     responses:
  *       200:
  *         description: List of active trainers

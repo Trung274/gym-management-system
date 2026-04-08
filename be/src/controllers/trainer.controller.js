@@ -8,7 +8,12 @@ const ErrorResponse = require('../utils/errorResponse');
 // @route   GET /api/v1/trainers
 // @access  Public
 exports.getTrainers = asyncHandler(async (req, res, next) => {
-  const filter = { status: 'active' };
+  const filter = {};
+  if (req.query.status && req.query.status !== 'all') {
+    filter.status = req.query.status;
+  } else if (!req.query.status) {
+    filter.status = 'active'; // Default to active for public access
+  }
 
   // Filter by specialization
   if (req.query.specialization) {
