@@ -28,7 +28,6 @@ const roleSchema = new mongoose.Schema({
 });
 
 // Index cho performance
-roleSchema.index({ name: 1 });
 
 // Populate permissions khi query
 roleSchema.pre(/^find/, function(next) {

@@ -64,7 +64,6 @@ const trainerSchema = new mongoose.Schema({
 });
 
 // Indexes
-trainerSchema.index({ user: 1 });
 trainerSchema.index({ status: 1 });
 
 // Auto-populate user on find queries

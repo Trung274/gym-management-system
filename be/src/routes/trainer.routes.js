@@ -16,6 +16,7 @@ const { protect, checkPermission } = require('../middleware/auth');
  *   get:
  *     summary: Get all trainers (Public)
  *     tags: [Trainers]
+ *     parameters:
  *       - in: query
  *         name: specialization
  *         schema:

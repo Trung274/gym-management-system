@@ -63,7 +63,6 @@ const memberSchema = new mongoose.Schema({
 });
 
 // Indexes
-memberSchema.index({ user: 1 });
 memberSchema.index({ status: 1 });
 memberSchema.index({ subscriptionPlan: 1 });
 
