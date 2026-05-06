@@ -44,6 +44,7 @@ export const config = {
     '/plans/:path*',
     '/staff/:path*',
     '/facility/:path*',
+    '/equipment/:path*',
     '/login',
   ],
 };
