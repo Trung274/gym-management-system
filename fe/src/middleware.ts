@@ -8,7 +8,8 @@ const PROTECTED_PREFIXES = [
   '/classes',
   '/plans',
   '/staff',
-  '/facility',
+  '/trainers',
+  '/equipment',
 ];
 
 // Routes chỉ dành cho khách (chưa đăng nhập)
@@ -43,7 +44,7 @@ export const config = {
     '/classes/:path*',
     '/plans/:path*',
     '/staff/:path*',
-    '/facility/:path*',
+    '/trainers/:path*',
     '/equipment/:path*',
     '/login',
   ],

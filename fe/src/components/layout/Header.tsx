@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/src/hooks/useAuth';
 import { useTheme } from '@/src/components/providers/ThemeProvider';
+import { Sun, Moon, ChevronDown, LogOut, Dumbbell } from 'lucide-react';
 
 export default function Header() {
     const { user, logout, isLoading: authLoading } = useAuth();
@@ -46,10 +47,7 @@ export default function Header() {
                 {/* Left Section — Brand + Title */}
                 <div className="flex items-center gap-3">
                     <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-500 shadow shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-white">
-                            <path d="M6.5 6.5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v3.5H13V6.5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1V14h-3.5v3.5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-11Z" />
-                            <path d="M4 9.5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1v-5H4ZM19 9.5h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-5Z" />
-                        </svg>
+                        <Dumbbell size={16} className="text-white" />
                     </div>
                     <h2 className="text-lg md:text-xl font-bold text-text-primary">Dashboard</h2>
                 </div>
@@ -64,15 +62,9 @@ export default function Header() {
                         title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
                     >
                         {theme === 'dark' ? (
-                            // Sun icon — switch to light
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
-                            </svg>
+                            <Sun size={20} />
                         ) : (
-                            // Moon icon — switch to dark
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-                            </svg>
+                            <Moon size={20} />
                         )}
                     </button>
 
@@ -119,16 +111,10 @@ export default function Header() {
                             </div>
 
                             {/* Chevron */}
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={2}
-                                stroke="currentColor"
-                                className={`hidden sm:block w-4 h-4 text-text-muted group-hover:text-text-primary transition-all duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
+                            <ChevronDown
+                                size={16}
+                                className={`hidden sm:block text-text-muted group-hover:text-text-primary transition-all duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                            />
                         </button>
 
                         {/* Dropdown Menu */}
@@ -153,9 +139,7 @@ export default function Header() {
                                             className="w-full group flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-danger-500/10 transition-all duration-200 disabled:opacity-50 cursor-pointer"
                                         >
                                             <div className="p-1.5 bg-danger-500/10 rounded-md group-hover:bg-danger-500/20 transition-all">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 text-danger-500">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-                                                </svg>
+                                                <LogOut size={16} className="text-danger-500" />
                                             </div>
                                             <div className="flex-1 text-left">
                                                 <p className="text-sm font-medium text-text-primary group-hover:text-danger-500 transition-colors">
