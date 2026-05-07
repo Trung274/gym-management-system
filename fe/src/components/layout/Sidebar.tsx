@@ -13,17 +13,19 @@ import {
     Wrench,
     ChevronLeft,
     Dumbbell,
+    Users2,
 } from 'lucide-react';
 
 // ─── Nav Items ────────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-    { label: 'Dashboard',        href: '/dashboard', Icon: LayoutDashboard },
-    { label: 'Hội viên',         href: '/members',   Icon: Users },
-    { label: 'Lịch đặt PT',      href: '/classes',   Icon: CalendarDays },
-    { label: 'Gói tập',          href: '/plans',     Icon: ClipboardList },
-    { label: 'Nhân viên',        href: '/staff',     Icon: Briefcase },
-    { label: 'Huấn luyện viên',  href: '/trainers',  Icon: UserCheck },
-    { label: 'Thiết bị',         href: '/equipment', Icon: Wrench },
+    { label: 'Dashboard',        href: '/dashboard',    Icon: LayoutDashboard },
+    { label: 'Hội viên',         href: '/members',      Icon: Users },
+    { label: 'Lịch đặt PT',      href: '/bookings',     Icon: CalendarDays },
+    { label: 'Lớp học nhóm',     href: '/group-classes', Icon: Users2 },
+    { label: 'Gói tập',          href: '/plans',        Icon: ClipboardList },
+    { label: 'Nhân viên',        href: '/staff',        Icon: Briefcase },
+    { label: 'Huấn luyện viên',  href: '/trainers',     Icon: UserCheck },
+    { label: 'Thiết bị',         href: '/equipment',    Icon: Wrench },
 ] as const;
 
 // ─── Component ───────────────────────────────────────────────────────────────
