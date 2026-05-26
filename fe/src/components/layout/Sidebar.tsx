@@ -14,6 +14,7 @@ import {
     ChevronLeft,
     Dumbbell,
     Users2,
+    ScanLine,
 } from 'lucide-react';
 
 // ─── Nav Items ────────────────────────────────────────────────────────────────
@@ -26,6 +27,7 @@ const NAV_ITEMS = [
     { label: 'Nhân viên',        href: '/staff',        Icon: Briefcase },
     { label: 'Huấn luyện viên',  href: '/trainers',     Icon: UserCheck },
     { label: 'Thiết bị',         href: '/equipment',    Icon: Wrench },
+    { label: 'Check-in',          href: '/checkins',     Icon: ScanLine },
 ] as const;
 
 // ─── Component ───────────────────────────────────────────────────────────────
