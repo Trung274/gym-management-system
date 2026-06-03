@@ -66,6 +66,7 @@ app.use(`/api/${API_VERSION}/gym-info`, require('./routes/gymInfo.routes'));
 app.use(`/api/${API_VERSION}/equipment`, require('./routes/equipment.routes'));
 app.use(`/api/${API_VERSION}/classes`, require('./routes/class.routes'));
 app.use(`/api/${API_VERSION}/checkins`, require('./routes/checkin.routes'));
+app.use(`/api/${API_VERSION}/dashboard`, require('./routes/dashboard.routes'));
 
 // Root Route
 app.get('/', (req, res) => {

@@ -17,6 +17,7 @@
     "seed:equipment": "node src/config/seedEquipmentPermissions.js",
     "seed:classes": "node src/config/seedClassPermissions.js",
     "seed:checkins": "node src/config/seedCheckinPermissions.js",
+    "seed:dashboard": "node src/config/seedDashboardPermission.js",
     "seed:all": "node src/config/seedAll.js"
   },
   "keywords": ["nodejs", "express", "mongodb", "jwt", "swagger"],

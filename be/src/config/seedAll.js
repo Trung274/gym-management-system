@@ -12,6 +12,7 @@
  *   8. equipment   — adds equipment permissions, seeds 5 equipment items
  *   9. classes     — adds class permissions, seeds 3 classes
  *  10. checkins    — adds check-in permissions
+ *  11. dashboard   — adds dashboard:view permission
  */
 
 require('dotenv').config();
@@ -28,6 +29,7 @@ const seeds = [
   'seed:equipment',
   'seed:classes',
   'seed:checkins',
+  'seed:dashboard',
 ];
 
 console.log('🚀 Running all seeds in order...\n');
