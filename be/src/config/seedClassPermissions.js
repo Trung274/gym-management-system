@@ -2,6 +2,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
+require('../models/Trainer.model'); // required by Class pre-hook populate
 const Class = require('../models/Class.model');
 
 mongoose.connect(process.env.MONGODB_URI)
