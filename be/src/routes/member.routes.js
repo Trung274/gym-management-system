@@ -58,6 +58,57 @@ router.get('/', protect, checkPermission('members', 'list'), memberController.ge
 
 /**
  * @swagger
+ * /api/v1/members/me:
+ *   get:
+ *     summary: Get my member profile (Protected)
+ *     tags: [Members]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user's member profile with subscriptionPlan populated
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: No member profile found for your account
+ */
+router.get('/me', protect, memberController.getMemberProfile);
+
+/**
+ * @swagger
+ * /api/v1/members/me:
+ *   put:
+ *     summary: Update my member profile (Protected)
+ *     tags: [Members]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               phone:
+ *                 type: string
+ *                 example: "0912345678"
+ *               emergencyContact:
+ *                 type: string
+ *                 example: "Nguyen Van A - 0911111111"
+ *               notes:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Profile updated
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: No member profile found for your account
+ */
+router.put('/me', protect, memberController.updateMemberProfile);
+
+
+/**
+ * @swagger
  * /api/v1/members/{id}:
  *   get:
  *     summary: "Get member by ID (Admin, Manager)"

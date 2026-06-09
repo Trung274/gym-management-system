@@ -5,6 +5,43 @@ const SubscriptionPlan = require('../models/SubscriptionPlan.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
 
+// @desc    Get current member's own profile
+// @route   GET /api/v1/members/me
+// @access  Private (any logged-in user with a member profile)
+exports.getMemberProfile = asyncHandler(async (req, res, next) => {
+  const member = await Member.findOne({ user: req.user._id });
+
+  if (!member) {
+    return next(new ErrorResponse('No member profile found for your account', 404));
+  }
+
+  res.status(200).json({ success: true, data: member });
+});
+
+// @desc    Update current member's own profile
+// @route   PUT /api/v1/members/me
+// @access  Private (any logged-in user with a member profile)
+exports.updateMemberProfile = asyncHandler(async (req, res, next) => {
+  // Members can only update limited personal fields
+  const allowedFields = ['phone', 'emergencyContact', 'notes'];
+  const updates = {};
+  allowedFields.forEach(f => {
+    if (req.body[f] !== undefined) updates[f] = req.body[f];
+  });
+
+  const member = await Member.findOneAndUpdate(
+    { user: req.user._id },
+    updates,
+    { new: true, runValidators: true }
+  );
+
+  if (!member) {
+    return next(new ErrorResponse('No member profile found for your account', 404));
+  }
+
+  res.status(200).json({ success: true, data: member });
+});
+
 // @desc    Get all members (paginated, filterable)
 // @route   GET /api/v1/members
 // @access  Private (Admin, Manager)
