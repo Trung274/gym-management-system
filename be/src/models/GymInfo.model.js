@@ -1,25 +1,5 @@
 const mongoose = require('mongoose');
 
-const openingHoursSchema = new mongoose.Schema({
-  dayOfWeek: {
-    type: String,
-    enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-    required: true
-  },
-  openTime: {
-    type: String,
-    required: true
-  },
-  closeTime: {
-    type: String,
-    required: true
-  },
-  isClosed: {
-    type: Boolean,
-    default: false
-  }
-}, { _id: false });
-
 const gymInfoSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -59,12 +39,13 @@ const gymInfoSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  openingHours: [openingHoursSchema],
+  openingHours: {
+    type: String,
+    trim: true
+  },
   socialLinks: {
-    facebook: { type: String, trim: true },
-    instagram: { type: String, trim: true },
-    youtube: { type: String, trim: true },
-    tiktok: { type: String, trim: true }
+    type: String,
+    trim: true
   },
   established: {
     type: Number

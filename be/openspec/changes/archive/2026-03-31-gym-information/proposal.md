@@ -18,8 +18,8 @@ Cần một module singleton để Admin quản lý hồ sơ phòng gym và FE/p
   - `website` — website
   - `logoUrl` — URL logo
   - `coverImageUrl` — URL ảnh bìa
-  - `openingHours` — array object `{ dayOfWeek, openTime, closeTime, isClosed }`
-  - `socialLinks` — object `{ facebook, instagram, youtube, tiktok }`
+  - `openingHours` — string mô tả giờ mở cửa
+  - `socialLinks` — string mô tả các liên kết mạng xã hội
   - `established` — năm thành lập
 
 - API `/api/v1/gym-info`:

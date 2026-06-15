@@ -22,8 +22,8 @@ Pattern sử dụng: `findOneAndUpdate` với `upsert: true` để đảm bảo 
 ### Decision: Singleton via `upsert` thay vì enforce 1 document ở schema level
 **Lý do**: Mongoose không có built-in singleton enforcement. Dùng `findOneAndUpdate({}, data, { upsert: true, new: true })` — đơn giản, không cần custom validator.
 
-### Decision: `openingHours` là array of object thay vì object keyed by day
-**Lý do**: Array dễ render hơn ở FE (map qua từng ngày), dễ validate từng ngày riêng, và linh hoạt hơn nếu sau này có lịch đặc biệt (nghỉ lễ).
+### Decision: `openingHours` và `socialLinks` là String thay vì cấu trúc phức tạp
+**Lý do**: Giúp đơn giản hóa cấu trúc dữ liệu trong cơ sở dữ liệu và giảm bớt các trường phức tạp khi render hoặc tạo form chỉnh sửa ở Frontend.
 
 ## Affected Files
 

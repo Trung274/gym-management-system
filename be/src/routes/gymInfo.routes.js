@@ -50,33 +50,11 @@ const { protect, checkPermission } = require('../middleware/auth');
  *                     coverImageUrl:
  *                       type: string
  *                     openingHours:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           dayOfWeek:
- *                             type: string
- *                             example: "Monday"
- *                           openTime:
- *                             type: string
- *                             example: "06:00"
- *                           closeTime:
- *                             type: string
- *                             example: "22:00"
- *                           isClosed:
- *                             type: boolean
- *                             example: false
+ *                       type: string
+ *                       example: "Monday - Friday: 06:00 - 22:00, Saturday: 08:00 - 20:00, Sunday: 08:00 - 18:00"
  *                     socialLinks:
- *                       type: object
- *                       properties:
- *                         facebook:
- *                           type: string
- *                         instagram:
- *                           type: string
- *                         youtube:
- *                           type: string
- *                         tiktok:
- *                           type: string
+ *                       type: string
+ *                       example: "Facebook: https://facebook.com/fitnesscenter"
  *                     established:
  *                       type: number
  *                       example: 2020
@@ -119,41 +97,11 @@ router.get('/', gymInfoController.getGymInfo);
  *               coverImageUrl:
  *                 type: string
  *               openingHours:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     dayOfWeek:
- *                       type: string
- *                       enum: [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
- *                     openTime:
- *                       type: string
- *                       example: "06:00"
- *                     closeTime:
- *                       type: string
- *                       example: "22:00"
- *                     isClosed:
- *                       type: boolean
- *                 example:
- *                   - dayOfWeek: "Monday"
- *                     openTime: "06:00"
- *                     closeTime: "22:00"
- *                     isClosed: false
- *                   - dayOfWeek: "Tuesday"
- *                     openTime: "06:00"
- *                     closeTime: "22:00"
- *                     isClosed: false
+ *                 type: string
+ *                 example: "Monday - Friday: 06:00 - 22:00, Saturday: 08:00 - 20:00, Sunday: 08:00 - 18:00"
  *               socialLinks:
- *                 type: object
- *                 properties:
- *                   facebook:
- *                     type: string
- *                   instagram:
- *                     type: string
- *                   youtube:
- *                     type: string
- *                   tiktok:
- *                     type: string
+ *                 type: string
+ *                 example: "Facebook: https://facebook.com/fitnesscenter"
  *               established:
  *                 type: number
  *     responses:

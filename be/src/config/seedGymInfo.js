@@ -72,31 +72,16 @@ const seedGymInfo = async () => {
       phone: '+1234567890',
       email: 'info@fitnesscenter.com',
       website: 'https://fitnesscenter.com',
-      openingHours: [
-        { dayOfWeek: 'Monday', openTime: '06:00', closeTime: '22:00', isClosed: false },
-        { dayOfWeek: 'Tuesday', openTime: '06:00', closeTime: '22:00', isClosed: false },
-        { dayOfWeek: 'Wednesday', openTime: '06:00', closeTime: '22:00', isClosed: false },
-        { dayOfWeek: 'Thursday', openTime: '06:00', closeTime: '22:00', isClosed: false },
-        { dayOfWeek: 'Friday', openTime: '06:00', closeTime: '22:00', isClosed: false },
-        { dayOfWeek: 'Saturday', openTime: '08:00', closeTime: '20:00', isClosed: false },
-        { dayOfWeek: 'Sunday', openTime: '08:00', closeTime: '18:00', isClosed: false }
-      ],
-      socialLinks: {
-        facebook: '',
-        instagram: '',
-        youtube: '',
-        tiktok: ''
-      },
+      openingHours: 'Monday - Friday: 06:00 - 22:00, Saturday: 08:00 - 20:00, Sunday: 08:00 - 18:00',
+      socialLinks: 'Facebook: https://facebook.com/fitnesscenter, Instagram: https://instagram.com/fitnesscenter',
       established: 2020
     };
 
-    const existingGymInfo = await GymInfo.findOne();
-    if (!existingGymInfo) {
-      await GymInfo.create(defaultGymInfo);
-      console.log('\n  ✓ Created default GymInfo document');
-    } else {
-      console.log('\n  – GymInfo document already exists');
-    }
+    // Since schema changed, delete existing gym info if any to apply new structure
+    await GymInfo.deleteMany({});
+    
+    await GymInfo.create(defaultGymInfo);
+    console.log('\n  ✓ Created default GymInfo document');
 
     console.log('\n🎉 Done!');
     console.log('   Roles with gym permissions: admin (read+update), manager (read)');
