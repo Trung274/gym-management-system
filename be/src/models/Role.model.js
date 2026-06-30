@@ -33,7 +33,7 @@ const roleSchema = new mongoose.Schema({
 roleSchema.pre(/^find/, function(next) {
   this.populate({
     path: 'permissions',
-    select: 'resource action description'
+    select: 'resource action description isActive'
   });
   next();
 });

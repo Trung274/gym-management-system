@@ -73,8 +73,8 @@ export interface GymInfo {
   website?:      string;
   logoUrl?:      string;
   coverImageUrl?: string;
-  openingHours?: OpeningHour[];
-  socialLinks?:  SocialLinks;
+  openingHours?: string | OpeningHour[];
+  socialLinks?:  string | SocialLinks;
   established?:  number;
 }
 

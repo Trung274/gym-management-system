@@ -1,5 +1,7 @@
+const mongoose = require('mongoose');
 const CheckinLog = require('../models/CheckinLog.model');
 const Member = require('../models/Member.model');
+const User = require('../models/User.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
 
@@ -13,9 +15,29 @@ exports.recordCheckin = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('memberId is required', 400));
   }
 
-  const member = await Member.findById(memberId);
+  let member;
+  const inputStr = memberId.trim();
+
+  // 1. Try finding by ObjectId if valid
+  if (mongoose.Types.ObjectId.isValid(inputStr)) {
+    member = await Member.findById(inputStr);
+  }
+
+  // 2. If not found, try finding by phone number
   if (!member) {
-    return next(new ErrorResponse('Member not found', 404));
+    member = await Member.findOne({ phone: inputStr });
+  }
+
+  // 3. If still not found, try finding by User email
+  if (!member) {
+    const user = await User.findOne({ email: inputStr.toLowerCase() });
+    if (user) {
+      member = await Member.findOne({ user: user._id });
+    }
+  }
+
+  if (!member) {
+    return next(new ErrorResponse('Không tìm thấy hội viên tương ứng với ID, Email hoặc SĐT đã nhập', 404));
   }
 
   if (member.status === 'suspended') {
@@ -26,14 +48,14 @@ exports.recordCheckin = asyncHandler(async (req, res, next) => {
 
   // Create log
   const log = await CheckinLog.create({
-    member: memberId,
+    member: member._id,
     checkinAt,
     note,
     recordedBy: req.user._id
   });
 
   // Update Member.lastCheckIn (backward compat)
-  await Member.findByIdAndUpdate(memberId, { lastCheckIn: checkinAt });
+  await Member.findByIdAndUpdate(member._id, { lastCheckIn: checkinAt });
 
   const populated = await CheckinLog.findById(log._id);
   res.status(201).json({ success: true, data: populated });

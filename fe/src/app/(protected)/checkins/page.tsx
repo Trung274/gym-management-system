@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, X, AlertCircle, ClipboardCheck } from 'lucide-react';
+import { Plus, X, AlertCircle, ClipboardCheck, Search, Check, Loader2 } from 'lucide-react';
 import { useCheckinStore } from '@/src/stores/checkinStore';
 import { peakHourLabel } from '@/src/lib/checkinHelpers';
 import { toast } from '@/src/utils/toast';
+import { getMembers } from '@/src/lib/memberService';
+import type { Member } from '@/src/types/member.types';
 
 // ─── Record modal ─────────────────────────────────────────────────────────────
 function RecordModal({ open, onClose, onSubmit, isLoading }: {
@@ -12,22 +14,62 @@ function RecordModal({ open, onClose, onSubmit, isLoading }: {
   onSubmit: (memberId: string, note?: string) => Promise<void>;
   isLoading: boolean;
 }) {
-  const [memberId, setMemberId] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<Member[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [note,     setNote]     = useState('');
   const [err,      setErr]      = useState('');
 
-  useEffect(() => { if (!open) { setMemberId(''); setNote(''); setErr(''); } }, [open]);
+  useEffect(() => {
+    if (!open) {
+      setSearchTerm('');
+      setSearchResults([]);
+      setSelectedMember(null);
+      setShowDropdown(false);
+      setNote('');
+      setErr('');
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setSearchResults([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const { members } = await getMembers({ search: searchTerm, limit: 10 });
+        setSearchResults(members);
+        setShowDropdown(true);
+      } catch (err) {
+        console.error('Lỗi tìm kiếm hội viên:', err);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!memberId.trim()) { setErr('Member ID là bắt buộc'); return; }
+    const submitVal = selectedMember ? selectedMember.id : searchTerm.trim();
+    if (!submitVal) {
+      setErr('Vui lòng chọn hoặc nhập thông tin hội viên');
+      return;
+    }
     setErr('');
-    await onSubmit(memberId.trim(), note.trim() || undefined);
+    await onSubmit(submitVal, note.trim() || undefined);
   };
 
   if (!open) return null;
 
-  const inp = `w-full px-3 py-2.5 rounded-xl border border-surface-border bg-surface-raised
+  const inp = `w-full pl-9 pr-3 py-2.5 rounded-xl border border-surface-border bg-surface-raised
     text-sm text-text-primary placeholder-text-muted outline-none
     focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all`;
 
@@ -42,16 +84,72 @@ function RecordModal({ open, onClose, onSubmit, isLoading }: {
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">Member ID <span className="text-danger-500">*</span></label>
-            <input type="text" value={memberId} onChange={e => setMemberId(e.target.value)}
-              placeholder="ObjectId của thành viên..." className={inp} autoFocus />
-            {err && <p className="text-xs text-danger-500">{err}</p>}
+          <div className="flex flex-col gap-1.5 relative">
+            <label className="text-xs font-semibold text-text-secondary">Thông tin hội viên <span className="text-danger-500">*</span></label>
+            
+            {selectedMember ? (
+              <div className="flex items-center justify-between p-3 rounded-xl border border-primary-500/30 bg-primary-500/5">
+                <div className="flex flex-col">
+                  <p className="text-sm font-semibold text-text-primary">{selectedMember.name}</p>
+                  <p className="text-xs text-text-muted">{selectedMember.phone || selectedMember.email}</p>
+                  <span className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded-full mt-1 w-max ${
+                    selectedMember.status === 'active' ? 'bg-success-500/15 text-success-500' :
+                    selectedMember.status === 'suspended' ? 'bg-danger-500/15 text-danger-500' : 'bg-warning-500/15 text-warning-500'
+                  }`}>
+                    {selectedMember.status === 'active' ? 'Đang hoạt động' : 
+                     selectedMember.status === 'suspended' ? 'Bị khóa' : 'Hết hạn'}
+                  </span>
+                </div>
+                <button type="button" onClick={() => setSelectedMember(null)}
+                  className="text-xs text-danger-500 hover:underline hover:text-danger-600 font-semibold cursor-pointer">
+                  Thay đổi
+                </button>
+              </div>
+            ) : (
+              <div className="relative">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+                  placeholder="Nhập tên, số điện thoại hoặc email..." className={inp} autoFocus />
+                {searching && (
+                  <Loader2 size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted animate-spin" />
+                )}
+
+                {showDropdown && searchResults.length > 0 && (
+                  <div className="absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto z-10 bg-surface-base border border-surface-border rounded-xl shadow-xl">
+                    {searchResults.map((m) => (
+                      <div key={m.id} onClick={() => {
+                        setSelectedMember(m);
+                        setSearchTerm('');
+                        setShowDropdown(false);
+                      }} className="flex flex-col px-4 py-2.5 hover:bg-surface-raised cursor-pointer border-b border-surface-border last:border-0 transition-colors">
+                        <div className="flex justify-between items-center">
+                          <p className="text-sm font-semibold text-text-primary">{m.name}</p>
+                          <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
+                            m.status === 'active' ? 'bg-success-500/10 text-success-500' : 'bg-warning-500/10 text-warning-500'
+                          }`}>
+                            {m.status === 'active' ? 'Đang hoạt động' : 'Hết hạn'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-text-muted mt-0.5">{m.phone || 'Không có SĐT'} • {m.email}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {showDropdown && searchResults.length === 0 && !searching && (
+                  <div className="absolute left-0 right-0 mt-1 p-3 z-10 bg-surface-base border border-surface-border rounded-xl shadow-xl text-center text-xs text-text-muted">
+                    Không tìm thấy hội viên trùng khớp
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {err && <p className="text-xs text-danger-500 mt-1">{err}</p>}
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-text-secondary">Ghi chú (tùy chọn)</label>
             <input type="text" value={note} onChange={e => setNote(e.target.value)}
-              placeholder="VD: Khách vãng lai..." className={inp} />
+              placeholder="VD: Khách vãng lai..." className="w-full px-3 py-2.5 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all" />
           </div>
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose}
@@ -60,7 +158,7 @@ function RecordModal({ open, onClose, onSubmit, isLoading }: {
             </button>
             <button type="submit" disabled={isLoading}
               className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 cursor-pointer transition-all flex items-center justify-center gap-2">
-              {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
+              {isLoading && <Loader2 size={16} className="animate-spin" />}
               Ghi check-in
             </button>
           </div>

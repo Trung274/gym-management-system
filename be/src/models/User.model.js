@@ -103,7 +103,7 @@ userSchema.methods.hasPermission = function(resource, action) {
   return this.role.permissions.some(permission => 
     permission.resource === resource && 
     permission.action === action &&
-    permission.isActive
+    permission.isActive !== false
   );
 };
 

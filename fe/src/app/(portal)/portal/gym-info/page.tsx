@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { getGymInfo } from '@/src/lib/gymInfoService';
 import { AlertCircle, MapPin, Phone, Mail, Globe, Clock } from 'lucide-react';
-import type { GymInfo } from '@/src/types/member-portal.types';
+import type { GymInfo, OpeningHour } from '@/src/types/member-portal.types';
 import { DAY_OF_WEEK_VI } from '@/src/types/member-portal.types';
 
 export default function PortalGymInfoPage() {
@@ -33,6 +33,67 @@ export default function PortalGymInfoPage() {
   if (!info) return null;
 
   const todayDOW = new Date().toLocaleDateString('en-US', { weekday: 'long' }); // "Monday"
+
+  // Parse social links dynamically (supports both string and object formats)
+  let socialLinksList: { name: string; url: string }[] = [];
+  if (info.socialLinks) {
+    if (typeof info.socialLinks === 'string') {
+      info.socialLinks.split(',').forEach((item: string) => {
+        const index = item.indexOf(':');
+        if (index !== -1) {
+          const name = item.substring(0, index).trim();
+          const url = item.substring(index + 1).trim();
+          if (name && url) {
+            socialLinksList.push({ name, url });
+          }
+        } else if (item.trim()) {
+          socialLinksList.push({ name: 'Link', url: item.trim() });
+        }
+      });
+    } else if (typeof info.socialLinks === 'object') {
+      const obj = info.socialLinks as Record<string, string>;
+      Object.entries(obj).forEach(([key, val]) => {
+        if (val) {
+          socialLinksList.push({ 
+            name: key.charAt(0).toUpperCase() + key.slice(1), 
+            url: val 
+          });
+        }
+      });
+    }
+  }
+
+  // Parse opening hours dynamically (supports both string and array formats)
+  let openingHoursContent: React.ReactNode = null;
+  if (info.openingHours) {
+    if (typeof info.openingHours === 'string') {
+      const hoursList = info.openingHours.split(',').map((item: string) => item.trim()).filter(Boolean);
+      openingHoursContent = (
+        <div className="flex flex-col gap-2">
+          {hoursList.map((h: string, i: number) => (
+            <div key={i} className="text-sm text-text-secondary py-2 border-b border-surface-border last:border-0">
+              {h}
+            </div>
+          ))}
+        </div>
+      );
+    } else if (Array.isArray(info.openingHours)) {
+      openingHoursContent = (
+        <div className="flex flex-col gap-0.5">
+          {info.openingHours.map((h: OpeningHour) => {
+            const isToday = h.dayOfWeek === todayDOW;
+            return (
+              <div key={h.dayOfWeek}
+                className={`flex justify-between py-2 text-sm border-b border-surface-border last:border-0 ${isToday ? 'font-bold text-primary-500' : 'text-text-secondary'}`}>
+                <span>{DAY_OF_WEEK_VI[h.dayOfWeek] ?? h.dayOfWeek}{isToday && ' (hôm nay)'}</span>
+                <span>{h.isClosed ? <span className="text-danger-500">Đóng cửa</span> : `${h.openTime} – ${h.closeTime}`}</span>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -91,35 +152,25 @@ export default function PortalGymInfoPage() {
           )}
         </div>
         {/* Social links */}
-        {info.socialLinks && (
-          <div className="flex gap-3 mt-4">
-            {info.socialLinks.facebook  && <a href={info.socialLinks.facebook}  target="_blank" rel="noreferrer" className="text-xs text-primary-500 hover:underline">Facebook</a>}
-            {info.socialLinks.instagram && <a href={info.socialLinks.instagram} target="_blank" rel="noreferrer" className="text-xs text-primary-500 hover:underline">Instagram</a>}
-            {info.socialLinks.youtube   && <a href={info.socialLinks.youtube}   target="_blank" rel="noreferrer" className="text-xs text-primary-500 hover:underline">YouTube</a>}
-            {info.socialLinks.tiktok    && <a href={info.socialLinks.tiktok}    target="_blank" rel="noreferrer" className="text-xs text-primary-500 hover:underline">TikTok</a>}
+        {socialLinksList.length > 0 && (
+          <div className="flex flex-wrap gap-x-4 gap-y-2 mt-4 pt-4 border-t border-surface-border">
+            {socialLinksList.map((link, idx) => (
+              <a key={idx} href={link.url} target="_blank" rel="noreferrer" className="text-xs text-primary-500 hover:underline">
+                {link.name}
+              </a>
+            ))}
           </div>
         )}
       </div>
 
       {/* Opening hours */}
-      {info.openingHours && info.openingHours.length > 0 && (
+      {openingHoursContent && (
         <div className="bg-surface-base border border-surface-border rounded-2xl p-5">
           <div className="flex items-center gap-2 mb-4">
             <Clock size={15} className="text-primary-500" />
             <h2 className="text-sm font-bold text-text-primary">Giờ mở cửa</h2>
           </div>
-          <div className="flex flex-col gap-0.5">
-            {info.openingHours.map((h) => {
-              const isToday = h.dayOfWeek === todayDOW;
-              return (
-                <div key={h.dayOfWeek}
-                  className={`flex justify-between py-2 text-sm border-b border-surface-border last:border-0 ${isToday ? 'font-bold text-primary-500' : 'text-text-secondary'}`}>
-                  <span>{DAY_OF_WEEK_VI[h.dayOfWeek] ?? h.dayOfWeek}{isToday && ' (hôm nay)'}</span>
-                  <span>{h.isClosed ? <span className="text-danger-500">Đóng cửa</span> : `${h.openTime} – ${h.closeTime}`}</span>
-                </div>
-              );
-            })}
-          </div>
+          {openingHoursContent}
         </div>
       )}
     </div>
