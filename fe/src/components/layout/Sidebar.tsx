@@ -15,6 +15,7 @@ import {
     Dumbbell,
     Users2,
     ScanLine,
+    Building2,
 } from 'lucide-react';
 
 // ─── Nav Items ────────────────────────────────────────────────────────────────
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
     { label: 'Huấn luyện viên',  href: '/trainers',     Icon: UserCheck },
     { label: 'Thiết bị',         href: '/equipment',    Icon: Wrench },
     { label: 'Check-in',          href: '/checkins',     Icon: ScanLine },
+    { label: 'Thông tin Gym',    href: '/gym-info',     Icon: Building2 },
 ] as const;
 
 // ─── Component ───────────────────────────────────────────────────────────────

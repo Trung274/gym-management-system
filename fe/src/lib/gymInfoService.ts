@@ -6,3 +6,9 @@ export const getGymInfo = async (): Promise<GymInfo> => {
   const res = await apiClient.get<GymInfoApiResponse>('/gym-info');
   return res.data.data;
 };
+
+/** PUT /api/v1/gym-info — Private (Admin) */
+export const updateGymInfo = async (payload: Partial<GymInfo>): Promise<GymInfo> => {
+  const res = await apiClient.put<GymInfoApiResponse>('/gym-info', payload);
+  return res.data.data;
+};
