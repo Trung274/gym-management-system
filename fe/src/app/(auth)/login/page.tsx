@@ -5,22 +5,25 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from '@/src/utils/toast';
 import { useAuth } from '@/src/hooks/useAuth';
 import LoadingSpinner from '@/src/components/ui/LoadingSpinner';
+import { getHomePath } from '@/src/types/member-portal.types';
 
 // Inner component that uses useSearchParams (must be wrapped in Suspense)
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login, error, clearError, isLoading, isAuthenticated, checkAuth } = useAuth();
+  const { login, error, clearError, isLoading, isAuthenticated, checkAuth, user } = useAuth();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      router.push('/dashboard');
+    if (!isLoading && isAuthenticated && user) {
+      const home = getHomePath(user.role?.name ?? '');
+      router.push(home);
     }
-  }, [isAuthenticated, isLoading, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, isLoading]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -47,10 +50,6 @@ function LoginForm() {
     try {
       await login({ email, password, rememberMe });
       toast.success('Đăng nhập thành công!');
-      setTimeout(() => {
-        const from = searchParams.get('from') || '/dashboard';
-        router.push(from);
-      }, 500);
     } catch (error) {
       console.error('Login failed:', error);
     }

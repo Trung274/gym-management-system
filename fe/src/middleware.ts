@@ -12,6 +12,7 @@ const PROTECTED_PREFIXES = [
   '/trainers',
   '/equipment',
   '/checkins',
+  '/portal',
 ];
 
 // Routes chỉ dành cho khách (chưa đăng nhập)
@@ -50,6 +51,7 @@ export const config = {
     '/trainers/:path*',
     '/equipment/:path*',
     '/checkins/:path*',
+    '/portal/:path*',
     '/login',
   ],
 };
