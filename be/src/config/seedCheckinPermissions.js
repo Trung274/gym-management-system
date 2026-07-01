@@ -2,6 +2,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
+const CheckinLog = require('../models/CheckinLog.model');
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -9,6 +10,10 @@ mongoose.connect(process.env.MONGODB_URI)
 
 const seedCheckinPermissions = async () => {
   try {
+    console.log('🗑  Clearing checkin domain data...');
+    await CheckinLog.deleteMany({});
+    console.log('  ✓ Cleared CheckinLogs');
+
     console.log('🌱 Seeding check-in permissions...');
 
     const permsData = [

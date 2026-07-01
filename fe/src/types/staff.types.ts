@@ -1,5 +1,6 @@
 // ─── Enums / Union Types ──────────────────────────────────────────────────────
-export type RoleName = 'admin' | 'user' | 'manager' | 'member' | 'trainer';
+export type RoleName = 'admin' | 'user' | 'manager' | 'member' | 'trainer' | 'staff';
+
 
 // ─── Frontend Model (sau khi transform) ───────────────────────────────────────
 export interface StaffMember {

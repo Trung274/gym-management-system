@@ -2,6 +2,9 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
+const Member = require('../models/Member.model');
+require('../models/User.model');           // needed by Member populate
+require('../models/SubscriptionPlan.model'); // needed by Member populate
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -12,6 +15,10 @@ mongoose.connect(process.env.MONGODB_URI)
 
 const seedMemberPermissions = async () => {
   try {
+    console.log('🗑  Clearing member domain data...');
+    await Member.deleteMany({});
+    console.log('  ✓ Cleared Members');
+
     console.log('🌱 Seeding member permissions...');
 
     // 1. Upsert member permissions

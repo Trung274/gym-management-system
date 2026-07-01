@@ -10,6 +10,10 @@ mongoose.connect(process.env.MONGODB_URI)
 
 const seedEquipmentPermissions = async () => {
   try {
+    console.log('🗑  Clearing equipment domain data...');
+    await Equipment.deleteMany({});
+    console.log('  ✓ Cleared Equipment');
+
     console.log('🌱 Seeding equipment permissions...');
 
     const permsData = [

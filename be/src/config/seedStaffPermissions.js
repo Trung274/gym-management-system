@@ -67,13 +67,14 @@ const seedStaffPermissions = async () => {
         managerRole.permissions.push(...toAdd);
         await managerRole.save();
         console.log(`  ✓ Updated role: manager (+${toAdd.length} staff permission(s))`);
+
       } else {
         console.log('  – manager already has all staff permissions');
       }
     }
 
     console.log('\n🎉 Done!');
-    console.log('   Roles with staff permissions: admin, manager');
+    console.log('   Roles with staff:* permissions (quản lý): admin, manager');
     process.exit(0);
   } catch (error) {
     console.error('❌ Seed error:', error);

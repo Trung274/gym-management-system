@@ -2,6 +2,8 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
+const Trainer = require('../models/Trainer.model');
+require('../models/User.model'); // needed by Trainer populate
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -9,6 +11,10 @@ mongoose.connect(process.env.MONGODB_URI)
 
 const seedTrainerPermissions = async () => {
   try {
+    console.log('🗑  Clearing trainer domain data...');
+    await Trainer.deleteMany({});
+    console.log('  ✓ Cleared Trainers');
+
     console.log('🌱 Seeding trainer permissions...');
 
     const permsData = [

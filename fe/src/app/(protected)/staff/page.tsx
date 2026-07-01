@@ -12,19 +12,22 @@ import type {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STAFF_ROLES: { value: RoleName; label: string }[] = [
-  { value: 'admin', label: 'Quản trị viên' },
+  { value: 'admin',   label: 'Quản trị viên' },
   { value: 'manager', label: 'Quản lý' },
   { value: 'trainer', label: 'Huấn luyện viên' },
-  { value: 'user', label: 'Nhân viên' },
+  { value: 'staff',   label: 'Nhân viên' },
 ];
+
 
 const ROLE_STYLES: Record<RoleName, string> = {
   admin:   'bg-danger-500/15 text-danger-500',
   manager: 'bg-primary-500/15 text-primary-500',
   trainer: 'bg-violet-500/15 text-violet-500',
-  user:    'bg-sky-500/15 text-sky-500',
+  staff:   'bg-sky-500/15 text-sky-500',
+  user:    'bg-surface-overlay text-text-muted',
   member:  'bg-surface-overlay text-text-muted',
 };
+
 
 const AVATAR_COLORS = [
   'from-primary-400 to-primary-600',
@@ -37,7 +40,8 @@ const AVATAR_COLORS = [
 const getAvatarColor = (id: string) =>
   AVATAR_COLORS[id.charCodeAt(id.length - 1) % AVATAR_COLORS.length];
 
-const EMPTY_CREATE_FORM = { name: '', email: '', password: '', roleName: 'user' as RoleName };
+const EMPTY_CREATE_FORM = { name: '', email: '', password: '', roleName: 'staff' as RoleName };
+
 const EMPTY_EDIT_FORM = { name: '', email: '' };
 
 // ─── Staff Card ───────────────────────────────────────────────────────────────
@@ -438,12 +442,14 @@ export default function StaffPage() {
   });
 
   const stats = {
-    total: staff.length,
-    active: staff.filter((s) => s.isActive).length,
-    admin: staff.filter((s) => s.role.name === 'admin').length,
+    total:   staff.length,
+    active:  staff.filter((s) => s.isActive).length,
+    admin:   staff.filter((s) => s.role.name === 'admin').length,
     manager: staff.filter((s) => s.role.name === 'manager').length,
     trainer: staff.filter((s) => s.role.name === 'trainer').length,
+    staff:   staff.filter((s) => s.role.name === 'staff').length,
   };
+
 
   const handleCreate = useCallback(async (payload: CreateStaffPayload) => {
     setSaving(true);
@@ -518,14 +524,16 @@ export default function StaffPage() {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
           {[
-            { label: 'Tổng nhân viên', value: stats.total, color: 'text-text-primary' },
-            { label: 'Đang hoạt động', value: stats.active, color: 'text-success-500' },
-            { label: 'Quản trị viên', value: stats.admin, color: 'text-danger-500' },
-            { label: 'Quản lý', value: stats.manager, color: 'text-primary-500' },
-            { label: 'HLV', value: stats.trainer, color: 'text-violet-500' },
+            { label: 'Tổng nhân viên', value: stats.total,   color: 'text-text-primary' },
+            { label: 'Đang hoạt động',  value: stats.active,  color: 'text-success-500' },
+            { label: 'Quản trị viên',   value: stats.admin,   color: 'text-danger-500' },
+            { label: 'Quản lý',          value: stats.manager, color: 'text-primary-500' },
+            { label: 'Nhân viên',         value: stats.staff,   color: 'text-sky-500' },
+            { label: 'HLV',               value: stats.trainer, color: 'text-violet-500' },
           ].map((s) => (
+
             <div key={s.label} className="bg-surface-base border border-surface-border rounded-xl px-4 py-3 flex flex-col gap-1">
               <p className="text-xs text-text-muted">{s.label}</p>
               <p className={`text-2xl font-bold ${s.color}`}>
@@ -550,7 +558,14 @@ export default function StaffPage() {
 
           {/* Role filter */}
           <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
-            {([{ value: 'all', label: 'Tất cả' }, { value: 'admin', label: 'Admin' }, { value: 'manager', label: 'Quản lý' }, { value: 'trainer', label: 'HLV' }, { value: 'user', label: 'NV' }] as { value: RoleName | 'all'; label: string }[]).map((f) => (
+            {([
+              { value: 'all',     label: 'Tất cả' },
+              { value: 'admin',   label: 'Admin' },
+              { value: 'manager', label: 'Quản lý' },
+              { value: 'staff',   label: 'Nhân viên' },
+              { value: 'trainer', label: 'HLV' },
+            ] as { value: RoleName | 'all'; label: string }[]).map((f) => (
+
               <button key={f.value} onClick={() => setFilterRole(f.value)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer
                   ${filterRole === f.value ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'}`}>

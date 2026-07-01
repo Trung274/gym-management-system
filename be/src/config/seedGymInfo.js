@@ -68,7 +68,7 @@ const seedGymInfo = async () => {
       name: 'Fitness Center',
       tagline: 'Your Health, Our Priority',
       description: 'A modern fitness center with state-of-the-art equipment',
-      address: '123 Main Street, City, Country',
+      address: 'Tòa nhà A21, Viện Hàn Lâm Khoa học và Công nghệ Việt Nam (18 Hoàng Quốc Việt, Cầu Giấy, Hà Nội',
       phone: '+1234567890',
       email: 'info@fitnesscenter.com',
       website: 'https://fitnesscenter.com',

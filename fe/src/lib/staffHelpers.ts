@@ -2,12 +2,14 @@ import type { StaffApiData, StaffMember, RoleName } from '@/src/types/staff.type
 
 // ─── Role labels ──────────────────────────────────────────────────────────────
 const ROLE_LABELS: Record<RoleName, string> = {
-  admin: 'Quản trị viên',
+  admin:   'Quản trị viên',
   manager: 'Quản lý',
   trainer: 'Huấn luyện viên',
-  user: 'Nhân viên',
-  member: 'Hội viên',
+  staff:   'Nhân viên',
+  user:    'Người dùng',
+  member:  'Hội viên',
 };
+
 
 // ─── Initials from full name ───────────────────────────────────────────────────
 export const getInitials = (name: string): string => {

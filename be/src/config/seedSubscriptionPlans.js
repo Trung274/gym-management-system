@@ -10,6 +10,10 @@ mongoose.connect(process.env.MONGODB_URI)
 
 const seedSubscriptionPlans = async () => {
   try {
+    console.log('🗑  Clearing subscription plans...');
+    await SubscriptionPlan.deleteMany({});
+    console.log('  ✓ Cleared SubscriptionPlans');
+
     console.log('🌱 Seeding subscription plan permissions...');
 
     // 1. Upsert permissions

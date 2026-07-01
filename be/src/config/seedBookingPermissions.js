@@ -2,6 +2,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
+const Booking = require('../models/Booking.model');
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -9,6 +10,10 @@ mongoose.connect(process.env.MONGODB_URI)
 
 const seedBookingPermissions = async () => {
   try {
+    console.log('🗑  Clearing booking domain data...');
+    await Booking.deleteMany({});
+    console.log('  ✓ Cleared Bookings');
+
     console.log('🌱 Seeding booking permissions...');
 
     const permsData = [
