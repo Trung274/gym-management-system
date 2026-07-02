@@ -19,10 +19,24 @@ app.set('trust proxy', 1);
 
 // Security Middleware
 app.use(helmet());
+
+// CORS: support comma-separated origins in CORS_ORIGIN env var
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://gym-management-system-delta-five.vercel.app',
+  ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()) : []),
+  ...(process.env.RENDER_EXTERNAL_HOSTNAME ? [`https://${process.env.RENDER_EXTERNAL_HOSTNAME}`] : []),
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? [process.env.CORS_ORIGIN, `https://${process.env.RENDER_EXTERNAL_HOSTNAME}`].filter(Boolean)
-    : (process.env.CORS_ORIGIN || '*'),
+  origin: function (origin, callback) {
+    // Allow requests with no origin (Postman, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 
