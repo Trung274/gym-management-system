@@ -23,7 +23,6 @@ app.use(helmet());
 // CORS: support comma-separated origins in CORS_ORIGIN env var
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://gym-management-system-delta-five.vercel.app',
   ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()) : []),
   ...(process.env.RENDER_EXTERNAL_HOSTNAME ? [`https://${process.env.RENDER_EXTERNAL_HOSTNAME}`] : []),
 ].filter(Boolean);

@@ -1,14 +1,17 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, Pencil, X, ChevronDown, AlertCircle } from 'lucide-react';
+import { Plus, Pencil, X, ChevronDown, AlertCircle, Search, Loader2 } from 'lucide-react';
 import { useClassStore } from '@/src/stores/classStore';
 import { DAY_LABELS, CATEGORY_LABELS, STATUS_LABELS } from '@/src/lib/classHelpers';
 import { toast } from '@/src/utils/toast';
+import { getTrainers } from '@/src/lib/trainerService';
+import type { Trainer } from '@/src/types/trainer.types';
 import type {
   GymClass, ClassStatus, ClassCategory,
   CreateClassPayload, UpdateClassPayload, ScheduleItem,
 } from '@/src/types/class.types';
+
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUS_STYLES: Record<ClassStatus, string> = {
@@ -101,6 +104,32 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
 }) {
   const [form, setForm] = useState<any>({ ...EMPTY_FORM });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedTrainer, setSelectedTrainer] = useState<Trainer | null>(null);
+  const [allTrainers, setAllTrainers] = useState<Trainer[]>([]);
+  const [loadingTrainers, setLoadingTrainers] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setLoadingTrainers(true);
+      getTrainers({ status: 'active' })
+        .then(res => {
+          setAllTrainers(res);
+        })
+        .catch(err => {
+          console.error('Lỗi tải danh sách HLV:', err);
+        })
+        .finally(() => {
+          setLoadingTrainers(false);
+        });
+    } else {
+      setSearchTerm('');
+      setShowDropdown(false);
+      setSelectedTrainer(null);
+    }
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -115,11 +144,28 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
         endDate: editing.endDate ? editing.endDate.substring(0, 10) : '',
         notes: editing.notes ?? '',
       });
+      if (editing.trainer) {
+        setSelectedTrainer({
+          id: editing.trainer._id,
+          name: editing.trainer.user?.name ?? 'Huấn luyện viên',
+          loginEmail: editing.trainer.user?.email ?? '',
+          specializations: editing.trainer.specializations ?? [],
+          experienceYears: editing.trainer.experienceYears ?? 0,
+        } as any);
+      } else {
+        setSelectedTrainer(null);
+      }
     } else {
       setForm({ ...EMPTY_FORM });
+      setSelectedTrainer(null);
     }
     setErrors({});
   }, [open, editing]);
+
+  const filteredTrainers = allTrainers.filter(t => 
+    t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    t.loginEmail.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const set = (k: string, v: any) => setForm((f: any) => ({ ...f, [k]: v }));
 
@@ -187,9 +233,61 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
               <label className="text-xs font-semibold text-text-secondary">Sức chứa</label>
               <input type="number" min="1" value={form.capacity} onChange={(e) => set('capacity', e.target.value)} placeholder="20" className={inp('capacity')} />
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">ID Huấn luyện viên</label>
-              <input type="text" value={form.trainer} onChange={(e) => set('trainer', e.target.value)} placeholder="ObjectId của HLV..." className={inp('trainer')} />
+            <div className="flex flex-col gap-1.5 relative">
+              <label className="text-xs font-semibold text-text-secondary">Huấn luyện viên</label>
+              {selectedTrainer ? (
+                <div className="flex items-center justify-between p-2 px-3 rounded-xl border border-primary-500/30 bg-primary-500/5">
+                  <div className="flex flex-col">
+                    <p className="text-sm font-semibold text-text-primary">{selectedTrainer.name}</p>
+                    <p className="text-xs text-text-muted">{selectedTrainer.loginEmail}</p>
+                  </div>
+                  <button type="button" onClick={() => { setSelectedTrainer(null); set('trainer', ''); }}
+                    className="text-xs text-danger-500 hover:underline hover:text-danger-600 font-semibold cursor-pointer">
+                    Thay đổi
+                  </button>
+                </div>
+              ) : (
+                <div className="relative">
+                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+                  <input type="text" value={searchTerm} onChange={e => { setSearchTerm(e.target.value); setShowDropdown(true); }}
+                    onFocus={() => setShowDropdown(true)}
+                    placeholder="Tìm theo tên HLV hoặc email..." className={`${inp('trainer')} pl-9`} />
+                  {loadingTrainers && (
+                    <Loader2 size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted animate-spin" />
+                  )}
+
+                  {showDropdown && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
+                      <div className="absolute left-0 right-0 mt-1 max-h-48 overflow-y-auto z-20 bg-surface-base border border-surface-border rounded-xl shadow-xl py-1">
+                        {loadingTrainers ? (
+                          <div className="px-4 py-3 text-xs text-text-muted flex items-center gap-2">
+                            <Loader2 size={12} className="animate-spin text-primary-500" />
+                            Đang tải danh sách...
+                          </div>
+                        ) : filteredTrainers.length === 0 ? (
+                          <div className="px-4 py-3 text-xs text-text-muted">
+                            Không tìm thấy huấn luyện viên nào
+                          </div>
+                        ) : (
+                          filteredTrainers.map((t) => (
+                            <div key={t.id} onClick={() => {
+                              setSelectedTrainer(t);
+                              set('trainer', t.id);
+                              setSearchTerm('');
+                              setShowDropdown(false);
+                            }}
+                              className="px-4 py-2 hover:bg-surface-raised cursor-pointer transition-colors flex flex-col">
+                              <span className="text-sm font-semibold text-text-primary">{t.name}</span>
+                              <span className="text-xs text-text-muted">{t.loginEmail}</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-text-secondary">Ngày bắt đầu</label>
