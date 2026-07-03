@@ -310,7 +310,7 @@ function EquipmentRow({ item, onEdit, onDelete, onStatusChange, actingId }: {
       </div>
       <div className="hidden md:block col-span-3 text-sm font-medium text-text-secondary">
         <p className="text-text-primary">{item.location || 'Cardio Zone / Floor 1'}</p>
-        <p className="text-xs text-text-muted mt-0.5">{item.brand || 'Megagym Brand'} {item.model || ''}</p>
+        <p className="text-xs text-text-muted mt-0.5">{item.brand || 'GymMS Brand'} {item.model || ''}</p>
       </div>
       <div className="hidden md:block col-span-2 text-sm text-text-secondary">
         <p className="text-xs text-text-muted">Bảo trì tiếp theo:</p>

@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface LoadingSpinnerProps {
     message?: string;
     size?: 'small' | 'medium' | 'large';
@@ -10,9 +12,9 @@ export default function LoadingSpinner({
     fullScreen = false,
 }: LoadingSpinnerProps) {
     const sizeClasses = {
-        small: 'w-5 h-5 border-2',
-        medium: 'w-9 h-9 border-[3px]',
-        large: 'w-14 h-14 border-4',
+        small: 'w-16 h-16',
+        medium: 'w-24 h-24',
+        large: 'w-32 h-32',
     };
 
     const containerClasses = fullScreen
@@ -23,10 +25,17 @@ export default function LoadingSpinner({
         <div className={containerClasses}>
             <div className="flex flex-col items-center gap-3">
                 <div
-                    className={`animate-spin rounded-full border-surface-border border-t-primary-500 ${sizeClasses[size]}`}
+                    className={`relative ${sizeClasses[size]}`}
                     role="status"
                     aria-label="loading"
                 >
+                    <Image
+                        src="/gym1.gif"
+                        alt="Loading animation"
+                        fill
+                        className="object-contain"
+                        unoptimized
+                    />
                     <span className="sr-only">Loading...</span>
                 </div>
                 {message && (
