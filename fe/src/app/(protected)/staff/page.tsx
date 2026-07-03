@@ -5,6 +5,7 @@ import { useStaffStore } from '@/src/stores/staffStore';
 import { toast } from '@/src/utils/toast';
 import StatsGrid from '@/src/components/ui/StatsGrid';
 import AddButton from '@/src/components/ui/AddButton';
+import PageHeader from '@/src/components/ui/PageHeader';
 import type {
   StaffMember,
   RoleName,
@@ -503,10 +504,10 @@ export default function StaffPage() {
       <div className="flex flex-col gap-6 max-w-7xl mx-auto">
         {/* Page header */}
         <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-text-primary">Nhân viên</h1>
-            <p className="text-sm text-text-muted mt-0.5">Quản lý tài khoản và phân quyền nhân viên</p>
-          </div>
+          <PageHeader
+            title="Nhân viên"
+            subtitle="Quản lý tài khoản và phân quyền nhân viên"
+          />
           <AddButton onClick={() => setCreateOpen(true)} label="Thêm nhân viên" />
         </div>
 

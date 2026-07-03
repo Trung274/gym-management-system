@@ -8,6 +8,7 @@ import AddButton from '@/src/components/ui/AddButton';
 import { peakHourLabel } from '@/src/lib/checkinHelpers';
 import { toast } from '@/src/utils/toast';
 import { getMembers } from '@/src/lib/memberService';
+import PageHeader from '@/src/components/ui/PageHeader';
 import type { Member } from '@/src/types/member.types';
 
 // ─── Record modal ─────────────────────────────────────────────────────────────
@@ -219,10 +220,10 @@ export default function CheckinPage() {
       <div className="flex flex-col gap-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-text-primary">Check-in Log</h1>
-            <p className="text-sm text-text-muted mt-0.5">Lịch sử ra vào của hội viên</p>
-          </div>
+          <PageHeader
+            title="Check-in Log"
+            subtitle="Lịch sử ra vào của hội viên"
+          />
           <AddButton onClick={() => setModalOpen(true)} label="Ghi check-in" />
         </div>
 

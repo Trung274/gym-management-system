@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { getDashboard } from '@/src/lib/dashboardService';
 import type { DashboardSnapshot } from '@/src/types/dashboard.types';
-
+import PageHeader from '@/src/components/ui/PageHeader';
 import StatsGrid from '@/src/components/ui/StatsGrid';
 
 // ─── Stat card ────────────────────────────────────────────────────────────────

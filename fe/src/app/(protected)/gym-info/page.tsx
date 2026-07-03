@@ -7,6 +7,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { getGymInfo, updateGymInfo } from '@/src/lib/gymInfoService';
+import PageHeader from '@/src/components/ui/PageHeader';
 import { toast } from '@/src/utils/toast';
 
 // ─── Form state shape (all strings for controlled inputs) ───────────────────
@@ -194,10 +195,10 @@ export default function GymInfoPage() {
     <div className="flex flex-col gap-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">Thông tin Gym</h1>
-          <p className="text-sm text-text-muted mt-0.5">Quản lý thông tin hiển thị của phòng gym</p>
-        </div>
+        <PageHeader
+          title="Thông tin Gym"
+          subtitle="Quản lý thông tin hiển thị của phòng gym"
+        />
         <div className="flex gap-2">
           <button onClick={loadData} disabled={loading}
             className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-surface-border text-sm font-semibold text-text-secondary hover:bg-surface-overlay disabled:opacity-50 cursor-pointer transition-all">

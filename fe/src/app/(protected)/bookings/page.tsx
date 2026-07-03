@@ -5,6 +5,7 @@ import { useBookingStore } from '@/src/stores/bookingStore';
 import { toast } from '@/src/utils/toast';
 import StatsGrid from '@/src/components/ui/StatsGrid';
 import type { Booking, BookingStatus, BookingQueryParams } from '@/src/types/booking.types';
+import PageHeader from '@/src/components/ui/PageHeader';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUS_STYLES: Record<BookingStatus, { badge: string; dot: string }> = {
@@ -239,10 +240,13 @@ export default function BookingsPage() {
     <>
       <div className="flex flex-col gap-6 max-w-7xl mx-auto">
         {/* Page header */}
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">Lịch đặt PT</h1>
-          <p className="text-sm text-text-muted mt-0.5">Quản lý lịch đặt buổi tập cá nhân với huấn luyện viên</p>
+        <div className="flex items-center justify-between gap-4">
+          <PageHeader
+            title="Lịch đặt PT"
+            subtitle="Quản lý lịch đặt buổi tập cá nhân với huấn luyện viên"
+          />
         </div>
+
 
         {/* Error banner */}
         {error && (

@@ -8,6 +8,7 @@ import AddButton from '@/src/components/ui/AddButton';
 import { DAY_LABELS, CATEGORY_LABELS, STATUS_LABELS } from '@/src/lib/classHelpers';
 import { toast } from '@/src/utils/toast';
 import { getTrainers } from '@/src/lib/trainerService';
+import PageHeader from '@/src/components/ui/PageHeader';
 import type { Trainer } from '@/src/types/trainer.types';
 import type {
   GymClass, ClassStatus, ClassCategory,
@@ -381,10 +382,10 @@ export default function GroupClassesPage() {
       <div className="flex flex-col gap-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-text-primary">Lớp học nhóm</h1>
-            <p className="text-sm text-text-muted mt-0.5">Quản lý lịch và danh sách lớp học thể dục nhóm</p>
-          </div>
+          <PageHeader
+            title="Lớp học nhóm"
+            subtitle="Quản lý lịch và danh sách lớp học thể dục nhóm"
+          />
           <AddButton onClick={() => { setEditing(null); setModalOpen(true); }} label="Thêm lớp" />
         </div>
 

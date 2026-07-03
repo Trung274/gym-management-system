@@ -23,6 +23,51 @@ const TYPE_STYLES: Record<PlanType, { badge: string; card: string; icon: string 
 // ─── Empty form state ─────────────────────────────────────────────────────────
 const EMPTY_FORM = { name: '', type: 'basic' as PlanType, durationDays: 30, price: 0, description: '' };
 
+// Helper to get plan features based on type
+const getPlanFeatures = (type: PlanType) => {
+  switch (type) {
+    case 'basic':
+      return [
+        { label: 'Truy cập phòng tập tiêu chuẩn', active: true },
+        { label: 'Sử dụng tủ đồ & phòng tắm', active: true },
+        { label: 'Lớp học nhóm HIIT/Yoga', active: false },
+        { label: 'Huấn luyện viên cá nhân hỗ trợ', active: false },
+      ];
+    case 'premium':
+      return [
+        { label: 'Truy cập phòng tập 24/7', active: true },
+        { label: 'Sử dụng tủ đồ & phòng tắm', active: true },
+        { label: 'Lớp học nhóm HIIT/Yoga không giới hạn', active: true },
+        { label: 'Huấn luyện viên cá nhân hỗ trợ', active: false },
+      ];
+    case 'vip':
+      return [
+        { label: 'Truy cập toàn hệ thống 24/7', active: true },
+        { label: 'Huấn luyện viên cá nhân hỗ trợ (2 buổi/tháng)', active: true },
+        { label: 'Đo chỉ số cơ thể & lên lộ trình dinh dưỡng', active: true },
+        { label: 'Lớp học nhóm HIIT/Yoga không giới hạn', active: true },
+      ];
+    default:
+      return [];
+  }
+};
+
+// Helper for deterministic mock members
+const getMockActiveMembers = (plan: SubscriptionPlan) => {
+  const charSum = plan.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const count = 50 + (charSum % 400); // 50 to 450
+  
+  const avatars = [
+    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80',
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80',
+    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80',
+  ];
+  // Select slice based on seed
+  const selectedAvatars = avatars.slice(0, 2 + (charSum % 2));
+  return { count, avatars: selectedAvatars };
+};
+
 // ─── PlanCard ─────────────────────────────────────────────────────────────────
 function PlanCard({
   plan,
@@ -35,97 +80,142 @@ function PlanCard({
   onToggle: (id: string) => void;
   toggling: string | null;
 }) {
-  const styles = TYPE_STYLES[plan.type];
   const isToggling = toggling === plan.id;
+  const features = getPlanFeatures(plan.type);
+  const { count: activeCount, avatars } = getMockActiveMembers(plan);
+
+  // Styling maps based on plan type
+  let containerClasses = 'relative rounded-2xl border border-surface-border bg-surface-raised flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg';
+  let stripClasses = 'h-2 bg-text-muted/30 w-full opacity-30';
+  const innerClasses = 'p-6 flex flex-col h-full flex-grow';
+
+  if (plan.type === 'premium') {
+    containerClasses = 'relative rounded-2xl border border-primary-500/30 bg-gradient-to-b from-primary-500/5 via-surface-raised to-surface-raised flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ring-1 ring-primary-500/20';
+    stripClasses = 'h-2 bg-primary-500 w-full shadow-[0_0_15px_rgba(41,98,255,0.4)]';
+  } else if (plan.type === 'vip') {
+    containerClasses = 'relative rounded-2xl border border-warning-500/30 bg-gradient-to-b from-warning-500/5 via-surface-raised to-surface-raised flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg';
+    stripClasses = 'h-2 bg-warning-500 w-full shadow-[0_0_15px_rgba(245,158,11,0.4)]';
+  }
+
+  if (!plan.isActive) {
+    containerClasses += ' opacity-50';
+  }
 
   return (
-    <div
-      className={`
-        relative rounded-2xl border border-surface-border bg-surface-base
-        flex flex-col overflow-hidden
-        transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5
-        ${!plan.isActive ? 'opacity-60' : ''}
-      `}
-    >
-      {/* Gradient header strip */}
-      <div className={`h-1.5 w-full bg-gradient-to-r ${styles.card}`} />
+    <div className={containerClasses}>
+      {/* Dynamic top highlight strip */}
+      <div className={stripClasses} />
 
-      <div className="p-5 flex flex-col gap-3 flex-1">
-        {/* Top row: type badge + status */}
-        <div className="flex items-center justify-between gap-2">
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${styles.badge}`}>
-            <span>{styles.icon}</span>
-            {plan.typeLabel}
-          </span>
-          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full
-            ${plan.isActive
-              ? 'bg-success-500/15 text-success-500'
-              : 'bg-surface-overlay text-text-muted'
-            }`}>
-            {plan.isActive ? 'Hoạt động' : 'Tạm dừng'}
-          </span>
-        </div>
-
-        {/* Name */}
-        <h3 className="text-base font-bold text-text-primary leading-snug">{plan.name}</h3>
-
-        {/* Duration + Price */}
-        <div className="flex items-end justify-between">
-          <div className="flex items-center gap-1.5 text-sm text-text-muted">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 shrink-0">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-            </svg>
-            {plan.durationLabel}
+      <div className={innerClasses}>
+        {/* Tier Header */}
+        <div className="flex justify-between items-start mb-5">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <h3 className="text-xl font-black text-text-primary font-headline tracking-tight">{plan.name}</h3>
+              {plan.type === 'premium' && (
+                <span className="bg-primary-500/10 text-primary-500 text-[10px] px-2 py-0.5 rounded-full font-headline font-black uppercase tracking-wider">
+                  Phổ biến
+                </span>
+              )}
+            </div>
+            <p className="text-text-secondary text-xs font-medium">
+              {plan.type === 'basic' ? 'Quyền lợi cơ bản' : plan.type === 'premium' ? 'Tối ưu hiệu năng' : 'Đặc quyền VIP'}
+            </p>
           </div>
-          <p className="text-lg font-extrabold text-primary-500">{plan.priceLabel}</p>
+          <div className={`px-2.5 py-1 rounded-lg text-xs font-semibold uppercase tracking-wider ${
+            plan.type === 'basic' ? 'bg-surface-overlay text-text-muted' :
+            plan.type === 'premium' ? 'bg-primary-500/10 text-primary-500' :
+            'bg-warning-500/10 text-warning-500'
+          }`}>
+            #{plan.type.toUpperCase()}
+          </div>
         </div>
 
-        {/* Description */}
-        {plan.description && (
-          <p className="text-xs text-text-muted leading-relaxed line-clamp-2 border-t border-surface-border pt-3">
-            {plan.description}
-          </p>
-        )}
+        {/* Pricing */}
+        <div className="mb-6">
+          <div className="flex items-baseline gap-1">
+            <span className="text-3xl font-black text-text-primary font-headline tracking-tight">{plan.priceLabel}</span>
+            <span className="text-text-muted text-xs font-medium">/{plan.durationLabel}</span>
+          </div>
+        </div>
 
-        {/* Actions */}
-        <div className="flex gap-2 mt-auto pt-3 border-t border-surface-border">
-          <button
-            onClick={() => onEdit(plan)}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl
-              text-xs font-semibold text-text-secondary
-              bg-surface-overlay hover:bg-surface-border hover:text-text-primary
-              transition-all duration-150 cursor-pointer"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3.5 h-3.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
-            </svg>
-            Chỉnh sửa
-          </button>
-          <button
-            onClick={() => onToggle(plan.id)}
-            disabled={isToggling}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl
-              text-xs font-semibold transition-all duration-150 cursor-pointer disabled:opacity-50
-              ${plan.isActive
-                ? 'bg-danger-500/10 text-danger-500 hover:bg-danger-500/20'
-                : 'bg-success-500/10 text-success-500 hover:bg-success-500/20'
-              }`}
-          >
-            {isToggling ? (
-              <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3.5 h-3.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d={plan.isActive
-                  ? "M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
-                  : "M5.636 5.636a9 9 0 1 0 12.728 12.728M5.636 5.636a9 9 0 0 1 12.728 12.728M5.636 5.636 12 12m6.364-6.364L12 12"
-                } />
-              </svg>
-            )}
-            {plan.isActive ? 'Tạm dừng' : 'Kích hoạt'}
-          </button>
+        {/* Feature List */}
+        <div className="space-y-3.5 mb-8 flex-grow">
+          {features.map((f, i) => (
+            <div key={i} className={`flex items-center gap-3 text-xs font-medium ${f.active ? 'text-text-secondary' : 'text-text-muted/40'}`}>
+              {f.active ? (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={`w-4 h-4 shrink-0 ${plan.type === 'vip' ? 'text-warning-500' : 'text-primary-500'}`}>
+                  <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 shrink-0 opacity-40">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+                </svg>
+              )}
+              <span className={!f.active ? 'line-through' : ''}>{f.label}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer Area: Active Members + Actions */}
+        <div className="pt-5 border-t border-surface-border mt-auto flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Hội viên hoạt động</span>
+              <span className="text-base font-black text-text-primary font-headline">{activeCount}</span>
+            </div>
+            <div className="flex -space-x-2 overflow-hidden">
+              {avatars.map((av, index) => (
+                <img
+                  key={index}
+                  className="inline-block h-7 w-7 rounded-full ring-2 ring-surface-raised object-cover"
+                  src={av}
+                  alt="Active Member"
+                />
+              ))}
+              <div className={`h-7 w-7 rounded-full ring-2 ring-surface-raised flex items-center justify-center text-[9px] font-bold ${
+                plan.type === 'premium' ? 'bg-primary-500 text-white' :
+                plan.type === 'vip' ? 'bg-warning-500 text-text-inverse' :
+                'bg-surface-overlay text-text-secondary'
+              }`}>
+                +{activeCount - avatars.length}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => onEdit(plan)}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-surface-overlay hover:bg-surface-border text-text-primary font-semibold text-xs rounded-xl transition-all cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" /></svg>
+              Chỉnh sửa
+            </button>
+            <button
+              onClick={() => onToggle(plan.id)}
+              disabled={isToggling}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 font-semibold text-xs rounded-xl transition-all cursor-pointer disabled:opacity-50
+                ${plan.isActive
+                  ? 'bg-danger-500/10 text-danger-500 hover:bg-danger-500/20'
+                  : 'bg-success-500/10 text-success-500 hover:bg-success-500/20'
+                }`}
+            >
+              {isToggling ? (
+                <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d={plan.isActive
+                    ? "M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
+                    : "M5.636 5.636a9 9 0 1 0 12.728 12.728M5.636 5.636a9 9 0 0 1 12.728 12.728M5.636 5.636 12 12m6.364-6.364L12 12"
+                  } />
+                </svg>
+              )}
+              {plan.isActive ? 'Tạm dừng' : 'Kích hoạt'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -356,6 +446,30 @@ export default function PlansPage() {
     vip: plans.filter((p) => p.type === 'vip').length,
   };
 
+  // Scroll handler for analytics section
+  const scrollToAnalytics = () => {
+    document.getElementById('plan-analytics')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Calculate active membership stats for bottom comparison
+  let basicMembers = 0;
+  let premiumMembers = 0;
+  let vipMembers = 0;
+
+  plans.forEach((p) => {
+    if (p.isActive) {
+      const { count } = getMockActiveMembers(p);
+      if (p.type === 'basic') basicMembers += count;
+      if (p.type === 'premium') premiumMembers += count;
+      if (p.type === 'vip') vipMembers += count;
+    }
+  });
+
+  const totalMembers = basicMembers + premiumMembers + vipMembers || 1;
+  const basicPct = Math.round((basicMembers / totalMembers) * 100);
+  const premiumPct = Math.round((premiumMembers / totalMembers) * 100);
+  const vipPct = Math.round((vipMembers / totalMembers) * 100);
+
   const openCreate = useCallback(() => {
     setEditingPlan(null);
     setModalOpen(true);
@@ -412,12 +526,27 @@ export default function PlansPage() {
     <>
       <div className="flex flex-col gap-6 max-w-7xl mx-auto">
         {/* Page header */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h1 className="text-2xl font-bold text-text-primary">Gói tập</h1>
-            <p className="text-sm text-text-muted mt-0.5">Quản lý các gói đăng ký dịch vụ phòng gym</p>
+            <span className="text-primary-500 font-headline font-bold uppercase tracking-widest text-xs mb-1 block">Revenue Strategy</span>
+            <h1 className="text-3xl md:text-4xl font-black font-headline text-text-primary tracking-tight leading-none">Quản lí gói tập</h1>
+            <p className="text-text-secondary text-sm max-w-lg mt-1.5">
+              Engineered for growth. Manage your subscription ecosystem, analyze tier density, and deploy new high-performance plans.
+            </p>
           </div>
-          <AddButton onClick={openCreate} label="Thêm gói tập" />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={scrollToAnalytics}
+              className="px-4 py-2.5 bg-surface-overlay hover:bg-surface-border text-text-primary font-bold text-xs rounded-xl transition-all flex items-center gap-2 active:scale-95 cursor-pointer border border-surface-border"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-primary-500">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
+              </svg>
+              Revenue Report
+            </button>
+            <AddButton onClick={openCreate} label="Thêm gói tập" />
+          </div>
         </div>
 
         {/* Error banner */}
@@ -526,7 +655,7 @@ export default function PlansPage() {
 
         {/* Plans grid */}
         {!isLoading && filtered.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((plan) => (
               <PlanCard
                 key={plan.id}
@@ -536,6 +665,77 @@ export default function PlansPage() {
                 toggling={togglingId}
               />
             ))}
+          </div>
+        )}
+
+        {/* Tier Analytics & Performance Comparison */}
+        {!isLoading && plans.length > 0 && (
+          <div id="plan-analytics" className="mt-12 grid grid-cols-1 lg:grid-cols-4 gap-6 pt-10 border-t border-surface-border">
+            <div className="lg:col-span-1 bg-surface-raised p-6 rounded-2xl flex flex-col justify-between border border-surface-border">
+              <div>
+                <span className="text-primary-500 text-2xl mb-4 block">📈</span>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-headline">Tỷ lệ hủy (Churn Rate)</h4>
+                <p className="text-3xl font-black text-text-primary font-headline">2.4%</p>
+              </div>
+              <p className="text-[11px] text-text-secondary mt-4">
+                Trung bình trên tất cả các nhóm đăng ký dịch vụ trong 30 ngày qua.
+              </p>
+            </div>
+
+            <div className="lg:col-span-3 bg-surface-raised p-6 rounded-2xl border border-surface-border flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-8">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-text-primary font-headline">
+                  Phân bổ hội viên hoạt động theo phân hạng
+                </h4>
+                <div className="flex gap-4 text-xs font-medium">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-slate-700"></div>
+                    <span className="text-text-secondary">Cơ bản</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-primary-500"></div>
+                    <span className="text-text-secondary">Premium</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-warning-500"></div>
+                    <span className="text-text-secondary">VIP</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dynamic bar representation */}
+              <div className="flex items-end gap-6 h-36">
+                <div
+                  style={{ height: `${basicPct}%` }}
+                  className="flex-1 bg-slate-700 rounded-t-lg group relative min-h-[10%]"
+                >
+                  <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-text-primary bg-surface-overlay px-1.5 py-0.5 rounded border border-surface-border z-10 whitespace-nowrap">
+                    Cơ bản: {basicPct}% ({basicMembers} HV)
+                  </div>
+                </div>
+                <div
+                  style={{ height: `${premiumPct}%` }}
+                  className="flex-1 bg-primary-500 rounded-t-lg group relative min-h-[10%] shadow-lg shadow-primary-500/20"
+                >
+                  <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-text-primary bg-surface-overlay px-1.5 py-0.5 rounded border border-surface-border z-10 whitespace-nowrap">
+                    Premium: {premiumPct}% ({premiumMembers} HV)
+                  </div>
+                </div>
+                <div
+                  style={{ height: `${vipPct}%` }}
+                  className="flex-1 bg-warning-500 rounded-t-lg group relative min-h-[10%] shadow-lg shadow-warning-500/20"
+                >
+                  <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-text-primary bg-surface-overlay px-1.5 py-0.5 rounded border border-surface-border z-10 whitespace-nowrap">
+                    VIP: {vipPct}% ({vipMembers} HV)
+                  </div>
+                </div>
+                <div className="flex-1 h-full border-t border-dashed border-surface-border flex items-center justify-center">
+                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider text-center">
+                    Cơ hội phát triển
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

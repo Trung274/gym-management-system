@@ -6,6 +6,7 @@ import { useEquipmentStore } from '@/src/stores/equipmentStore';
 import { toast } from '@/src/utils/toast';
 import StatsGrid from '@/src/components/ui/StatsGrid';
 import AddButton from '@/src/components/ui/AddButton';
+import PageHeader from '@/src/components/ui/PageHeader';
 import type {
   Equipment, EquipmentStatus, EquipmentCategory,
   CreateEquipmentPayload, UpdateEquipmentPayload,
@@ -425,10 +426,10 @@ export default function EquipmentPage() {
       <div className="flex flex-col gap-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div>
-            <h1 className="text-3xl font-black font-headline text-text-primary tracking-tight uppercase">Hệ Thống Thiết Bị</h1>
-            <p className="text-text-secondary font-body mt-1">Theo dõi thời gian thực trạng thái và quản lý vòng đời tài sản GymMS.</p>
-          </div>
+          <PageHeader
+            title="Hệ Thống Thiết Bị"
+            subtitle="Theo dõi thời gian thực trạng thái và quản lý vòng đời tài sản GymMS."
+          />
           <div className="flex gap-4 w-full md:w-auto">
             <button onClick={() => {
               window.print();

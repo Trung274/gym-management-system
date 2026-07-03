@@ -5,6 +5,7 @@ import { useTrainerStore } from '@/src/stores/trainerStore';
 import { toast } from '@/src/utils/toast';
 import StatsGrid from '@/src/components/ui/StatsGrid';
 import AddButton from '@/src/components/ui/AddButton';
+import PageHeader from '@/src/components/ui/PageHeader';
 import type { Trainer, TrainerStatus, CreateTrainerPayload, UpdateTrainerPayload } from '@/src/types/trainer.types';
 import type { Gender } from '@/src/types/member.types';
 
@@ -376,10 +377,10 @@ export default function TrainersPage() {
       <div className="flex flex-col gap-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-text-primary">Huấn luyện viên</h1>
-            <p className="text-sm text-text-muted mt-0.5">Quản lý đội ngũ PT của phòng gym</p>
-          </div>
+          <PageHeader
+            title="Huấn luyện viên"
+            subtitle="Quản lý đội ngũ PT của phòng gym"
+          />
           <AddButton onClick={openCreate} label="Thêm HLV" />
         </div>
 
