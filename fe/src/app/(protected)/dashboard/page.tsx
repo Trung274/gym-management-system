@@ -85,14 +85,14 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">Dashboard</h1>
-          {generatedAt && !isLoading && (
-            <p className="text-xs text-text-muted mt-0.5 flex items-center gap-1">
+        <PageHeader
+          title="Dashboard"
+          subtitle={generatedAt && !isLoading ? (
+            <span className="flex items-center gap-1">
               <Clock size={11} /> Cập nhật lúc {fmtTime(generatedAt)}
-            </p>
-          )}
-        </div>
+            </span>
+          ) : undefined}
+        />
         <button onClick={load} disabled={isLoading}
           className="flex items-center gap-2 px-3 py-2 rounded-xl border border-surface-border text-sm font-semibold text-text-secondary hover:bg-surface-overlay disabled:opacity-50 cursor-pointer transition-all">
           <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} /> Làm mới
