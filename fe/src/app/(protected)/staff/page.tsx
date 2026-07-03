@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useStaffStore } from '@/src/stores/staffStore';
 import { toast } from '@/src/utils/toast';
+import StatsGrid from '@/src/components/ui/StatsGrid';
+import AddButton from '@/src/components/ui/AddButton';
 import type {
   StaffMember,
   RoleName,
@@ -505,11 +507,7 @@ export default function StaffPage() {
             <h1 className="text-2xl font-bold text-text-primary">Nhân viên</h1>
             <p className="text-sm text-text-muted mt-0.5">Quản lý tài khoản và phân quyền nhân viên</p>
           </div>
-          <button onClick={() => setCreateOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-sm font-semibold text-white shadow transition-all cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-            Thêm nhân viên
-          </button>
+          <AddButton onClick={() => setCreateOpen(true)} label="Thêm nhân viên" />
         </div>
 
         {/* Error banner */}
@@ -524,24 +522,17 @@ export default function StaffPage() {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
-          {[
-            { label: 'Tổng nhân viên', value: stats.total,   color: 'text-text-primary' },
-            { label: 'Đang hoạt động',  value: stats.active,  color: 'text-success-500' },
-            { label: 'Quản trị viên',   value: stats.admin,   color: 'text-danger-500' },
-            { label: 'Quản lý',          value: stats.manager, color: 'text-primary-500' },
-            { label: 'Nhân viên',         value: stats.staff,   color: 'text-sky-500' },
-            { label: 'HLV',               value: stats.trainer, color: 'text-violet-500' },
-          ].map((s) => (
-
-            <div key={s.label} className="bg-surface-base border border-surface-border rounded-xl px-4 py-3 flex flex-col gap-1">
-              <p className="text-xs text-text-muted">{s.label}</p>
-              <p className={`text-2xl font-bold ${s.color}`}>
-                {isLoading ? <span className="inline-block h-7 w-8 bg-surface-overlay rounded animate-pulse" /> : s.value}
-              </p>
-            </div>
-          ))}
-        </div>
+        <StatsGrid
+          isLoading={isLoading}
+          items={[
+            { label: 'Tổng nhân viên', value: stats.total, color: 'primary' },
+            { label: 'Đang hoạt động', value: stats.active, color: 'success' },
+            { label: 'Quản trị viên', value: stats.admin, color: 'danger' },
+            { label: 'Quản lý', value: stats.manager, color: 'primary' },
+            { label: 'Nhân viên', value: stats.staff, color: 'secondary' },
+            { label: 'HLV', value: stats.trainer, color: 'warning' },
+          ]}
+        />
 
         {/* Filter bar */}
         <div className="flex flex-wrap items-center gap-2">

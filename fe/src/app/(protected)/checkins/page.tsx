@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Plus, X, AlertCircle, ClipboardCheck, Search, Check, Loader2 } from 'lucide-react';
 import { useCheckinStore } from '@/src/stores/checkinStore';
+import StatsGrid from '@/src/components/ui/StatsGrid';
+import AddButton from '@/src/components/ui/AddButton';
 import { peakHourLabel } from '@/src/lib/checkinHelpers';
 import { toast } from '@/src/utils/toast';
 import { getMembers } from '@/src/lib/memberService';
@@ -221,10 +223,7 @@ export default function CheckinPage() {
             <h1 className="text-2xl font-bold text-text-primary">Check-in Log</h1>
             <p className="text-sm text-text-muted mt-0.5">Lịch sử ra vào của hội viên</p>
           </div>
-          <button onClick={() => setModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-sm font-semibold text-white shadow cursor-pointer transition-all">
-            <Plus size={16} /> Ghi check-in
-          </button>
+          <AddButton onClick={() => setModalOpen(true)} label="Ghi check-in" />
         </div>
 
         {/* Error */}
@@ -237,23 +236,15 @@ export default function CheckinPage() {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { label: 'Hôm nay',      value: stats?.todayCount  ?? '—' },
-            { label: '7 ngày qua',   value: stats?.weekCount   ?? '—' },
-            { label: '30 ngày qua',  value: stats?.monthCount  ?? '—' },
-            { label: 'Giờ cao điểm', value: stats ? peakHourLabel(stats.peakHour) : '—', wide: true },
-          ].map((s) => (
-            <div key={s.label} className={`bg-surface-base border border-surface-border rounded-xl px-4 py-3 ${s.wide ? 'sm:col-span-1' : ''}`}>
-              <p className="text-xs text-text-muted">{s.label}</p>
-              <p className="text-2xl font-bold text-text-primary mt-1">
-                {isLoading && !stats
-                  ? <span className="inline-block h-7 w-10 bg-surface-overlay rounded animate-pulse" />
-                  : s.value}
-              </p>
-            </div>
-          ))}
-        </div>
+        <StatsGrid
+          isLoading={isLoading && !stats}
+          items={[
+            { label: 'Hôm nay', value: stats?.todayCount ?? '—', color: 'primary' },
+            { label: '7 ngày qua', value: stats?.weekCount ?? '—', color: 'success' },
+            { label: '30 ngày qua', value: stats?.monthCount ?? '—', color: 'info' },
+            { label: 'Giờ cao điểm', value: stats ? peakHourLabel(stats.peakHour) : '—', color: 'warning' },
+          ]}
+        />
 
         {/* Filters */}
         <div className="flex flex-wrap items-end gap-2">

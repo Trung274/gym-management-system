@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { Loader2 } from 'lucide-react';
 import { useEquipmentStore } from '@/src/stores/equipmentStore';
 import { toast } from '@/src/utils/toast';
+import StatsGrid from '@/src/components/ui/StatsGrid';
+import AddButton from '@/src/components/ui/AddButton';
 import type {
   Equipment, EquipmentStatus, EquipmentCategory,
   CreateEquipmentPayload, UpdateEquipmentPayload,
@@ -31,6 +34,14 @@ const CATEGORY_OPTIONS: { value: EquipmentCategory; label: string; icon: string 
 
 const CATEGORY_ICON: Record<EquipmentCategory, string> = {
   cardio: '🏃', strength: '💪', flexibility: '🧘', free_weights: '🏋️', other: '⚙️',
+};
+
+const CATEGORY_IMAGE: Record<EquipmentCategory, string> = {
+  cardio: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=150&auto=format&fit=crop&q=60',
+  strength: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=150&auto=format&fit=crop&q=60',
+  flexibility: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=150&auto=format&fit=crop&q=60',
+  free_weights: 'https://images.unsplash.com/photo-1638536532686-d610adfc8e5c?w=150&auto=format&fit=crop&q=60',
+  other: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=150&auto=format&fit=crop&q=60',
 };
 
 const EMPTY_CREATE: CreateEquipmentPayload = {
@@ -279,50 +290,42 @@ function EquipmentRow({ item, onEdit, onDelete, onStatusChange, actingId }: {
   actingId: string | null;
 }) {
   const isActing = actingId === item.id;
+
+  const statusStyles: Record<EquipmentStatus, string> = {
+    operational: 'border-primary-500/20 hover:border-primary-500/40',
+    maintenance: 'border-warning-500/20 hover:border-warning-500/40',
+    out_of_order: 'border-danger-500/20 hover:border-danger-500/40',
+  };
+
   return (
-    <tr className="border-b border-surface-border hover:bg-surface-raised transition-colors group">
-      {/* Name + category */}
-      <td className="px-4 py-3">
-        <div className="flex items-center gap-3">
-          <span className="text-xl shrink-0">{CATEGORY_ICON[item.category]}</span>
-          <div>
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold text-text-primary">{item.name}</p>
-              {item.isMaintenanceDue && (
-                <span className="px-1.5 py-0.5 rounded-md bg-warning-500/15 text-warning-500 text-[10px] font-bold">⚠ Sắp bảo trì</span>
-              )}
-            </div>
-            <p className="text-xs text-text-muted">{item.categoryLabel}</p>
-          </div>
+    <div className={`grid grid-cols-12 items-center px-6 py-4 bg-surface-overlay rounded-xl hover:bg-surface-raised transition-all group border-l-4 ${statusStyles[item.status]}`}>
+      <div className="col-span-6 md:col-span-4 flex items-center gap-4">
+        <div className="w-12 h-12 rounded-lg bg-surface-border flex items-center justify-center text-xl shrink-0">
+          {CATEGORY_ICON[item.category]}
         </div>
-      </td>
-      {/* Brand */}
-      <td className="px-4 py-3">
-        <p className="text-sm text-text-primary">{item.brand ?? '—'}</p>
-        <p className="text-xs text-text-muted">{item.model ?? ''}</p>
-      </td>
-      {/* Qty + Location */}
-      <td className="px-4 py-3">
-        <p className="text-sm font-semibold text-text-primary">×{item.quantity}</p>
-        <p className="text-xs text-text-muted">{item.location ?? '—'}</p>
-      </td>
-      {/* Status chip dropdown */}
-      <td className="px-4 py-3">
-        <StatusBadge equipment={item} onChange={(s) => onStatusChange(item.id, s)} disabled={isActing} />
-      </td>
-      {/* Maintenance */}
-      <td className="px-4 py-3">
-        <p className="text-xs text-text-muted">BT cuối: {item.lastMaintenanceDateLabel}</p>
-        <p className={`text-xs ${item.isMaintenanceDue ? 'text-warning-500 font-semibold' : 'text-text-muted'}`}>
-          BT tiếp: {item.nextMaintenanceDateLabel}
+        <div className="min-w-0">
+          <p className="font-headline font-bold text-text-primary group-hover:text-primary-500 transition-colors truncate text-sm sm:text-base">{item.name}</p>
+          <p className="text-xs text-text-muted font-mono mt-0.5 truncate">ID: {item.serialNumber || 'KPC-EQ-' + item.id.substring(item.id.length - 4).toUpperCase()}</p>
+        </div>
+      </div>
+      <div className="hidden md:block col-span-3 text-sm font-medium text-text-secondary">
+        <p className="text-text-primary">{item.location || 'Cardio Zone / Floor 1'}</p>
+        <p className="text-xs text-text-muted mt-0.5">{item.brand || 'Megagym Brand'} {item.model || ''}</p>
+      </div>
+      <div className="hidden md:block col-span-2 text-sm text-text-secondary">
+        <p className="text-xs text-text-muted">Bảo trì tiếp theo:</p>
+        <p className={`text-xs mt-0.5 font-semibold ${item.isMaintenanceDue ? 'text-warning-500' : 'text-text-secondary'}`}>
+          {item.nextMaintenanceDateLabel}
         </p>
-      </td>
-      {/* Actions */}
-      <td className="px-4 py-3">
+      </div>
+      <div className="col-span-3 md:col-span-2 text-right md:text-left flex items-center justify-end md:justify-start">
+        <StatusBadge equipment={item} onChange={(s) => onStatusChange(item.id, s)} disabled={isActing} />
+      </div>
+      <div className="col-span-3 md:col-span-1 text-right flex justify-end gap-1">
         {isActing ? (
-          <svg className="w-4 h-4 animate-spin text-primary-500" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+          <Loader2 className="w-4 h-4 animate-spin text-primary-500" />
         ) : (
-          <div className="flex items-center gap-1">
+          <>
             <button onClick={() => onEdit(item)} title="Chỉnh sửa"
               className="p-1.5 rounded-lg text-text-muted hover:text-primary-500 hover:bg-primary-500/10 transition-all cursor-pointer">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>
@@ -331,10 +334,10 @@ function EquipmentRow({ item, onEdit, onDelete, onStatusChange, actingId }: {
               className="p-1.5 rounded-lg text-text-muted hover:text-danger-500 hover:bg-danger-500/10 transition-all cursor-pointer">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
             </button>
-          </div>
+          </>
         )}
-      </td>
-    </tr>
+      </div>
+    </div>
   );
 }
 
@@ -421,16 +424,19 @@ export default function EquipmentPage() {
     <>
       <div className="flex flex-col gap-6 max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <h1 className="text-2xl font-bold text-text-primary">Thiết bị</h1>
-            <p className="text-sm text-text-muted mt-0.5">Quản lý thiết bị & cơ sở vật chất phòng gym</p>
+            <h1 className="text-3xl font-black font-headline text-text-primary tracking-tight uppercase">Hệ Thống Thiết Bị</h1>
+            <p className="text-text-secondary font-body mt-1">Theo dõi thời gian thực trạng thái và quản lý vòng đời tài sản GymMS.</p>
           </div>
-          <button onClick={openCreate}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-sm font-semibold text-white shadow transition-all cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-            Thêm thiết bị
-          </button>
+          <div className="flex gap-4 w-full md:w-auto">
+            <button onClick={() => {
+              window.print();
+            }} className="flex-1 md:flex-none px-6 py-3 bg-surface-overlay border border-surface-border text-text-primary font-headline font-bold uppercase tracking-widest rounded-xl hover:bg-surface-raised transition-all active:scale-95 text-xs">
+              Xuất Báo Cáo
+            </button>
+            <AddButton onClick={openCreate} label="Thêm Thiết Bị" />
+          </div>
         </div>
 
         {/* Error */}
@@ -444,90 +450,92 @@ export default function EquipmentPage() {
           </div>
         )}
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          {[
-            { label: 'Tổng thiết bị', value: stats.total, color: 'text-text-primary' },
-            { label: 'Hoạt động tốt', value: stats.operational, color: 'text-success-500' },
-            { label: 'Bảo trì', value: stats.maintenance, color: 'text-warning-500' },
-            { label: 'Hỏng hóc', value: stats.outOfOrder, color: 'text-danger-500' },
-            { label: 'Sắp bảo trì', value: stats.maintenanceDue, color: 'text-orange-500' },
-          ].map((s) => (
-            <div key={s.label} className="bg-surface-base border border-surface-border rounded-xl px-4 py-3 flex flex-col gap-1">
-              <p className="text-xs text-text-muted">{s.label}</p>
-              <p className={`text-2xl font-bold ${s.color}`}>
-                {isLoading ? <span className="inline-block h-7 w-8 bg-surface-overlay rounded animate-pulse" /> : s.value}
-              </p>
-            </div>
-          ))}
-        </div>
+        {/* Stats KPIs */}
+        <StatsGrid
+          isLoading={isLoading}
+          items={[
+            { label: 'Tổng tài sản', value: stats.total, color: 'primary' },
+            { label: 'Sẵn sàng sử dụng', value: stats.operational, color: 'success' },
+            { label: 'Đang bảo trì', value: stats.maintenance, color: 'warning' },
+            { label: 'Cần sửa gấp', value: stats.outOfOrder, color: 'danger' },
+          ]}
+        />
 
         {/* Filter bar */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Search */}
           <div className="relative">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
-            <input type="text" value={searchQ} onChange={(e) => setSearchQ(e.target.value)} placeholder="Tên, hãng, vị trí..."
-              className="pl-9 pr-4 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all w-48"
+            <input type="text" value={searchQ} onChange={(e) => setSearchQ(e.target.value)} placeholder="Tìm ID, tên, vị trí..."
+              className="pl-9 pr-4 py-2 rounded-xl border border-surface-border bg-surface-overlay text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all w-48"
             />
           </div>
           {/* Category filter */}
-          <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
-            <button onClick={() => setFilterCategory('all')} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterCategory === 'all' ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>Tất cả</button>
+          <div className="flex gap-1 p-1 bg-surface-overlay rounded-xl border border-surface-border">
+            <button onClick={() => setFilterCategory('all')} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterCategory === 'all' ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-raised'}`}>Tất cả</button>
             {CATEGORY_OPTIONS.map((c) => (
               <button key={c.value} onClick={() => setFilterCategory(c.value)}
-                className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterCategory === c.value ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterCategory === c.value ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-raised'}`}>
                 {c.icon} {c.label}
               </button>
             ))}
           </div>
           {/* Status filter */}
-          <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
+          <div className="flex gap-1 p-1 bg-surface-overlay rounded-xl border border-surface-border">
             {([{ v: 'all', l: 'Mọi trạng thái' }, { v: 'operational', l: 'Hoạt động' }, { v: 'maintenance', l: 'Bảo trì' }, { v: 'out_of_order', l: 'Hỏng' }]).map((f) => (
               <button key={f.v} onClick={() => setFilterStatus(f.v as any)}
-                className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterStatus === f.v ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>{f.l}</button>
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterStatus === f.v ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-raised'}`}>{f.l}</button>
             ))}
           </div>
           <span className="ml-auto text-xs text-text-muted">{filtered.length} thiết bị</span>
         </div>
 
-        {/* Table */}
-        <div className="bg-surface-base border border-surface-border rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-surface-border bg-surface-raised">
-                  {['Thiết bị', 'Thương hiệu', 'SL / Vị trí', 'Trạng thái', 'Bảo trì', 'Hành động'].map((h) => (
-                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading && equipment.length === 0
-                  ? [...Array(5)].map((_, i) => (
-                    <tr key={i} className="border-b border-surface-border animate-pulse">
-                      <td className="px-4 py-3"><div className="flex gap-3 items-center"><div className="w-8 h-8 rounded bg-surface-overlay shrink-0"/><div className="flex flex-col gap-1.5"><div className="h-3.5 w-28 bg-surface-overlay rounded"/><div className="h-3 w-20 bg-surface-overlay rounded"/></div></div></td>
-                      {[...Array(5)].map((_, j) => <td key={j} className="px-4 py-3"><div className="h-4 bg-surface-overlay rounded w-3/4"/></td>)}
-                    </tr>
-                  ))
-                  : filtered.length === 0
-                  ? (
-                    <tr><td colSpan={6} className="px-4 py-16 text-center">
-                      <p className="text-4xl mb-3">🏋️</p>
-                      <p className="text-sm font-semibold text-text-primary">Không có thiết bị nào</p>
-                      <p className="text-xs text-text-muted mt-1">Thử thay đổi bộ lọc hoặc thêm thiết bị mới.</p>
-                    </td></tr>
-                  )
-                  : filtered.map((item) => (
-                    <EquipmentRow key={item.id} item={item}
-                      onEdit={openEdit} onDelete={setDeleteTarget}
-                      onStatusChange={handleStatusChange} actingId={actingId}
-                    />
-                  ))
-                }
-              </tbody>
-            </table>
+        {/* Equipment Stack View */}
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-12 px-6 py-3 bg-surface-overlay rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted border border-surface-border/50">
+            <div className="col-span-6 md:col-span-4">Chi tiết tài sản</div>
+            <div className="hidden md:block col-span-3">Khu vực / Vị trí</div>
+            <div className="hidden md:block col-span-2">Lịch bảo trì tiếp</div>
+            <div className="col-span-3 md:col-span-2 text-right md:text-left">Trạng thái</div>
+            <div className="col-span-3 md:col-span-1 text-right">Hành động</div>
           </div>
+          
+          {isLoading && equipment.length === 0 ? (
+            [...Array(5)].map((_, i) => (
+              <div key={i} className="grid grid-cols-12 items-center px-6 py-4 bg-surface-overlay rounded-xl border-l-4 border-surface-border/50 animate-pulse">
+                <div className="col-span-6 md:col-span-4 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-surface-border shrink-0" />
+                  <div className="flex flex-col gap-2 w-32">
+                    <div className="h-4 bg-surface-border rounded w-full" />
+                    <div className="h-3 bg-surface-border rounded w-3/4" />
+                  </div>
+                </div>
+                <div className="hidden md:block col-span-3">
+                  <div className="h-4 bg-surface-border rounded w-1/2" />
+                </div>
+                <div className="hidden md:block col-span-2">
+                  <div className="h-4 bg-surface-border rounded w-2/3" />
+                </div>
+                <div className="col-span-3 md:col-span-2">
+                  <div className="h-6 bg-surface-border rounded-full w-20" />
+                </div>
+                <div className="col-span-3 md:col-span-1" />
+              </div>
+            ))
+          ) : filtered.length === 0 ? (
+            <div className="px-6 py-16 text-center bg-surface-overlay rounded-xl border border-surface-border/50">
+              <p className="text-4xl mb-3">🏋️</p>
+              <p className="text-sm font-semibold text-text-primary">Không có thiết bị nào</p>
+              <p className="text-xs text-text-muted mt-1">Thử thay đổi bộ lọc hoặc thêm thiết bị mới.</p>
+            </div>
+          ) : (
+            filtered.map((item) => (
+              <EquipmentRow key={item.id} item={item}
+                onEdit={openEdit} onDelete={setDeleteTarget}
+                onStatusChange={handleStatusChange} actingId={actingId}
+              />
+            ))
+          )}
         </div>
       </div>
 

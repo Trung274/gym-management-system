@@ -9,6 +9,8 @@ import {
 import { getDashboard } from '@/src/lib/dashboardService';
 import type { DashboardSnapshot } from '@/src/types/dashboard.types';
 
+import StatsGrid from '@/src/components/ui/StatsGrid';
+
 // ─── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ icon: Icon, label, value, sub, accent = false, loading = false }: {
   icon: React.ElementType; label: string; value: number | string;
@@ -107,12 +109,15 @@ export default function DashboardPage() {
       )}
 
       {/* ── Top KPI row ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard icon={Users}        label="Tổng hội viên"   value={snapshot?.members.total ?? 0}       sub={`${snapshot?.members.newThisMonth ?? 0} mới tháng này`} accent loading={isLoading} />
-        <StatCard icon={UserCheck}    label="HLV đang HĐ"    value={snapshot?.trainers.active ?? 0}      sub={`Tổng: ${snapshot?.trainers.total ?? 0}`}               loading={isLoading} />
-        <StatCard icon={ScanLine}     label="Check-in hôm nay" value={snapshot?.checkins.today ?? 0}    sub={`Tuần này: ${snapshot?.checkins.thisWeek ?? 0}`}         loading={isLoading} />
-        <StatCard icon={CalendarDays} label="Lịch PT chờ duyệt" value={snapshot?.bookings.pending ?? 0} sub={`Xác nhận: ${snapshot?.bookings.confirmed ?? 0}`}        loading={isLoading} />
-      </div>
+      <StatsGrid
+        isLoading={isLoading}
+        items={[
+          { label: 'Tổng hội viên', value: snapshot?.members.total ?? 0, color: 'primary', icon: <Users className="w-16 h-16 text-primary-500" /> },
+          { label: 'HLV đang HĐ', value: snapshot?.trainers.active ?? 0, color: 'success', icon: <UserCheck className="w-16 h-16 text-success-500" /> },
+          { label: 'Check-in hôm nay', value: snapshot?.checkins.today ?? 0, color: 'warning', icon: <ScanLine className="w-16 h-16 text-warning-500" /> },
+          { label: 'Lịch PT chờ duyệt', value: snapshot?.bookings.pending ?? 0, color: 'danger', icon: <CalendarDays className="w-16 h-16 text-danger-500" /> },
+        ]}
+      />
 
       {/* ── Middle row: Details ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

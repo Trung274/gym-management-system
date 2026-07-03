@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { useMemberStore } from '@/src/stores/memberStore';
 import { usePlanStore } from '@/src/stores/planStore';
 import { toast } from '@/src/utils/toast';
+import StatsGrid from '@/src/components/ui/StatsGrid';
+import AddButton from '@/src/components/ui/AddButton';
 import type {
   Member, MemberStatus, Gender,
   CreateMemberPayload, UpdateMemberPayload, RenewMembershipPayload,
@@ -467,11 +469,7 @@ export default function MembersPage() {
             <h1 className="text-2xl font-bold text-text-primary">Hội viên</h1>
             <p className="text-sm text-text-muted mt-0.5">Quản lý hội viên phòng gym</p>
           </div>
-          <button onClick={() => setCreateOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-sm font-semibold text-white shadow transition-all cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-            Thêm hội viên
-          </button>
+          <AddButton onClick={() => setCreateOpen(true)} label="Thêm hội viên" />
         </div>
 
         {/* Error */}
@@ -484,21 +482,15 @@ export default function MembersPage() {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { label: 'Tổng hội viên', value: stats.total, color: 'text-text-primary' },
-            { label: 'Hoạt động', value: stats.active, color: 'text-success-500' },
-            { label: 'Hết hạn', value: stats.expired, color: 'text-danger-500' },
-            { label: 'Tạm dừng', value: stats.suspended, color: 'text-warning-500' },
-          ].map((s) => (
-            <div key={s.label} className="bg-surface-base border border-surface-border rounded-xl px-4 py-3 flex flex-col gap-1">
-              <p className="text-xs text-text-muted">{s.label}</p>
-              <p className={`text-2xl font-bold ${s.color}`}>
-                {isLoading ? <span className="inline-block h-7 w-8 bg-surface-overlay rounded animate-pulse" /> : s.value}
-              </p>
-            </div>
-          ))}
-        </div>
+        <StatsGrid
+          isLoading={isLoading}
+          items={[
+            { label: 'Tổng hội viên', value: stats.total, color: 'primary' },
+            { label: 'Hoạt động', value: stats.active, color: 'success' },
+            { label: 'Hết hạn', value: stats.expired, color: 'danger' },
+            { label: 'Tạm dừng', value: stats.suspended, color: 'warning' },
+          ]}
+        />
 
         {/* Filter bar */}
         <div className="flex flex-wrap items-center gap-2">

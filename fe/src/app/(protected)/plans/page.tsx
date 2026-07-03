@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { usePlanStore } from '@/src/stores/planStore';
 import { toast } from '@/src/utils/toast';
+import StatsGrid from '@/src/components/ui/StatsGrid';
+import AddButton from '@/src/components/ui/AddButton';
 import type { SubscriptionPlan, PlanType, CreatePlanPayload, UpdatePlanPayload } from '@/src/types/plan.types';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -415,16 +417,7 @@ export default function PlansPage() {
             <h1 className="text-2xl font-bold text-text-primary">Gói tập</h1>
             <p className="text-sm text-text-muted mt-0.5">Quản lý các gói đăng ký dịch vụ phòng gym</p>
           </div>
-          <button
-            onClick={openCreate}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600
-              text-sm font-semibold text-white shadow transition-all duration-150 cursor-pointer"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Thêm gói tập
-          </button>
+          <AddButton onClick={openCreate} label="Thêm gói tập" />
         </div>
 
         {/* Error banner */}
@@ -443,22 +436,17 @@ export default function PlansPage() {
         )}
 
         {/* Stats row */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          {[
-            { label: 'Tổng gói', value: stats.total, color: 'text-text-primary' },
-            { label: 'Hoạt động', value: stats.active, color: 'text-success-500' },
-            { label: '☁️ Cơ bản', value: stats.basic, color: 'text-sky-500' },
-            { label: '🔥 Premium', value: stats.premium, color: 'text-primary-500' },
-            { label: '👑 VIP', value: stats.vip, color: 'text-violet-500' },
-          ].map((s) => (
-            <div key={s.label} className="bg-surface-base border border-surface-border rounded-xl px-4 py-3 flex flex-col gap-1">
-              <p className="text-xs text-text-muted">{s.label}</p>
-              <p className={`text-2xl font-bold ${s.color}`}>
-                {isLoading ? <span className="inline-block h-7 w-8 bg-surface-overlay rounded animate-pulse" /> : s.value}
-              </p>
-            </div>
-          ))}
-        </div>
+        <StatsGrid
+          isLoading={isLoading}
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"
+          items={[
+            { label: 'Tổng gói', value: stats.total, color: 'primary' },
+            { label: 'Hoạt động', value: stats.active, color: 'success' },
+            { label: '☁️ Cơ bản', value: stats.basic, color: 'secondary' },
+            { label: '🔥 Premium', value: stats.premium, color: 'primary' },
+            { label: '👑 VIP', value: stats.vip, color: 'warning' },
+          ]}
+        />
 
         {/* Filter bar */}
         <div className="flex flex-wrap items-center gap-2">

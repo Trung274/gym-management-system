@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useBookingStore } from '@/src/stores/bookingStore';
 import { toast } from '@/src/utils/toast';
+import StatsGrid from '@/src/components/ui/StatsGrid';
 import type { Booking, BookingStatus, BookingQueryParams } from '@/src/types/booking.types';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -253,22 +254,17 @@ export default function BookingsPage() {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          {[
-            { label: 'Tổng', value: stats.total, color: 'text-text-primary' },
-            { label: 'Chờ xác nhận', value: stats.pending, color: 'text-warning-500' },
-            { label: 'Đã xác nhận', value: stats.confirmed, color: 'text-primary-500' },
-            { label: 'Hoàn thành', value: stats.completed, color: 'text-success-500' },
-            { label: 'Đã huỷ', value: stats.cancelled, color: 'text-text-muted' },
-          ].map((s) => (
-            <div key={s.label} className="bg-surface-base border border-surface-border rounded-xl px-4 py-3 flex flex-col gap-1">
-              <p className="text-xs text-text-muted">{s.label}</p>
-              <p className={`text-2xl font-bold ${s.color}`}>
-                {isLoading ? <span className="inline-block h-7 w-8 bg-surface-overlay rounded animate-pulse" /> : s.value}
-              </p>
-            </div>
-          ))}
-        </div>
+        <StatsGrid
+          isLoading={isLoading}
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"
+          items={[
+            { label: 'Tổng', value: stats.total, color: 'primary' },
+            { label: 'Chờ xác nhận', value: stats.pending, color: 'warning' },
+            { label: 'Đã xác nhận', value: stats.confirmed, color: 'primary' },
+            { label: 'Hoàn thành', value: stats.completed, color: 'success' },
+            { label: 'Đã huỷ', value: stats.cancelled, color: 'secondary' },
+          ]}
+        />
 
         {/* Filter bar */}
         <div className="flex flex-wrap items-center gap-2">

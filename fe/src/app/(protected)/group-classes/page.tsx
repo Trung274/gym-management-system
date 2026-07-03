@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Plus, Pencil, X, ChevronDown, AlertCircle, Search, Loader2 } from 'lucide-react';
 import { useClassStore } from '@/src/stores/classStore';
+import StatsGrid from '@/src/components/ui/StatsGrid';
+import AddButton from '@/src/components/ui/AddButton';
 import { DAY_LABELS, CATEGORY_LABELS, STATUS_LABELS } from '@/src/lib/classHelpers';
 import { toast } from '@/src/utils/toast';
 import { getTrainers } from '@/src/lib/trainerService';
@@ -383,10 +385,7 @@ export default function GroupClassesPage() {
             <h1 className="text-2xl font-bold text-text-primary">Lớp học nhóm</h1>
             <p className="text-sm text-text-muted mt-0.5">Quản lý lịch và danh sách lớp học thể dục nhóm</p>
           </div>
-          <button onClick={() => { setEditing(null); setModalOpen(true); }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-sm font-semibold text-white shadow cursor-pointer transition-all">
-            <Plus size={16} /> Thêm lớp
-          </button>
+          <AddButton onClick={() => { setEditing(null); setModalOpen(true); }} label="Thêm lớp" />
         </div>
 
         {/* Error */}
@@ -399,21 +398,15 @@ export default function GroupClassesPage() {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { label: 'Tổng lớp',    value: stats.total,     color: 'text-text-primary' },
-            { label: 'Đang hoạt động', value: stats.active,  color: 'text-success-500' },
-            { label: 'Đã hủy',      value: stats.cancelled, color: 'text-danger-500' },
-            { label: 'Đã kết thúc', value: stats.completed, color: 'text-text-muted' },
-          ].map((s) => (
-            <div key={s.label} className="bg-surface-base border border-surface-border rounded-xl px-4 py-3">
-              <p className="text-xs text-text-muted">{s.label}</p>
-              <p className={`text-2xl font-bold mt-1 ${s.color}`}>
-                {isLoading ? <span className="inline-block h-7 w-8 bg-surface-overlay rounded animate-pulse" /> : s.value}
-              </p>
-            </div>
-          ))}
-        </div>
+        <StatsGrid
+          isLoading={isLoading}
+          items={[
+            { label: 'Tổng lớp', value: stats.total, color: 'primary' },
+            { label: 'Đang hoạt động', value: stats.active, color: 'success' },
+            { label: 'Đã hủy', value: stats.cancelled, color: 'danger' },
+            { label: 'Đã kết thúc', value: stats.completed, color: 'secondary' },
+          ]}
+        />
 
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-2">
