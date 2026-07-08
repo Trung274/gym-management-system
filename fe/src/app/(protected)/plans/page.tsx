@@ -5,6 +5,7 @@ import { usePlanStore } from '@/src/stores/planStore';
 import { toast } from '@/src/utils/toast';
 import StatsGrid from '@/src/components/ui/StatsGrid';
 import AddButton from '@/src/components/ui/AddButton';
+import PageHeader from '@/src/components/ui/PageHeader';
 import type { SubscriptionPlan, PlanType, CreatePlanPayload, UpdatePlanPayload } from '@/src/types/plan.types';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -527,13 +528,10 @@ export default function PlansPage() {
       <div className="flex flex-col gap-6 max-w-7xl mx-auto">
         {/* Page header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <span className="text-primary-500 font-headline font-bold uppercase tracking-widest text-xs mb-1 block">Revenue Strategy</span>
-            <h1 className="text-3xl md:text-4xl font-black font-headline text-text-primary tracking-tight leading-none">Quản lí gói tập</h1>
-            <p className="text-text-secondary text-sm max-w-lg mt-1.5">
-              Engineered for growth. Manage your subscription ecosystem, analyze tier density, and deploy new high-performance plans.
-            </p>
-          </div>
+          <PageHeader
+            title="Gói Tập"
+            subtitle="Quản lý hệ sinh thái gói đăng ký, phân tích mật độ phân hạng và triển khai gói mới."
+          />
           <div className="flex items-center gap-3">
             <button
               onClick={scrollToAnalytics}
