@@ -9,8 +9,10 @@ import {
 import { getGymInfo, updateGymInfo } from '@/src/lib/gymInfoService';
 import PageHeader from '@/src/components/ui/PageHeader';
 import { toast } from '@/src/utils/toast';
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import { usePageTitle } from '@/src/hooks/usePageTitle';
 
-// ─── Form state shape (all strings for controlled inputs) ───────────────────
+// ─── Form state shape ────────────────────────────────────────────────────────
 interface GymInfoForm {
   name: string;
   tagline: string;
@@ -23,7 +25,6 @@ interface GymInfoForm {
   coverImageUrl: string;
   established: string;
   openingHours: string;
-  // social links as flat strings
   facebook: string;
   instagram: string;
   youtube: string;
@@ -39,7 +40,7 @@ const DEFAULT_FORM: GymInfoForm = {
   facebook: '', instagram: '', youtube: '', tiktok: '',
 };
 
-// ─── Helper ──────────────────────────────────────────────────────────────────
+// ─── Helper components ────────────────────────────────────────────────────────
 function SectionCard({ title, icon: Icon, children }: {
   title: string; icon: React.ElementType; children: React.ReactNode;
 }) {
@@ -72,7 +73,7 @@ const inp = `w-full px-3 py-2.5 rounded-xl border border-surface-border bg-surfa
   text-sm text-text-primary placeholder-text-muted outline-none
   focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all`;
 
-const textarea = `w-full px-3 py-2.5 rounded-xl border border-surface-border bg-surface-raised
+const textareaClass = `w-full px-3 py-2.5 rounded-xl border border-surface-border bg-surface-raised
   text-sm text-text-primary placeholder-text-muted outline-none resize-none
   focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all`;
 
@@ -83,13 +84,16 @@ export default function GymInfoPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { t } = useLanguage();
+  const tg = t('gym-info');
+  usePageTitle('gym-info');
+
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const info = await getGymInfo();
 
-      // Parse social links regardless of format
       let fb = '', ig = '', yt = '', tt = '';
       if (info.socialLinks) {
         if (typeof info.socialLinks === 'object') {
@@ -97,7 +101,6 @@ export default function GymInfoPage() {
           fb = s.facebook || ''; ig = s.instagram || '';
           yt = s.youtube || '';  tt = s.tiktok || '';
         } else if (typeof info.socialLinks === 'string') {
-          // parse "Facebook: URL, Instagram: URL" style
           info.socialLinks.split(',').forEach((item: string) => {
             const idx = item.indexOf(':');
             if (idx === -1) return;
@@ -111,7 +114,6 @@ export default function GymInfoPage() {
         }
       }
 
-      // Parse opening hours
       let oh = '';
       if (info.openingHours) {
         if (typeof info.openingHours === 'string') {
@@ -138,10 +140,11 @@ export default function GymInfoPage() {
         facebook: fb, instagram: ig, youtube: yt, tiktok: tt,
       });
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Không thể tải thông tin gym');
+      setError(err?.response?.data?.message || tg('toast.loadError'));
     } finally {
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
@@ -151,10 +154,9 @@ export default function GymInfoPage() {
       setForm(prev => ({ ...prev, [key]: e.target.value }));
 
   const handleSave = async () => {
-    if (!form.name.trim()) { toast.error('Tên phòng gym là bắt buộc'); return; }
+    if (!form.name.trim()) { toast.error(tg('validation.nameRequired')); return; }
     setSaving(true);
     try {
-      // Build socialLinks as plain string to match current backend schema
       const socialParts: string[] = [];
       if (form.facebook)  socialParts.push(`Facebook: ${form.facebook}`);
       if (form.instagram) socialParts.push(`Instagram: ${form.instagram}`);
@@ -175,9 +177,9 @@ export default function GymInfoPage() {
         openingHours:  form.openingHours || undefined,
         socialLinks:   socialParts.length ? socialParts.join(', ') : undefined,
       });
-      toast.success('Đã lưu thông tin gym thành công!');
+      toast.success(tg('toast.saveSuccess'));
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Lưu thất bại');
+      toast.error(err?.response?.data?.message || tg('toast.saveError'));
     } finally {
       setSaving(false);
     }
@@ -196,14 +198,14 @@ export default function GymInfoPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <PageHeader
-          title="Thông tin Gym"
-          subtitle="Quản lý thông tin hiển thị của phòng gym"
+          title={tg('title')}
+          subtitle={tg('subtitle')}
         />
         <div className="flex gap-2">
           <button onClick={loadData} disabled={loading}
             className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-surface-border text-sm font-semibold text-text-secondary hover:bg-surface-overlay disabled:opacity-50 cursor-pointer transition-all">
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-            Làm mới
+            {tg('actions.refresh')}
           </button>
           <button onClick={handleSave} disabled={saving}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-sm font-semibold text-white disabled:opacity-50 cursor-pointer transition-all shadow">
@@ -211,7 +213,7 @@ export default function GymInfoPage() {
               ? <RefreshCw size={14} className="animate-spin" />
               : <Save size={14} />
             }
-            {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
+            {saving ? tg('actions.saving') : tg('actions.save')}
           </button>
         </div>
       </div>
@@ -227,60 +229,60 @@ export default function GymInfoPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* ── Basic Info ── */}
         <div className="md:col-span-2">
-          <SectionCard title="Thông tin cơ bản" icon={Building2}>
+          <SectionCard title={tg('basicInfo')} icon={Building2}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field label="Tên phòng gym *">
+              <Field label={tg('gymName')}>
                 <input type="text" value={form.name} onChange={set('name')}
-                  placeholder="VD: FitZone Gym" className={inp} />
+                  placeholder={tg('gymNamePlaceholder')} className={inp} />
               </Field>
-              <Field label="Tagline / Slogan">
+              <Field label={tg('tagline')}>
                 <input type="text" value={form.tagline} onChange={set('tagline')}
-                  placeholder="VD: Your Health, Our Priority" className={inp} />
+                  placeholder={tg('taglinePlaceholder')} className={inp} />
               </Field>
-              <Field label="Năm thành lập">
+              <Field label={tg('established')}>
                 <input type="number" value={form.established} onChange={set('established')}
-                  placeholder="VD: 2018" min="1900" max="2099" className={inp} />
+                  placeholder={tg('establishedPlaceholder')} min="1900" max="2099" className={inp} />
               </Field>
-              <Field label="Mô tả" >
+              <Field label={tg('description')}>
                 <textarea value={form.description} onChange={set('description')} rows={3}
-                  placeholder="Mô tả ngắn về phòng gym..." className={textarea} />
+                  placeholder={tg('descriptionPlaceholder')} className={textareaClass} />
               </Field>
             </div>
           </SectionCard>
         </div>
 
         {/* ── Contact ── */}
-        <SectionCard title="Liên hệ" icon={Phone}>
+        <SectionCard title={tg('contact')} icon={Phone}>
           <div className="flex flex-col gap-4">
-            <Field label="Địa chỉ">
+            <Field label={tg('address')}>
               <div className="relative">
                 <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
                 <input type="text" value={form.address} onChange={set('address')}
-                  placeholder="Số nhà, đường, quận, thành phố..."
+                  placeholder={tg('addressPlaceholder')}
                   className={inp.replace('px-3', 'pl-8 pr-3')} />
               </div>
             </Field>
-            <Field label="Số điện thoại">
+            <Field label={tg('phone')}>
               <div className="relative">
                 <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
                 <input type="tel" value={form.phone} onChange={set('phone')}
-                  placeholder="VD: 0901 234 567"
+                  placeholder={tg('phonePlaceholder')}
                   className={inp.replace('px-3', 'pl-8 pr-3')} />
               </div>
             </Field>
-            <Field label="Email liên hệ">
+            <Field label={tg('email')}>
               <div className="relative">
                 <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
                 <input type="email" value={form.email} onChange={set('email')}
-                  placeholder="VD: info@gymms.com"
+                  placeholder={tg('emailPlaceholder')}
                   className={inp.replace('px-3', 'pl-8 pr-3')} />
               </div>
             </Field>
-            <Field label="Website">
+            <Field label={tg('website')}>
               <div className="relative">
                 <Globe size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
                 <input type="url" value={form.website} onChange={set('website')}
-                  placeholder="https://..."
+                  placeholder={tg('websitePlaceholder')}
                   className={inp.replace('px-3', 'pl-8 pr-3')} />
               </div>
             </Field>
@@ -288,9 +290,9 @@ export default function GymInfoPage() {
         </SectionCard>
 
         {/* ── Social links ── */}
-        <SectionCard title="Mạng xã hội" icon={ExternalLink}>
+        <SectionCard title={tg('socialLinks')} icon={ExternalLink}>
           <div className="flex flex-col gap-4">
-            <Field label="Facebook">
+            <Field label={tg('facebook')}>
               <div className="relative">
                 <ExternalLink size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
                 <input type="url" value={form.facebook} onChange={set('facebook')}
@@ -298,7 +300,7 @@ export default function GymInfoPage() {
                   className={inp.replace('px-3', 'pl-8 pr-3')} />
               </div>
             </Field>
-            <Field label="Instagram">
+            <Field label={tg('instagram')}>
               <div className="relative">
                 <Tag size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
                 <input type="url" value={form.instagram} onChange={set('instagram')}
@@ -306,7 +308,7 @@ export default function GymInfoPage() {
                   className={inp.replace('px-3', 'pl-8 pr-3')} />
               </div>
             </Field>
-            <Field label="YouTube">
+            <Field label={tg('youtube')}>
               <div className="relative">
                 <ExternalLink size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
                 <input type="url" value={form.youtube} onChange={set('youtube')}
@@ -314,7 +316,7 @@ export default function GymInfoPage() {
                   className={inp.replace('px-3', 'pl-8 pr-3')} />
               </div>
             </Field>
-            <Field label="TikTok">
+            <Field label={tg('tiktok')}>
               <div className="relative">
                 <ExternalLink size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
                 <input type="url" value={form.tiktok} onChange={set('tiktok')}
@@ -326,9 +328,9 @@ export default function GymInfoPage() {
         </SectionCard>
 
         {/* ── Images ── */}
-        <SectionCard title="Hình ảnh" icon={ImageIcon}>
+        <SectionCard title={tg('images')} icon={ImageIcon}>
           <div className="flex flex-col gap-4">
-            <Field label="URL Logo" hint="Đường dẫn trực tiếp đến ảnh logo (jpg, png, webp...)">
+            <Field label={tg('logoUrl')} hint={tg('logoHint')}>
               <input type="url" value={form.logoUrl} onChange={set('logoUrl')}
                 placeholder="https://..." className={inp} />
               {form.logoUrl && (
@@ -337,7 +339,7 @@ export default function GymInfoPage() {
                   onError={e => (e.currentTarget.style.display = 'none')} />
               )}
             </Field>
-            <Field label="URL Ảnh bìa" hint="Ảnh banner hiển thị trên trang portal hội viên">
+            <Field label={tg('coverImageUrl')} hint={tg('coverHint')}>
               <input type="url" value={form.coverImageUrl} onChange={set('coverImageUrl')}
                 placeholder="https://..." className={inp} />
               {form.coverImageUrl && (
@@ -350,15 +352,12 @@ export default function GymInfoPage() {
         </SectionCard>
 
         {/* ── Opening Hours ── */}
-        <SectionCard title="Giờ mở cửa" icon={Clock}>
-          <Field
-            label="Giờ mở cửa"
-            hint='Nhập dạng văn bản, các ngày phân cách bằng dấu phẩy. VD: "Thứ 2-6: 06:00 - 22:00, Thứ 7-CN: 08:00 - 20:00"'
-          >
+        <SectionCard title={tg('openingHours')} icon={Clock}>
+          <Field label={tg('openingHours')} hint={tg('openingHoursHint')}>
             <textarea
               value={form.openingHours} onChange={set('openingHours')} rows={5}
-              placeholder={'Thứ 2 - Thứ 6: 06:00 - 22:00,\nThứ 7: 08:00 - 20:00,\nChủ nhật: 08:00 - 18:00'}
-              className={textarea}
+              placeholder={tg('openingHoursPlaceholder')}
+              className={textareaClass}
             />
           </Field>
         </SectionCard>
@@ -369,7 +368,7 @@ export default function GymInfoPage() {
         <button onClick={handleSave} disabled={saving}
           className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary-500 hover:bg-primary-600 text-sm font-semibold text-white disabled:opacity-50 cursor-pointer transition-all shadow-lg">
           {saving ? <RefreshCw size={15} className="animate-spin" /> : <Save size={15} />}
-          {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
+          {saving ? tg('actions.saving') : tg('actions.save')}
         </button>
       </div>
     </div>

@@ -1,0 +1,74 @@
+{
+  "title": "Staff",
+  "subtitle": "Manage staff accounts and permissions",
+  "addStaff": "Add Staff",
+  "stats": {
+    "total": "Total Staff",
+    "active": "Active",
+    "admin": "Admin",
+    "manager": "Manager",
+    "staff": "Staff",
+    "trainer": "Trainer",
+    "hlv": "Trainer"
+  },
+  "roles": {
+    "admin": "Admin",
+    "manager": "Manager",
+    "staff": "Staff",
+    "trainer": "Trainer",
+    "user": "User",
+    "member": "Member"
+  },
+  "filters": {
+    "searchPlaceholder": "Search name, email...",
+    "role": "Role",
+    "status": "Status",
+    "count": "{{count}} staff"
+  },
+  "card": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "edit": "Edit",
+    "assignRole": "Assign Role",
+    "deactivate": "Deactivate",
+    "activate": "Activate"
+  },
+  "empty": {
+    "title": "No staff members yet",
+    "noResults": "No staff found matching the filters.",
+    "description": "Add the first staff member to get started."
+  },
+  "modal": {
+    "createTitle": "Add New Staff",
+    "editTitle": "Edit Staff",
+    "assignTitle": "Assign Role",
+    "assignDesc": "Select role for ",
+    "name": "Full Name",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "Min 6 characters",
+    "role": "Role",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save changes",
+    "add": "Add Staff"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Invalid email format",
+    "passwordRequired": "Password is required",
+    "passwordMin": "Password must be ≥ 6 characters",
+    "roleRequired": "Role is required"
+  },
+  "toast": {
+    "addSuccess": "Staff member added successfully!",
+    "editSuccess": "Updated successfully!",
+    "assignSuccess": "Role assigned successfully!",
+    "assignError": "Failed to assign role, please try again.",
+    "deactivateSuccess": "Account deactivated.",
+    "activateSuccess": "Account activated!",
+    "error": "An error occurred, please try again."
+  },
+  "pagination": "Page {{current}}/{{total}} · {{count}} staff"
+}

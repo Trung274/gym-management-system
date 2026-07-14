@@ -10,6 +10,8 @@ import { getDashboard } from '@/src/lib/dashboardService';
 import type { DashboardSnapshot } from '@/src/types/dashboard.types';
 import PageHeader from '@/src/components/ui/PageHeader';
 import StatsGrid from '@/src/components/ui/StatsGrid';
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import { usePageTitle } from '@/src/hooks/usePageTitle';
 
 // ─── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ icon: Icon, label, value, sub, accent = false, loading = false }: {
@@ -61,6 +63,10 @@ export default function DashboardPage() {
   const [generatedAt, setGeneratedAt] = useState<string>('');
   const [isLoading,   setIsLoading]   = useState(true);
   const [error,       setError]       = useState<string | null>(null);
+  const { t, lang } = useLanguage();
+  const td = t('dashboard');
+  const tc = t('common');
+  usePageTitle('dashboard');
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -70,32 +76,33 @@ export default function DashboardPage() {
       setSnapshot(snap);
       setGeneratedAt(ts);
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Không thể tải dashboard.');
+      setError(err?.response?.data?.message || 'Failed to load dashboard data');
     } finally {
       setIsLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
   const fmtTime = (iso: string) =>
-    new Date(iso).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    new Date(iso).toLocaleTimeString(lang === 'vi' ? 'vi-VN' : 'en-US', { hour: '2-digit', minute: '2-digit' });
 
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <PageHeader
-          title="Dashboard"
+          title={td('title')}
           subtitle={generatedAt && !isLoading ? (
             <span className="flex items-center gap-1">
-              <Clock size={11} /> Cập nhật lúc {fmtTime(generatedAt)}
+              <Clock size={11} /> {td('subtitle')} {fmtTime(generatedAt)}
             </span>
           ) : undefined}
         />
         <button onClick={load} disabled={isLoading}
           className="flex items-center gap-2 px-3 py-2 rounded-xl border border-surface-border text-sm font-semibold text-text-secondary hover:bg-surface-overlay disabled:opacity-50 cursor-pointer transition-all">
-          <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} /> Làm mới
+          <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} /> {td('refresh')}
         </button>
       </div>
 
@@ -104,7 +111,7 @@ export default function DashboardPage() {
         <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm">
           <AlertCircle size={16} className="shrink-0" />
           <span className="flex-1">{error}</span>
-          <button onClick={load} className="underline text-xs cursor-pointer">Thử lại</button>
+          <button onClick={load} className="underline text-xs cursor-pointer">{tc('actions.retry')}</button>
         </div>
       )}
 
@@ -112,10 +119,10 @@ export default function DashboardPage() {
       <StatsGrid
         isLoading={isLoading}
         items={[
-          { label: 'Tổng hội viên', value: snapshot?.members.total ?? 0, color: 'primary', icon: <Users className="w-16 h-16 text-primary-500" /> },
-          { label: 'HLV đang HĐ', value: snapshot?.trainers.active ?? 0, color: 'success', icon: <UserCheck className="w-16 h-16 text-success-500" /> },
-          { label: 'Check-in hôm nay', value: snapshot?.checkins.today ?? 0, color: 'warning', icon: <ScanLine className="w-16 h-16 text-warning-500" /> },
-          { label: 'Lịch PT chờ duyệt', value: snapshot?.bookings.pending ?? 0, color: 'danger', icon: <CalendarDays className="w-16 h-16 text-danger-500" /> },
+          { label: td('stats.totalMembers'),   value: snapshot?.members.total    ?? 0, color: 'primary', icon: <Users     className="w-16 h-16 text-primary-500" /> },
+          { label: td('stats.activeTrainers'), value: snapshot?.trainers.active  ?? 0, color: 'success', icon: <UserCheck  className="w-16 h-16 text-success-500" /> },
+          { label: td('stats.checkinsToday'),  value: snapshot?.checkins.today   ?? 0, color: 'warning', icon: <ScanLine   className="w-16 h-16 text-warning-500" /> },
+          { label: td('stats.pendingBookings'),value: snapshot?.bookings.pending  ?? 0, color: 'danger',  icon: <CalendarDays className="w-16 h-16 text-danger-500" /> },
         ]}
       />
 
@@ -124,31 +131,31 @@ export default function DashboardPage() {
 
         {/* Members detail */}
         <div className="bg-surface-base border border-surface-border rounded-2xl p-5">
-          <SectionHeader icon={Users} title="Hội viên" />
-          <MiniStat label="Đang hoạt động"  value={snapshot?.members.active    ?? 0} color="text-success-500" />
-          <MiniStat label="Bị tạm dừng"     value={snapshot?.members.suspended ?? 0} color="text-danger-500"  />
-          <MiniStat label="Mới tháng này"   value={snapshot?.members.newThisMonth ?? 0} color="text-primary-500" />
+          <SectionHeader icon={Users} title={td('sections.members')} />
+          <MiniStat label={td('stats.membersActive')}       value={snapshot?.members.active       ?? 0} color="text-success-500" />
+          <MiniStat label={td('stats.membersSuspended')}    value={snapshot?.members.suspended    ?? 0} color="text-danger-500"  />
+          <MiniStat label={td('stats.membersNewThisMonth')} value={snapshot?.members.newThisMonth ?? 0} color="text-primary-500" />
           {isLoading && <div className="mt-2 h-20 bg-surface-overlay rounded animate-pulse" />}
         </div>
 
         {/* Bookings detail */}
         <div className="bg-surface-base border border-surface-border rounded-2xl p-5">
-          <SectionHeader icon={CalendarDays} title="Lịch đặt PT" />
-          <MiniStat label="Tổng"             value={snapshot?.bookings.total              ?? 0} />
-          <MiniStat label="Chờ duyệt"        value={snapshot?.bookings.pending            ?? 0} color="text-warning-500" />
-          <MiniStat label="Đã xác nhận"      value={snapshot?.bookings.confirmed          ?? 0} color="text-success-500" />
-          <MiniStat label="Hoàn thành T/M"   value={snapshot?.bookings.completedThisMonth ?? 0} color="text-primary-500" />
+          <SectionHeader icon={CalendarDays} title={td('sections.bookings')} />
+          <MiniStat label={td('stats.bookingsTotal')}              value={snapshot?.bookings.total              ?? 0} />
+          <MiniStat label={td('stats.bookingsPending')}            value={snapshot?.bookings.pending            ?? 0} color="text-warning-500" />
+          <MiniStat label={td('stats.bookingsConfirmed')}          value={snapshot?.bookings.confirmed          ?? 0} color="text-success-500" />
+          <MiniStat label={td('stats.bookingsCompletedThisMonth')} value={snapshot?.bookings.completedThisMonth ?? 0} color="text-primary-500" />
           {isLoading && <div className="mt-2 h-20 bg-surface-overlay rounded animate-pulse" />}
         </div>
 
         {/* Equipment detail */}
         <div className="bg-surface-base border border-surface-border rounded-2xl p-5">
-          <SectionHeader icon={Wrench} title="Thiết bị" />
-          <MiniStat label="Đang hoạt động"  value={snapshot?.equipment.operational ?? 0} color="text-success-500" />
-          <MiniStat label="Đang bảo trì"    value={snapshot?.equipment.maintenance ?? 0} color="text-warning-500" />
-          <MiniStat label="Hỏng / nghỉ"     value={snapshot?.equipment.outOfOrder  ?? 0} color="text-danger-500"  />
+          <SectionHeader icon={Wrench} title={td('sections.equipment')} />
+          <MiniStat label={td('stats.equipmentOperational')} value={snapshot?.equipment.operational ?? 0} color="text-success-500" />
+          <MiniStat label={td('stats.equipmentMaintenance')} value={snapshot?.equipment.maintenance ?? 0} color="text-warning-500" />
+          <MiniStat label={td('stats.equipmentOutOfOrder')}  value={snapshot?.equipment.outOfOrder  ?? 0} color="text-danger-500"  />
           <div className="mt-3 flex items-center justify-between text-xs text-text-muted">
-            <span>Tổng thiết bị</span>
+            <span>{td('stats.equipmentTotal')}</span>
             <span className="font-bold text-text-primary">{snapshot?.equipment.total ?? 0}</span>
           </div>
           {isLoading && <div className="mt-2 h-20 bg-surface-overlay rounded animate-pulse" />}
@@ -160,14 +167,14 @@ export default function DashboardPage() {
 
         {/* Today's class schedule */}
         <div className="md:col-span-2 bg-surface-base border border-surface-border rounded-2xl p-5">
-          <SectionHeader icon={Users2} title="Lịch lớp học hôm nay" />
+          <SectionHeader icon={Users2} title={td('sections.classes')} />
           {isLoading
             ? <div className="h-32 bg-surface-overlay rounded animate-pulse" />
             : !snapshot?.classes.todaySchedule.length
               ? (
                 <div className="flex flex-col items-center justify-center py-8 text-text-muted">
                   <Users2 size={32} className="mb-2 opacity-30" />
-                  <p className="text-sm">Không có lớp học nào hôm nay</p>
+                  <p className="text-sm">{td('noClassesToday')}</p>
                 </div>
               )
               : (
@@ -196,16 +203,16 @@ export default function DashboardPage() {
         {/* Plans + Classes summary */}
         <div className="flex flex-col gap-4">
           <div className="bg-surface-base border border-surface-border rounded-2xl p-5 flex-1">
-            <SectionHeader icon={ClipboardList} title="Gói tập" />
-            <MiniStat label="Đang kích hoạt" value={snapshot?.plans.active ?? 0} color="text-success-500" />
-            <MiniStat label="Tổng gói"        value={snapshot?.plans.total  ?? 0} />
+            <SectionHeader icon={ClipboardList} title={td('sections.plans')} />
+            <MiniStat label={td('stats.plansActive')} value={snapshot?.plans.active ?? 0} color="text-success-500" />
+            <MiniStat label={td('stats.plansTotal')}  value={snapshot?.plans.total  ?? 0} />
             {isLoading && <div className="mt-2 h-10 bg-surface-overlay rounded animate-pulse" />}
           </div>
 
           <div className="bg-surface-base border border-surface-border rounded-2xl p-5 flex-1">
-            <SectionHeader icon={TrendingUp} title="Lớp học nhóm" />
-            <MiniStat label="Đang hoạt động" value={snapshot?.classes.active ?? 0} color="text-success-500" />
-            <MiniStat label="Tổng lớp"        value={snapshot?.classes.total  ?? 0} />
+            <SectionHeader icon={TrendingUp} title={td('sections.groupClasses')} />
+            <MiniStat label={td('stats.classesActive')} value={snapshot?.classes.active ?? 0} color="text-success-500" />
+            <MiniStat label={td('stats.classesTotal')}  value={snapshot?.classes.total  ?? 0} />
             {isLoading && <div className="mt-2 h-10 bg-surface-overlay rounded animate-pulse" />}
           </div>
         </div>

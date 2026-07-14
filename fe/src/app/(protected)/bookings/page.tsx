@@ -6,6 +6,8 @@ import { toast } from '@/src/utils/toast';
 import StatsGrid from '@/src/components/ui/StatsGrid';
 import type { Booking, BookingStatus, BookingQueryParams } from '@/src/types/booking.types';
 import PageHeader from '@/src/components/ui/PageHeader';
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import { usePageTitle } from '@/src/hooks/usePageTitle';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUS_STYLES: Record<BookingStatus, { badge: string; dot: string }> = {
@@ -15,12 +17,12 @@ const STATUS_STYLES: Record<BookingStatus, { badge: string; dot: string }> = {
   cancelled: { badge: 'bg-surface-overlay text-text-muted',  dot: 'bg-text-muted' },
 };
 
-const STATUS_OPTIONS: { value: BookingStatus | 'all'; label: string }[] = [
-  { value: 'all',       label: 'Tất cả' },
-  { value: 'pending',   label: 'Chờ xác nhận' },
-  { value: 'confirmed', label: 'Đã xác nhận' },
-  { value: 'completed', label: 'Hoàn thành' },
-  { value: 'cancelled', label: 'Đã huỷ' },
+const STATUS_OPTION_KEYS: { value: BookingStatus | 'all'; key: string }[] = [
+  { value: 'all',       key: 'common:actions.viewAll' },
+  { value: 'pending',   key: 'status.pending' },
+  { value: 'confirmed', key: 'status.confirmed' },
+  { value: 'completed', key: 'status.completed' },
+  { value: 'cancelled', key: 'status.cancelled' },
 ];
 
 // ─── Cancel Modal ─────────────────────────────────────────────────────────────
@@ -166,6 +168,15 @@ function BookingRow({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function BookingsPage() {
+  const { t } = useLanguage();
+  const tb = t('bookings');
+  const tCommon = t('common');
+  usePageTitle('bookings');
+
+  const STATUS_OPTIONS = STATUS_OPTION_KEYS.map(({ value, key }) => ({
+    value,
+    label: key.startsWith('common:') ? tCommon(key.replace('common:', '')) : tb(key),
+  }));
   const { bookings, isLoading, error, fetchBookings, confirmBooking, cancelBooking, completeBooking, clearError } = useBookingStore();
 
   const [filterStatus, setFilterStatus] = useState<BookingStatus | 'all'>('all');
@@ -209,42 +220,39 @@ export default function BookingsPage() {
     setActingId(b.id);
     try {
       await confirmBooking(b.id);
-      toast.success('Đã xác nhận lịch đặt!');
+      toast.success(tb('toast.bookSuccess'));
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Xác nhận thất bại.');
+      toast.error(err?.response?.data?.message || tb('toast.bookError'));
     } finally { setActingId(null); }
-  }, [confirmBooking]);
+  }, [confirmBooking, tb]);
 
   const handleCancel = useCallback(async (id: string, reason: string) => {
     setCancelling(true);
     try {
       await cancelBooking(id, reason ? { cancellationReason: reason } : undefined);
-      toast.success('Đã huỷ lịch đặt.');
+      toast.success(tb('toast.cancelSuccess'));
       setCancelTarget(null);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Huỷ lịch thất bại.');
+      toast.error(err?.response?.data?.message || tb('toast.cancelError'));
     } finally { setCancelling(false); }
-  }, [cancelBooking]);
+  }, [cancelBooking, tb]);
 
   const handleComplete = useCallback(async (b: Booking) => {
     setActingId(b.id);
     try {
       await completeBooking(b.id);
-      toast.success('Đã đánh dấu hoàn thành!');
+      toast.success(tb('toast.bookSuccess'));
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Thao tác thất bại.');
+      toast.error(err?.response?.data?.message || tb('toast.bookError'));
     } finally { setActingId(null); }
-  }, [completeBooking]);
+  }, [completeBooking, tb]);
 
   return (
     <>
       <div className="flex flex-col gap-6 max-w-7xl mx-auto">
         {/* Page header */}
         <div className="flex items-center justify-between gap-4">
-          <PageHeader
-            title="Lịch đặt PT"
-            subtitle="Quản lý lịch đặt buổi tập cá nhân với huấn luyện viên"
-          />
+          <PageHeader title={tb('title')} subtitle={tb('subtitle')} />
         </div>
 
 
@@ -262,11 +270,11 @@ export default function BookingsPage() {
           isLoading={isLoading}
           className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"
           items={[
-            { label: 'Tổng', value: stats.total, color: 'primary' },
-            { label: 'Chờ xác nhận', value: stats.pending, color: 'warning' },
-            { label: 'Đã xác nhận', value: stats.confirmed, color: 'primary' },
-            { label: 'Hoàn thành', value: stats.completed, color: 'success' },
-            { label: 'Đã huỷ', value: stats.cancelled, color: 'secondary' },
+            { label: tCommon('status.pending'),   value: stats.pending,   color: 'warning'   },
+            { label: tCommon('status.confirmed'),  value: stats.confirmed, color: 'primary'   },
+            { label: tCommon('status.completed'),  value: stats.completed, color: 'success'   },
+            { label: tCommon('status.cancelled'),  value: stats.cancelled, color: 'secondary' },
+            { label: tCommon('actions.viewAll'),   value: stats.total,     color: 'primary'   },
           ]}
         />
 
@@ -315,7 +323,7 @@ export default function BookingsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-surface-border bg-surface-raised">
-                  {['Hội viên', 'Huấn luyện viên', 'Ngày / Giờ', 'Trạng thái', 'Ghi chú', 'Hành động'].map((h) => (
+                  {[tb('table.member'), tb('table.trainer'), tb('table.date'), tCommon('status.active'), tb('table.notes'), tCommon('actions.details')].map((h) => (
                     <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
                 </tr>

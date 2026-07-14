@@ -1,0 +1,79 @@
+{
+  "title": "Huấn luyện viên",
+  "subtitle": "Quản lý đội ngũ PT của phòng gym",
+  "addTrainer": "Thêm HLV",
+  "tagInputHelp": "Nhấn Enter để thêm",
+  "count": "HLV",
+  "stats": {
+    "total": "Tổng HLV",
+    "active": "Đang làm việc",
+    "inactive": "Nghỉ việc",
+    "avgExp": "Kinh nghiệm TB",
+    "years": "năm"
+  },
+  "card": {
+    "experience": "Kinh nghiệm",
+    "certifications": "Chứng chỉ",
+    "deactivate": "Ngừng hoạt động",
+    "activate": "Kích hoạt"
+  },
+  "filters": {
+    "active": "Đang làm",
+    "inactive": "Nghỉ việc",
+    "allSpecializations": "Mọi chuyên môn"
+  },
+  "searchPlaceholder": "Tìm tên, email...",
+  "status": {
+    "active": "Đang làm việc",
+    "inactive": "Nghỉ việc"
+  },
+  "empty": {
+    "title": "Chưa có huấn luyện viên nào",
+    "noResult": "Không có kết quả phù hợp.",
+    "description": "Thêm HLV đầu tiên để bắt đầu."
+  },
+  "modal": {
+    "createTitle": "Thêm huấn luyện viên",
+    "editTitle": "Chỉnh sửa HLV",
+    "accountInfo": "Thông tin tài khoản",
+    "name": "Họ tên",
+    "namePlaceholder": "Nguyễn Văn PT",
+    "loginEmail": "Email đăng nhập",
+    "loginEmailPlaceholder": "trainer@gym.com",
+    "password": "Mật khẩu",
+    "passwordPlaceholder": "Tối thiểu 6 ký tự",
+    "hireDate": "Ngày tuyển dụng",
+    "personalInfo": "Thông tin cá nhân",
+    "phone": "Số điện thoại",
+    "phonePlaceholder": "0912345678",
+    "personalEmail": "Email liên hệ cá nhân",
+    "personalEmailPlaceholder": "personal@email.com",
+    "dateOfBirth": "Ngày sinh",
+    "gender": "Giới tính",
+    "address": "Địa chỉ",
+    "addressPlaceholder": "123 Nguyễn Trãi, Hà Nội",
+    "specializationSection": "Chuyên môn",
+    "experienceYears": "Số năm kinh nghiệm",
+    "specializations": "Chuyên môn",
+    "certifications": "Chứng chỉ",
+    "bio": "Giới thiệu bản thân",
+    "bioPlaceholder": "Mô tả kinh nghiệm và phong cách huấn luyện...",
+    "genderNone": "Không chọn",
+    "genderMale": "Nam",
+    "genderFemale": "Nữ",
+    "genderOther": "Khác"
+  },
+  "toast": {
+    "addSuccess": "Thêm huấn luyện viên thành công!",
+    "editSuccess": "Cập nhật HLV thành công!",
+    "deactivateSuccess": "Đã ngừng hoạt động {{name}}.",
+    "activateSuccess": "Đã kích hoạt {{name}}!",
+    "error": "Có lỗi xảy ra.",
+    "statusError": "Thao tác thất bại."
+  },
+  "validation": {
+    "nameRequired": "Tên là bắt buộc",
+    "emailRequired": "Email là bắt buộc",
+    "passwordMin": "Mật khẩu phải ≥ 6 ký tự"
+  }
+}

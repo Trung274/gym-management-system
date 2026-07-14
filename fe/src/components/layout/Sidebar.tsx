@@ -17,25 +17,28 @@ import {
     ScanLine,
     Building2,
 } from 'lucide-react';
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
 
-// ─── Nav Items ────────────────────────────────────────────────────────────────
+// ─── Nav Items (label là translation key trong namespace "layout") ─────────────
 const NAV_ITEMS = [
-    { label: 'Dashboard',        href: '/dashboard',    Icon: LayoutDashboard },
-    { label: 'Hội viên',         href: '/members',      Icon: Users },
-    { label: 'Lịch đặt PT',      href: '/bookings',     Icon: CalendarDays },
-    { label: 'Lớp học nhóm',     href: '/group-classes', Icon: Users2 },
-    { label: 'Gói tập',          href: '/plans',        Icon: ClipboardList },
-    { label: 'Nhân viên',        href: '/staff',        Icon: Briefcase },
-    { label: 'Huấn luyện viên',  href: '/trainers',     Icon: UserCheck },
-    { label: 'Thiết bị',         href: '/equipment',    Icon: Wrench },
-    { label: 'Check-in',          href: '/checkins',     Icon: ScanLine },
-    { label: 'Thông tin Gym',    href: '/gym-info',     Icon: Building2 },
+    { labelKey: 'nav.dashboard',   href: '/dashboard',     Icon: LayoutDashboard },
+    { labelKey: 'nav.members',     href: '/members',       Icon: Users },
+    { labelKey: 'nav.bookings',    href: '/bookings',      Icon: CalendarDays },
+    { labelKey: 'nav.groupClasses',href: '/group-classes', Icon: Users2 },
+    { labelKey: 'nav.plans',       href: '/plans',         Icon: ClipboardList },
+    { labelKey: 'nav.staff',       href: '/staff',         Icon: Briefcase },
+    { labelKey: 'nav.trainers',    href: '/trainers',      Icon: UserCheck },
+    { labelKey: 'nav.equipment',   href: '/equipment',     Icon: Wrench },
+    { labelKey: 'nav.checkins',    href: '/checkins',      Icon: ScanLine },
+    { labelKey: 'nav.gymInfo',     href: '/gym-info',      Icon: Building2 },
 ] as const;
 
-// ─── Component ───────────────────────────────────────────────────────────────
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function Sidebar() {
     const pathname = usePathname();
     const [collapsed, setCollapsed] = useState(false);
+    const { t } = useLanguage();
+    const tLayout = t('layout');
 
     return (
         <aside
@@ -71,7 +74,8 @@ export default function Sidebar() {
 
             {/* Nav links */}
             <nav className="flex-1 py-4 px-2 flex flex-col gap-1">
-                {NAV_ITEMS.map(({ label, href, Icon }) => {
+                {NAV_ITEMS.map(({ labelKey, href, Icon }) => {
+                    const label = tLayout(labelKey);
                     const isActive =
                         href === '/dashboard'
                             ? pathname === '/dashboard' || pathname === '/'

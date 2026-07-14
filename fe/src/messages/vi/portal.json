@@ -1,0 +1,35 @@
+{
+  "title": "Hồ sơ cá nhân",
+  "subtitle": "Thông tin tài khoản và gói tập của bạn",
+  "editButton": "Chỉnh sửa",
+  "saveButton": "Lưu",
+  "cancelButton": "Hủy",
+  "fields": {
+    "name": "Họ tên",
+    "email": "Email",
+    "phone": "Điện thoại",
+    "idCard": "CMND/CCCD",
+    "dateOfBirth": "Ngày sinh",
+    "gender": "Giới tính",
+    "address": "Địa chỉ",
+    "notes": "Ghi chú"
+  },
+  "gender": {
+    "male": "Nam",
+    "female": "Nữ",
+    "other": "Khác"
+  },
+  "membership": {
+    "title": "Thông tin thành viên",
+    "plan": "Gói tập",
+    "status": "Trạng thái",
+    "expiry": "Ngày hết hạn",
+    "daysRemaining": "Còn {{days}} ngày",
+    "expired": "Đã hết hạn",
+    "noExpiry": "Không giới hạn"
+  },
+  "toast": {
+    "updateSuccess": "Cập nhật thành công!",
+    "updateError": "Cập nhật thất bại."
+  }
+}

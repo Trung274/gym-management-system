@@ -8,6 +8,8 @@ import AddButton from '@/src/components/ui/AddButton';
 import PageHeader from '@/src/components/ui/PageHeader';
 import type { Trainer, TrainerStatus, CreateTrainerPayload, UpdateTrainerPayload } from '@/src/types/trainer.types';
 import type { Gender } from '@/src/types/member.types';
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import { usePageTitle } from '@/src/hooks/usePageTitle';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AVATAR_COLORS = [
@@ -19,11 +21,11 @@ const AVATAR_COLORS = [
 ];
 const avatarColor = (id: string) => AVATAR_COLORS[id.charCodeAt(id.length - 1) % AVATAR_COLORS.length];
 
-const GENDER_OPTIONS: { value: Gender | ''; label: string }[] = [
-  { value: '', label: 'Không chọn' },
-  { value: 'male', label: 'Nam' },
-  { value: 'female', label: 'Nữ' },
-  { value: 'other', label: 'Khác' },
+const GENDER_OPTIONS: { value: Gender | ''; labelKey: string }[] = [
+  { value: '', labelKey: 'genderNone' },
+  { value: 'male', labelKey: 'genderMale' },
+  { value: 'female', labelKey: 'genderFemale' },
+  { value: 'other', labelKey: 'genderOther' },
 ];
 
 const EMPTY_CREATE: CreateTrainerPayload = {
@@ -38,6 +40,8 @@ const EMPTY_CREATE: CreateTrainerPayload = {
 function TagInput({ value, onChange, placeholder }: {
   value: string[]; onChange: (v: string[]) => void; placeholder?: string;
 }) {
+  const { t } = useLanguage();
+  const te = t('trainers');
   const [input, setInput] = useState('');
   const add = () => {
     const v = input.trim();
@@ -59,7 +63,7 @@ function TagInput({ value, onChange, placeholder }: {
           className="flex-1 min-w-[120px] text-sm text-text-primary bg-transparent outline-none placeholder-text-muted"
         />
       </div>
-      <p className="text-xs text-text-muted">Nhấn Enter để thêm</p>
+      <p className="text-xs text-text-muted">{te('tagInputHelp')}</p>
     </div>
   );
 }
@@ -71,6 +75,10 @@ function TrainerCard({ trainer, onEdit, onToggleStatus, actingId }: {
   onToggleStatus: (t: Trainer) => void;
   actingId: string | null;
 }) {
+  const { t } = useLanguage();
+  const te = t('trainers');
+  const tCommon = t('common');
+
   const isActing = actingId === trainer.id;
   return (
     <div className={`bg-surface-base border border-surface-border rounded-2xl p-5 flex flex-col gap-4 transition-all duration-200 hover:shadow-md ${trainer.status === 'inactive' ? 'opacity-60' : ''}`}>
@@ -83,7 +91,7 @@ function TrainerCard({ trainer, onEdit, onToggleStatus, actingId }: {
           <p className="font-bold text-text-primary text-sm truncate">{trainer.name}</p>
           <p className="text-xs text-text-muted truncate">{trainer.loginEmail}</p>
           <span className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-semibold ${trainer.status === 'active' ? 'bg-success-500/15 text-success-500' : 'bg-surface-overlay text-text-muted'}`}>
-            {trainer.statusLabel}
+            {te(`status.${trainer.status}`)}
           </span>
         </div>
       </div>
@@ -91,12 +99,12 @@ function TrainerCard({ trainer, onEdit, onToggleStatus, actingId }: {
       {/* Stats */}
       <div className="grid grid-cols-2 gap-2 text-center">
         <div className="bg-surface-raised rounded-xl py-2">
-          <p className="text-base font-bold text-primary-500">{trainer.experienceLabel}</p>
-          <p className="text-xs text-text-muted">Kinh nghiệm</p>
+          <p className="text-base font-bold text-primary-500">{trainer.experienceYears} {te('stats.years')}</p>
+          <p className="text-xs text-text-muted">{te('card.experience')}</p>
         </div>
         <div className="bg-surface-raised rounded-xl py-2">
           <p className="text-base font-bold text-text-primary">{trainer.certifications.length}</p>
-          <p className="text-xs text-text-muted">Chứng chỉ</p>
+          <p className="text-xs text-text-muted">{te('card.certifications')}</p>
         </div>
       </div>
 
@@ -119,7 +127,7 @@ function TrainerCard({ trainer, onEdit, onToggleStatus, actingId }: {
         <button onClick={() => onEdit(trainer)}
           className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-text-secondary bg-surface-overlay hover:bg-surface-border hover:text-text-primary transition-all cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>
-          Chỉnh sửa
+          {tCommon('actions.edit')}
         </button>
         <button onClick={() => onToggleStatus(trainer)} disabled={isActing}
           className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer disabled:opacity-50 ${trainer.status === 'active' ? 'bg-danger-500/10 text-danger-500 hover:bg-danger-500/20' : 'bg-success-500/10 text-success-500 hover:bg-success-500/20'}`}>
@@ -128,7 +136,7 @@ function TrainerCard({ trainer, onEdit, onToggleStatus, actingId }: {
           ) : (
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d={trainer.status === 'active' ? "M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" : "M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"} /></svg>
           )}
-          {trainer.status === 'active' ? 'Ngừng hoạt động' : 'Kích hoạt'}
+          {trainer.status === 'active' ? te('card.deactivate') : te('card.activate')}
         </button>
       </div>
     </div>
@@ -141,6 +149,10 @@ function TrainerModal({ open, editing, onClose, onSave, isLoading }: {
   onSave: (payload: CreateTrainerPayload | UpdateTrainerPayload, id?: string) => Promise<void>;
   isLoading: boolean;
 }) {
+  const { t } = useLanguage();
+  const te = t('trainers');
+  const tCommon = t('common');
+
   const [form, setForm] = useState<any>(EMPTY_CREATE);
   const [showPwd, setShowPwd] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -169,9 +181,9 @@ function TrainerModal({ open, editing, onClose, onSave, isLoading }: {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!editing && !form.name?.trim()) e.name = 'Tên là bắt buộc';
-    if (!editing && !form.email?.trim()) e.email = 'Email là bắt buộc';
-    if (!editing && (!form.password || form.password.length < 6)) e.password = 'Mật khẩu phải ≥ 6 ký tự';
+    if (!editing && !form.name?.trim()) e.name = te('validation.nameRequired');
+    if (!editing && !form.email?.trim()) e.email = te('validation.emailRequired');
+    if (!editing && (!form.password || form.password.length < 6)) e.password = te('validation.passwordMin');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -204,7 +216,7 @@ function TrainerModal({ open, editing, onClose, onSave, isLoading }: {
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-2xl bg-surface-base rounded-2xl shadow-2xl border border-surface-border overflow-hidden max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border shrink-0">
-          <h2 className="text-base font-bold text-text-primary">{editing ? 'Chỉnh sửa HLV' : 'Thêm huấn luyện viên'}</h2>
+          <h2 className="text-base font-bold text-text-primary">{editing ? te('modal.editTitle') : te('modal.createTitle')}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
           </button>
@@ -213,22 +225,22 @@ function TrainerModal({ open, editing, onClose, onSave, isLoading }: {
           {/* Tài khoản — chỉ khi tạo mới */}
           {!editing && (
             <div>
-              <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Thông tin tài khoản</p>
+              <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{te('modal.accountInfo')}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-text-secondary">Họ tên <span className="text-danger-500">*</span></label>
-                  <input type="text" value={form.name ?? ''} onChange={(e) => setF('name', e.target.value)} placeholder="Nguyễn Văn PT" className={inputCls('name')} />
+                  <label className="text-xs font-semibold text-text-secondary">{te('modal.name')} <span className="text-danger-500">*</span></label>
+                  <input type="text" value={form.name ?? ''} onChange={(e) => setF('name', e.target.value)} placeholder={te('modal.namePlaceholder')} className={inputCls('name')} />
                   {errors.name && <p className="text-xs text-danger-500">{errors.name}</p>}
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-text-secondary">Email đăng nhập <span className="text-danger-500">*</span></label>
-                  <input type="email" value={form.email ?? ''} onChange={(e) => setF('email', e.target.value)} placeholder="trainer@gym.com" className={inputCls('email')} />
+                  <label className="text-xs font-semibold text-text-secondary">{te('modal.loginEmail')} <span className="text-danger-500">*</span></label>
+                  <input type="email" value={form.email ?? ''} onChange={(e) => setF('email', e.target.value)} placeholder={te('modal.loginEmailPlaceholder')} className={inputCls('email')} />
                   {errors.email && <p className="text-xs text-danger-500">{errors.email}</p>}
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-text-secondary">Mật khẩu <span className="text-danger-500">*</span></label>
+                  <label className="text-xs font-semibold text-text-secondary">{te('modal.password')} <span className="text-danger-500">*</span></label>
                   <div className="relative">
-                    <input type={showPwd ? 'text' : 'password'} value={form.password ?? ''} onChange={(e) => setF('password', e.target.value)} placeholder="Tối thiểu 6 ký tự" className={`${inputCls('password')} pr-10`} />
+                    <input type={showPwd ? 'text' : 'password'} value={form.password ?? ''} onChange={(e) => setF('password', e.target.value)} placeholder={te('modal.passwordPlaceholder')} className={`${inputCls('password')} pr-10`} />
                     <button type="button" onClick={() => setShowPwd(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary cursor-pointer">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d={showPwd ? "M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" : "M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"} /></svg>
                     </button>
@@ -236,7 +248,7 @@ function TrainerModal({ open, editing, onClose, onSave, isLoading }: {
                   {errors.password && <p className="text-xs text-danger-500">{errors.password}</p>}
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-text-secondary">Ngày tuyển dụng</label>
+                  <label className="text-xs font-semibold text-text-secondary">{te('modal.hireDate')}</label>
                   <input type="date" value={form.hireDate ?? ''} onChange={(e) => setF('hireDate', e.target.value)} className={inputCls('hireDate')} />
                 </div>
               </div>
@@ -245,61 +257,61 @@ function TrainerModal({ open, editing, onClose, onSave, isLoading }: {
 
           {/* Thông tin cá nhân */}
           <div>
-            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Thông tin cá nhân</p>
+            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{te('modal.personalInfo')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Số điện thoại</label>
-                <input type="tel" value={form.phone ?? ''} onChange={(e) => setF('phone', e.target.value)} placeholder="0912345678" className={inputCls('phone')} />
+                <label className="text-xs font-semibold text-text-secondary">{te('modal.phone')}</label>
+                <input type="tel" value={form.phone ?? ''} onChange={(e) => setF('phone', e.target.value)} placeholder={te('modal.phonePlaceholder')} className={inputCls('phone')} />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Email liên hệ cá nhân</label>
-                <input type="email" value={form.trainerEmail ?? ''} onChange={(e) => setF('trainerEmail', e.target.value)} placeholder="personal@email.com" className={inputCls('trainerEmail')} />
+                <label className="text-xs font-semibold text-text-secondary">{te('modal.personalEmail')}</label>
+                <input type="email" value={form.trainerEmail ?? ''} onChange={(e) => setF('trainerEmail', e.target.value)} placeholder={te('modal.personalEmailPlaceholder')} className={inputCls('trainerEmail')} />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Ngày sinh</label>
+                <label className="text-xs font-semibold text-text-secondary">{te('modal.dateOfBirth')}</label>
                 <input type="date" value={form.dateOfBirth ?? ''} onChange={(e) => setF('dateOfBirth', e.target.value)} className={inputCls('dateOfBirth')} />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Giới tính</label>
+                <label className="text-xs font-semibold text-text-secondary">{te('modal.gender')}</label>
                 <select value={form.gender ?? ''} onChange={(e) => setF('gender', e.target.value || undefined)} className={inputCls('gender')}>
-                  {GENDER_OPTIONS.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
+                  {GENDER_OPTIONS.map((g) => <option key={g.value} value={g.value}>{te(`modal.${g.labelKey}`)}</option>)}
                 </select>
               </div>
               <div className="flex flex-col gap-1.5 sm:col-span-2">
-                <label className="text-xs font-semibold text-text-secondary">Địa chỉ</label>
-                <input type="text" value={form.address ?? ''} onChange={(e) => setF('address', e.target.value)} placeholder="123 Nguyễn Trãi, Hà Nội" className={inputCls('address')} />
+                <label className="text-xs font-semibold text-text-secondary">{te('modal.address')}</label>
+                <input type="text" value={form.address ?? ''} onChange={(e) => setF('address', e.target.value)} placeholder={te('modal.addressPlaceholder')} className={inputCls('address')} />
               </div>
             </div>
           </div>
 
           {/* Chuyên môn */}
           <div>
-            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Chuyên môn</p>
+            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{te('modal.specializationSection')}</p>
             <div className="flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Số năm kinh nghiệm</label>
+                <label className="text-xs font-semibold text-text-secondary">{te('modal.experienceYears')}</label>
                 <input type="number" min="0" max="50" value={form.experienceYears ?? 0} onChange={(e) => setF('experienceYears', e.target.value)} className={`${inputCls('experienceYears')} max-w-[180px]`} />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Chuyên môn</label>
+                <label className="text-xs font-semibold text-text-secondary">{te('modal.specializations')}</label>
                 <TagInput value={form.specializations ?? []} onChange={(v) => setF('specializations', v)} placeholder="VD: Yoga, Strength, Cardio..." />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Chứng chỉ</label>
+                <label className="text-xs font-semibold text-text-secondary">{te('modal.certifications')}</label>
                 <TagInput value={form.certifications ?? []} onChange={(v) => setF('certifications', v)} placeholder="VD: ACE CPT, CrossFit L1..." />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Giới thiệu bản thân</label>
-                <textarea rows={3} value={form.bio ?? ''} onChange={(e) => setF('bio', e.target.value)} placeholder="Mô tả kinh nghiệm và phong cách huấn luyện..." className={`${inputCls('bio')} resize-none`} />
+                <label className="text-xs font-semibold text-text-secondary">{te('modal.bio')}</label>
+                <textarea rows={3} value={form.bio ?? ''} onChange={(e) => setF('bio', e.target.value)} placeholder={te('modal.bioPlaceholder')} className={`${inputCls('bio')} resize-none`} />
               </div>
             </div>
           </div>
 
           <div className="flex gap-3 pt-2 sticky bottom-0 bg-surface-base border-t border-surface-border -mx-6 px-6 py-4 -mb-6">
-            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">Huỷ</button>
+            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">{tCommon('actions.cancel')}</button>
             <button type="submit" disabled={isLoading} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2">
               {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-              {editing ? 'Lưu thay đổi' : 'Thêm HLV'}
+              {editing ? tCommon('actions.save') : te('addTrainer')}
             </button>
           </div>
         </form>
@@ -310,6 +322,11 @@ function TrainerModal({ open, editing, onClose, onSave, isLoading }: {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function TrainersPage() {
+  const { t } = useLanguage();
+  const te = t('trainers');
+  const tCommon = t('common');
+  usePageTitle('trainers');
+
   const { trainers, isLoading, error, fetchTrainers, createTrainer, updateTrainer, changeStatus, clearError } = useTrainerStore();
 
   const [filterStatus, setFilterStatus] = useState<TrainerStatus | 'all'>('all');
@@ -346,28 +363,32 @@ export default function TrainersPage() {
     try {
       if (id) {
         await updateTrainer(id, payload as UpdateTrainerPayload);
-        toast.success('Cập nhật HLV thành công!');
+        toast.success(te('toast.editSuccess'));
       } else {
         await createTrainer(payload as CreateTrainerPayload);
-        toast.success('Thêm huấn luyện viên thành công!');
+        toast.success(te('toast.addSuccess'));
       }
       setModalOpen(false);
       setEditingTrainer(null);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Có lỗi xảy ra.');
+      toast.error(err?.response?.data?.message || te('toast.error'));
     } finally { setSaving(false); }
-  }, [createTrainer, updateTrainer]);
+  }, [createTrainer, updateTrainer, te]);
 
   const handleToggleStatus = useCallback(async (t: Trainer) => {
     setActingId(t.id);
     const newStatus: TrainerStatus = t.status === 'active' ? 'inactive' : 'active';
     try {
       await changeStatus(t.id, { status: newStatus });
-      toast.success(newStatus === 'inactive' ? `Đã ngừng hoạt động ${t.name}.` : `Đã kích hoạt ${t.name}!`);
+      toast.success(
+        newStatus === 'inactive'
+          ? te('toast.deactivateSuccess').replace('{{name}}', t.name)
+          : te('toast.activateSuccess').replace('{{name}}', t.name)
+      );
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Thao tác thất bại.');
+      toast.error(err?.response?.data?.message || te('toast.statusError'));
     } finally { setActingId(null); }
-  }, [changeStatus]);
+  }, [changeStatus, te]);
 
   const openEdit = useCallback((t: Trainer) => { setEditingTrainer(t); setModalOpen(true); }, []);
   const openCreate = useCallback(() => { setEditingTrainer(null); setModalOpen(true); }, []);
@@ -378,10 +399,10 @@ export default function TrainersPage() {
         {/* Header */}
         <div className="flex items-center justify-between gap-4">
           <PageHeader
-            title="Huấn luyện viên"
-            subtitle="Quản lý đội ngũ PT của phòng gym"
+            title={te('title')}
+            subtitle={te('subtitle')}
           />
-          <AddButton onClick={openCreate} label="Thêm HLV" />
+          <AddButton onClick={openCreate} label={te('addTrainer')} />
         </div>
 
         {/* Error */}
@@ -397,10 +418,10 @@ export default function TrainersPage() {
         <StatsGrid
           isLoading={isLoading}
           items={[
-            { label: 'Tổng HLV', value: stats.total, color: 'primary' },
-            { label: 'Đang làm việc', value: stats.active, color: 'success' },
-            { label: 'Nghỉ việc', value: stats.inactive, color: 'secondary' },
-            { label: 'Kinh nghiệm TB', value: `${stats.avgExp} năm`, color: 'info' },
+            { label: te('stats.total'), value: stats.total, color: 'primary' },
+            { label: te('stats.active'), value: stats.active, color: 'success' },
+            { label: te('stats.inactive'), value: stats.inactive, color: 'secondary' },
+            { label: te('stats.avgExp'), value: `${stats.avgExp} ${te('stats.years')}`, color: 'info' },
           ]}
         />
 
@@ -408,14 +429,18 @@ export default function TrainersPage() {
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
-            <input type="text" value={searchQ} onChange={(e) => setSearchQ(e.target.value)} placeholder="Tìm tên, email..."
+            <input type="text" value={searchQ} onChange={(e) => setSearchQ(e.target.value)} placeholder={te('searchPlaceholder')}
               className="pl-9 pr-4 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all w-48"
             />
           </div>
 
           {/* Status filter */}
           <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
-            {([{ v: 'all', l: 'Tất cả' }, { v: 'active', l: 'Đang làm' }, { v: 'inactive', l: 'Nghỉ việc' }]).map((f) => (
+            {([
+              { v: 'all', l: tCommon('filters.all') },
+              { v: 'active', l: te('filters.active') },
+              { v: 'inactive', l: te('filters.inactive') }
+            ]).map((f) => (
               <button key={f.v} onClick={() => setFilterStatus(f.v as any)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterStatus === f.v ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'}`}>{f.l}</button>
             ))}
@@ -426,7 +451,7 @@ export default function TrainersPage() {
             <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border flex-wrap">
               <button onClick={() => setFilterSpec('')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${!filterSpec ? 'bg-violet-500 text-white shadow' : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'}`}>
-                Mọi chuyên môn
+                {te('filters.allSpecializations')}
               </button>
               {allSpecs.slice(0, 5).map((s) => (
                 <button key={s} onClick={() => setFilterSpec(s === filterSpec ? '' : s)}
@@ -435,7 +460,7 @@ export default function TrainersPage() {
             </div>
           )}
 
-          <span className="ml-auto text-xs text-text-muted">{filtered.length} HLV</span>
+          <span className="ml-auto text-xs text-text-muted">{filtered.length} {te('count')}</span>
         </div>
 
         {/* Skeleton */}
@@ -455,8 +480,8 @@ export default function TrainersPage() {
         {!isLoading && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
             <span className="text-5xl">🏋️</span>
-            <p className="text-base font-semibold text-text-primary">Chưa có huấn luyện viên nào</p>
-            <p className="text-sm text-text-muted">{searchQ || filterStatus !== 'all' || filterSpec ? 'Không có kết quả phù hợp.' : 'Thêm HLV đầu tiên để bắt đầu.'}</p>
+            <p className="text-base font-semibold text-text-primary">{te('empty.title')}</p>
+            <p className="text-sm text-text-muted">{searchQ || filterStatus !== 'all' || filterSpec ? te('empty.noResult') : te('empty.description')}</p>
           </div>
         )}
 

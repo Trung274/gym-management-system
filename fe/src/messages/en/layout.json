@@ -1,0 +1,31 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "members": "Members",
+    "trainers": "Trainers",
+    "staff": "Staff",
+    "plans": "Plans",
+    "checkins": "Check-ins",
+    "bookings": "PT Bookings",
+    "groupClasses": "Group Classes",
+    "equipment": "Equipment",
+    "gymInfo": "Gym Info"
+  },
+  "header": {
+    "darkMode": "Dark mode",
+    "lightMode": "Light mode",
+    "logout": "Sign out",
+    "loggingOut": "Signing out...",
+    "leaveAccount": "Leave your account",
+    "language": "Language"
+  },
+  "portal": {
+    "home": "Home",
+    "profile": "Profile",
+    "checkins": "Check-in",
+    "bookings": "Book PT",
+    "classes": "Classes",
+    "trainers": "Trainers",
+    "gymInfo": "Gym Info"
+  }
+}

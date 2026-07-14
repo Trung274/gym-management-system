@@ -1,0 +1,85 @@
+{
+  "title": "Equipment System",
+  "subtitle": "Track real-time status and lifecycle of GymMS assets.",
+  "addEquipment": "Add Equipment",
+  "reportButton": "Export Report",
+  "searchPlaceholder": "Search ID, name, location...",
+  "count": "equipment",
+  "filters": {
+    "all": "All",
+    "allStatus": "All status"
+  },
+  "stats": {
+    "total": "Total assets",
+    "operational": "Ready to use",
+    "maintenance": "Under maintenance",
+    "outOfOrder": "Needs urgent fix",
+    "maintenanceDue": "Maintenance due"
+  },
+  "status": {
+    "operational": "Operational",
+    "maintenance": "Under maintenance",
+    "out_of_order": "Out of order"
+  },
+  "categories": {
+    "cardio": "Cardio",
+    "strength": "Strength",
+    "flexibility": "Flexibility",
+    "free_weights": "Free weights",
+    "other": "Other"
+  },
+  "table": {
+    "details": "Asset Details",
+    "location": "Zone / Location",
+    "nextMaintenance": "Next Maintenance",
+    "nextMaintenanceLabel": "Next maintenance:",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "empty": {
+    "title": "No equipment found",
+    "description": "Try adjusting filters or add a new equipment."
+  },
+  "modal": {
+    "createTitle": "Add new equipment",
+    "editTitle": "Edit equipment",
+    "basicInfo": "Basic Info",
+    "maintenanceInfo": "Purchase & Maintenance",
+    "name": "Equipment name",
+    "category": "Category",
+    "location": "Location",
+    "status": "Status",
+    "brand": "Brand",
+    "model": "Model",
+    "serialNumber": "Serial number",
+    "quantity": "Quantity",
+    "purchaseDate": "Purchase date",
+    "purchasePrice": "Purchase price",
+    "supplier": "Supplier",
+    "nextMaintenanceDate": "Next maintenance date",
+    "notes": "Notes",
+    "notesPlaceholder": "Special notes about this equipment...",
+    "submitCreate": "Add equipment",
+    "submitEdit": "Save changes"
+  },
+  "toast": {
+    "addSuccess": "Equipment added successfully!",
+    "editSuccess": "Equipment updated successfully!",
+    "deleteSuccess": "Deleted \"{{name}}\".",
+    "statusSuccess": "Status updated successfully!",
+    "statusMaintenanceSuccess": "Moved to maintenance, updated next maintenance date.",
+    "error": "Something went wrong.",
+    "statusError": "Action failed.",
+    "deleteError": "Delete failed."
+  },
+  "deleteModal": {
+    "title": "Delete equipment?",
+    "subtitle": "This action cannot be undone.",
+    "confirm": "Are you sure you want to delete \"{{name}}\"?"
+  },
+  "validation": {
+    "nameRequired": "Equipment name is required",
+    "categoryRequired": "Category is required",
+    "quantityMin": "Quantity must be ≥ 1"
+  }
+}

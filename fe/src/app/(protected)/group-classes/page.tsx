@@ -5,7 +5,6 @@ import { Plus, Pencil, X, ChevronDown, AlertCircle, Search, Loader2 } from 'luci
 import { useClassStore } from '@/src/stores/classStore';
 import StatsGrid from '@/src/components/ui/StatsGrid';
 import AddButton from '@/src/components/ui/AddButton';
-import { DAY_LABELS, CATEGORY_LABELS, STATUS_LABELS } from '@/src/lib/classHelpers';
 import { toast } from '@/src/utils/toast';
 import { getTrainers } from '@/src/lib/trainerService';
 import PageHeader from '@/src/components/ui/PageHeader';
@@ -14,7 +13,8 @@ import type {
   GymClass, ClassStatus, ClassCategory,
   CreateClassPayload, UpdateClassPayload, ScheduleItem,
 } from '@/src/types/class.types';
-
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import { usePageTitle } from '@/src/hooks/usePageTitle';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUS_STYLES: Record<ClassStatus, string> = {
@@ -34,16 +34,42 @@ const EMPTY_FORM: CreateClassPayload = {
   startDate: '', endDate: '', notes: '',
 };
 
+// ─── Format Helpers ───────────────────────────────────────────────────────────
+const formatScheduleLabel = (schedule: ScheduleItem[], tc: any) => {
+  if (!schedule?.length) return '—';
+  const days = schedule
+    .map((s) => tc(`daysShort.${s.dayOfWeek}`))
+    .join(', ');
+  const { startTime, endTime } = schedule[0];
+  return `${days} · ${startTime} – ${endTime}`;
+};
+
+const formatDateLang = (dateStr: string | undefined, lang: string) => {
+  if (!dateStr) return '—';
+  return new Date(dateStr).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+  });
+};
+
 // ─── Status Badge + Dropdown ──────────────────────────────────────────────────
 function StatusBadge({ gymClass, onChange, disabled }: {
   gymClass: GymClass; onChange: (s: ClassStatus) => void; disabled: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const { t } = useLanguage();
+  const tCommon = t('common');
+
+  const statusLabels: Record<ClassStatus, string> = {
+    active: tCommon('status.active'),
+    cancelled: tCommon('status.cancelled'),
+    completed: tCommon('status.completed'),
+  };
+
   return (
     <div className="relative">
       <button onClick={() => !disabled && setOpen(o => !o)} disabled={disabled}
         className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold cursor-pointer transition-all ${STATUS_STYLES[gymClass.status]} ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-75'}`}>
-        {gymClass.statusLabel}
+        {statusLabels[gymClass.status]}
         {!disabled && <ChevronDown size={10} />}
       </button>
       {open && (
@@ -53,7 +79,7 @@ function StatusBadge({ gymClass, onChange, disabled }: {
             {(['active', 'cancelled', 'completed'] as ClassStatus[]).map((s) => (
               <button key={s} onClick={() => { onChange(s); setOpen(false); }}
                 className={`w-full text-left px-3 py-2 text-xs font-semibold hover:bg-surface-raised transition-all cursor-pointer ${gymClass.status === s ? 'text-primary-500' : 'text-text-secondary'}`}>
-                {STATUS_LABELS[s]}
+                {statusLabels[s]}
               </button>
             ))}
           </div>
@@ -67,6 +93,19 @@ function StatusBadge({ gymClass, onChange, disabled }: {
 function ScheduleEditor({ value, onChange }: {
   value: ScheduleItem[]; onChange: (v: ScheduleItem[]) => void;
 }) {
+  const { t } = useLanguage();
+  const tc = t('group-classes');
+
+  const DAYS_LIST = [
+    tc('days.sunday'),
+    tc('days.monday'),
+    tc('days.tuesday'),
+    tc('days.wednesday'),
+    tc('days.thursday'),
+    tc('days.friday'),
+    tc('days.saturday'),
+  ];
+
   const add = () => onChange([...value, { dayOfWeek: 1, startTime: '06:00', endTime: '07:00' }]);
   const remove = (i: number) => onChange(value.filter((_, idx) => idx !== i));
   const update = (i: number, patch: Partial<ScheduleItem>) =>
@@ -78,7 +117,7 @@ function ScheduleEditor({ value, onChange }: {
         <div key={i} className="flex items-center gap-2 p-2 bg-surface-raised rounded-xl border border-surface-border">
           <select value={item.dayOfWeek} onChange={(e) => update(i, { dayOfWeek: +e.target.value })}
             className="px-2 py-1.5 rounded-lg border border-surface-border bg-surface-base text-xs text-text-primary outline-none focus:border-primary-500">
-            {DAY_LABELS.map((d, idx) => <option key={idx} value={idx}>{d}</option>)}
+            {DAYS_LIST.map((d, idx) => <option key={idx} value={idx}>{d}</option>)}
           </select>
           <input type="time" value={item.startTime} onChange={(e) => update(i, { startTime: e.target.value })}
             className="px-2 py-1.5 rounded-lg border border-surface-border bg-surface-base text-xs text-text-primary outline-none focus:border-primary-500" />
@@ -93,7 +132,7 @@ function ScheduleEditor({ value, onChange }: {
         </div>
       ))}
       <button onClick={add} className="flex items-center gap-1.5 text-xs text-primary-500 hover:opacity-75 cursor-pointer transition-all">
-        <Plus size={13} /> Thêm buổi
+        <Plus size={13} /> {tc('modal.addScheduleItem')}
       </button>
     </div>
   );
@@ -114,6 +153,10 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
   const [allTrainers, setAllTrainers] = useState<Trainer[]>([]);
   const [loadingTrainers, setLoadingTrainers] = useState(false);
 
+  const { t } = useLanguage();
+  const tc = t('group-classes');
+  const tCommon = t('common');
+
   useEffect(() => {
     if (open) {
       setLoadingTrainers(true);
@@ -122,7 +165,7 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
           setAllTrainers(res);
         })
         .catch(err => {
-          console.error('Lỗi tải danh sách HLV:', err);
+          console.error('Error loading trainers:', err);
         })
         .finally(() => {
           setLoadingTrainers(false);
@@ -174,8 +217,8 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.name?.trim()) e.name = 'Tên lớp là bắt buộc';
-    if (!form.schedule?.length) e.schedule = 'Cần ít nhất 1 buổi học';
+    if (!form.name?.trim()) e.name = tc('validation.nameRequired');
+    if (!form.schedule?.length) e.schedule = tc('validation.scheduleRequired');
     setErrors(e);
     return !Object.keys(e).length;
   };
@@ -208,7 +251,9 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-2xl bg-surface-base rounded-2xl shadow-2xl border border-surface-border max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border shrink-0">
-          <h2 className="text-base font-bold text-text-primary">{editing ? 'Chỉnh sửa lớp học' : 'Thêm lớp học mới'}</h2>
+          <h2 className="text-base font-bold text-text-primary">
+            {editing ? tc('modal.editTitle') : tc('modal.createTitle')}
+          </h2>
           <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay cursor-pointer transition-all">
             <X size={16} />
           </button>
@@ -216,28 +261,28 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
         <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 p-6 flex flex-col gap-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="sm:col-span-2 flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">Tên lớp <span className="text-danger-500">*</span></label>
+              <label className="text-xs font-semibold text-text-secondary">{tc('modal.name')} <span className="text-danger-500">*</span></label>
               <input type="text" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="VD: Yoga Buổi Sáng" className={inp('name')} />
               {errors.name && <p className="text-xs text-danger-500">{errors.name}</p>}
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">Danh mục <span className="text-danger-500">*</span></label>
+              <label className="text-xs font-semibold text-text-secondary">{tc('modal.category')} <span className="text-danger-500">*</span></label>
               <select value={form.category} onChange={(e) => set('category', e.target.value)} className={inp('category')}>
-                {Object.entries(CATEGORY_LABELS).map(([v, l]) => (
-                  <option key={v} value={v}>{CATEGORY_ICONS[v as ClassCategory]} {l}</option>
+                {(Object.keys(CATEGORY_ICONS) as ClassCategory[]).map((v) => (
+                  <option key={v} value={v}>{CATEGORY_ICONS[v]} {tc(`categories.${v}`)}</option>
                 ))}
               </select>
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">Địa điểm</label>
+              <label className="text-xs font-semibold text-text-secondary">{tc('modal.location')}</label>
               <input type="text" value={form.location} onChange={(e) => set('location', e.target.value)} placeholder="Phòng Yoga, Tầng 2..." className={inp('location')} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">Sức chứa</label>
+              <label className="text-xs font-semibold text-text-secondary">{tc('modal.capacity')}</label>
               <input type="number" min="1" value={form.capacity} onChange={(e) => set('capacity', e.target.value)} placeholder="20" className={inp('capacity')} />
             </div>
             <div className="flex flex-col gap-1.5 relative">
-              <label className="text-xs font-semibold text-text-secondary">Huấn luyện viên</label>
+              <label className="text-xs font-semibold text-text-secondary">{tc('modal.trainer')}</label>
               {selectedTrainer ? (
                 <div className="flex items-center justify-between p-2 px-3 rounded-xl border border-primary-500/30 bg-primary-500/5">
                   <div className="flex flex-col">
@@ -246,7 +291,7 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
                   </div>
                   <button type="button" onClick={() => { setSelectedTrainer(null); set('trainer', ''); }}
                     className="text-xs text-danger-500 hover:underline hover:text-danger-600 font-semibold cursor-pointer">
-                    Thay đổi
+                    {tc('modal.trainerChange')}
                   </button>
                 </div>
               ) : (
@@ -254,7 +299,7 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
                   <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
                   <input type="text" value={searchTerm} onChange={e => { setSearchTerm(e.target.value); setShowDropdown(true); }}
                     onFocus={() => setShowDropdown(true)}
-                    placeholder="Tìm theo tên HLV hoặc email..." className={`${inp('trainer')} pl-9`} />
+                    placeholder={tc('modal.trainerSearchPlaceholder')} className={`${inp('trainer')} pl-9`} />
                   {loadingTrainers && (
                     <Loader2 size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted animate-spin" />
                   )}
@@ -266,11 +311,11 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
                         {loadingTrainers ? (
                           <div className="px-4 py-3 text-xs text-text-muted flex items-center gap-2">
                             <Loader2 size={12} className="animate-spin text-primary-500" />
-                            Đang tải danh sách...
+                            {tc('modal.trainerLoading')}
                           </div>
                         ) : filteredTrainers.length === 0 ? (
                           <div className="px-4 py-3 text-xs text-text-muted">
-                            Không tìm thấy huấn luyện viên nào
+                            {tc('modal.trainerNotFound')}
                           </div>
                         ) : (
                           filteredTrainers.map((t) => (
@@ -293,29 +338,31 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
               )}
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">Ngày bắt đầu</label>
+              <label className="text-xs font-semibold text-text-secondary">{tc('modal.startDate')}</label>
               <input type="date" value={form.startDate} onChange={(e) => set('startDate', e.target.value)} className={inp('startDate')} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">Ngày kết thúc</label>
+              <label className="text-xs font-semibold text-text-secondary">{tc('modal.endDate')}</label>
               <input type="date" value={form.endDate} onChange={(e) => set('endDate', e.target.value)} className={inp('endDate')} />
             </div>
             <div className="sm:col-span-2 flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">Mô tả</label>
+              <label className="text-xs font-semibold text-text-secondary">{tc('modal.description')}</label>
               <textarea rows={2} value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="Mô tả ngắn về lớp học..." className={`${inp('description')} resize-none`} />
             </div>
             <div className="sm:col-span-2 flex flex-col gap-2">
-              <label className="text-xs font-semibold text-text-secondary">Lịch học <span className="text-danger-500">*</span></label>
+              <label className="text-xs font-semibold text-text-secondary">{tc('modal.schedule')} <span className="text-danger-500">*</span></label>
               <ScheduleEditor value={form.schedule} onChange={(v) => set('schedule', v)} />
               {errors.schedule && <p className="text-xs text-danger-500">{errors.schedule}</p>}
             </div>
           </div>
           <div className="flex gap-3 pt-2 sticky bottom-0 bg-surface-base border-t border-surface-border -mx-6 px-6 py-4 -mb-6">
-            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay cursor-pointer transition-all">Hủy</button>
+            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay cursor-pointer transition-all">
+              {tCommon('actions.cancel')}
+            </button>
             <button type="submit" disabled={isLoading}
               className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 cursor-pointer transition-all flex items-center justify-center gap-2">
               {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-              {editing ? 'Lưu thay đổi' : 'Thêm lớp học'}
+              {editing ? tc('modal.save') : tc('modal.add')}
             </button>
           </div>
         </form>
@@ -336,6 +383,12 @@ export default function GroupClassesPage() {
   const [actingId, setActingId]             = useState<string | null>(null);
   const [saving, setSaving]                 = useState(false);
 
+  const { t, lang } = useLanguage();
+  const tc = t('group-classes');
+  const tCommon = t('common');
+
+  usePageTitle('group-classes');
+
   useEffect(() => { fetchClasses({ all: true }).catch(() => {}); }, [fetchClasses]);
   useEffect(() => () => clearError(), [clearError]);
 
@@ -344,7 +397,7 @@ export default function GroupClassesPage() {
     const statusOk = filterStatus   === 'all' || c.status   === filterStatus;
     const searchOk = !searchQ ||
       c.name.toLowerCase().includes(searchQ.toLowerCase()) ||
-      c.trainerName.toLowerCase().includes(searchQ.toLowerCase()) ||
+      (c.trainer?.user?.name ?? '').toLowerCase().includes(searchQ.toLowerCase()) ||
       (c.location ?? '').toLowerCase().includes(searchQ.toLowerCase());
     return catOk && statusOk && searchOk;
   });
@@ -359,23 +412,28 @@ export default function GroupClassesPage() {
   const handleSave = useCallback(async (payload: any, id?: string) => {
     setSaving(true);
     try {
-      if (id) { await updateClass(id, payload); toast.success('Cập nhật lớp học thành công!'); }
-      else     { await createClass(payload);    toast.success('Thêm lớp học thành công!'); }
+      if (id) {
+        await updateClass(id, payload);
+        toast.success(tc('toast.editSuccess'));
+      } else {
+        await createClass(payload);
+        toast.success(tc('toast.addSuccess'));
+      }
       setModalOpen(false); setEditing(null);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Có lỗi xảy ra.');
+      toast.error(err?.response?.data?.message || tc('toast.error'));
     } finally { setSaving(false); }
-  }, [createClass, updateClass]);
+  }, [createClass, updateClass, tc]);
 
   const handleStatusChange = useCallback(async (id: string, status: ClassStatus) => {
     setActingId(id);
     try {
       await changeStatus(id, { status });
-      toast.success('Cập nhật trạng thái thành công!');
+      toast.success(tc('toast.statusSuccess'));
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Thao tác thất bại.');
+      toast.error(err?.response?.data?.message || tc('toast.statusError'));
     } finally { setActingId(null); }
-  }, [changeStatus]);
+  }, [changeStatus, tc]);
 
   return (
     <>
@@ -383,10 +441,10 @@ export default function GroupClassesPage() {
         {/* Header */}
         <div className="flex items-center justify-between gap-4">
           <PageHeader
-            title="Lớp học nhóm"
-            subtitle="Quản lý lịch và danh sách lớp học thể dục nhóm"
+            title={tc('title')}
+            subtitle={tc('subtitle')}
           />
-          <AddButton onClick={() => { setEditing(null); setModalOpen(true); }} label="Thêm lớp" />
+          <AddButton onClick={() => { setEditing(null); setModalOpen(true); }} label={tc('addClass')} />
         </div>
 
         {/* Error */}
@@ -402,10 +460,10 @@ export default function GroupClassesPage() {
         <StatsGrid
           isLoading={isLoading}
           items={[
-            { label: 'Tổng lớp', value: stats.total, color: 'primary' },
-            { label: 'Đang hoạt động', value: stats.active, color: 'success' },
-            { label: 'Đã hủy', value: stats.cancelled, color: 'danger' },
-            { label: 'Đã kết thúc', value: stats.completed, color: 'secondary' },
+            { label: tc('stats.total'), value: stats.total, color: 'primary' },
+            { label: tc('stats.active'), value: stats.active, color: 'success' },
+            { label: tc('stats.cancelled'), value: stats.cancelled, color: 'danger' },
+            { label: tc('stats.completed'), value: stats.completed, color: 'secondary' },
           ]}
         />
 
@@ -413,25 +471,38 @@ export default function GroupClassesPage() {
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
-            <input type="text" value={searchQ} onChange={(e) => setSearchQ(e.target.value)} placeholder="Tên lớp, HLV, địa điểm..."
+            <input type="text" value={searchQ} onChange={(e) => setSearchQ(e.target.value)} placeholder={tc('filters.searchPlaceholder')}
               className="pl-9 pr-4 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all w-52" />
           </div>
           {/* Category pills */}
           <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border flex-wrap">
-            <button onClick={() => setFilterCategory('all')} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${filterCategory === 'all' ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>Tất cả</button>
-            {(Object.entries(CATEGORY_LABELS) as [ClassCategory, string][]).map(([v, l]) => (
+            <button onClick={() => setFilterCategory('all')} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${filterCategory === 'all' ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>
+              {tCommon('filters.all')}
+            </button>
+            {(Object.keys(CATEGORY_ICONS) as ClassCategory[]).map((v) => (
               <button key={v} onClick={() => setFilterCategory(v)} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${filterCategory === v ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>
-                {CATEGORY_ICONS[v]} {l}
+                {CATEGORY_ICONS[v]} {tc(`categories.${v}`)}
               </button>
             ))}
           </div>
           {/* Status pills */}
           <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
-            {[['all','Tất cả'],['active','Hoạt động'],['cancelled','Đã hủy'],['completed','Kết thúc']].map(([v, l]) => (
-              <button key={v} onClick={() => setFilterStatus(v as any)} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${filterStatus === v ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>{l}</button>
-            ))}
+            <button onClick={() => setFilterStatus('all')} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${filterStatus === 'all' ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>
+              {tCommon('filters.all')}
+            </button>
+            <button onClick={() => setFilterStatus('active')} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${filterStatus === 'active' ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>
+              {tCommon('status.active')}
+            </button>
+            <button onClick={() => setFilterStatus('cancelled')} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${filterStatus === 'cancelled' ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>
+              {tCommon('status.cancelled')}
+            </button>
+            <button onClick={() => setFilterStatus('completed')} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${filterStatus === 'completed' ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>
+              {tCommon('status.completed')}
+            </button>
           </div>
-          <span className="ml-auto text-xs text-text-muted">{filtered.length} lớp</span>
+          <span className="ml-auto text-xs text-text-muted">
+            {tc('filters.count').replace('{{count}}', String(filtered.length))}
+          </span>
         </div>
 
         {/* Table */}
@@ -440,7 +511,14 @@ export default function GroupClassesPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-surface-border bg-surface-raised">
-                  {['Lớp học', 'Lịch học', 'HLV / Địa điểm', 'Sức chứa', 'Trạng thái', 'Hành động'].map(h => (
+                  {[
+                    tc('table.class'),
+                    tc('table.schedule'),
+                    tc('table.trainerLocation'),
+                    tc('table.capacity'),
+                    tc('table.status'),
+                    tc('table.actions'),
+                  ].map(h => (
                     <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
@@ -454,7 +532,7 @@ export default function GroupClassesPage() {
                     </tr>
                   ))
                   : filtered.length === 0
-                  ? <tr><td colSpan={6} className="px-4 py-16 text-center"><p className="text-4xl mb-3">📅</p><p className="text-sm font-semibold text-text-primary">Không có lớp học nào</p><p className="text-xs text-text-muted mt-1">Thử thay đổi bộ lọc hoặc thêm lớp học mới.</p></td></tr>
+                  ? <tr><td colSpan={6} className="px-4 py-16 text-center"><p className="text-4xl mb-3">📅</p><p className="text-sm font-semibold text-text-primary">{tc('empty.title')}</p><p className="text-xs text-text-muted mt-1">{tc('empty.description')}</p></td></tr>
                   : filtered.map((c) => (
                     <tr key={c.id} className="border-b border-surface-border hover:bg-surface-raised transition-colors group">
                       <td className="px-4 py-3">
@@ -462,16 +540,16 @@ export default function GroupClassesPage() {
                           <span className="text-xl">{CATEGORY_ICONS[c.category]}</span>
                           <div>
                             <p className="text-sm font-semibold text-text-primary">{c.name}</p>
-                            <p className="text-xs text-text-muted">{c.categoryLabel}</p>
+                            <p className="text-xs text-text-muted">{tc(`categories.${c.category}`)}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <p className="text-xs text-text-primary font-medium">{c.scheduleLabel}</p>
-                        <p className="text-xs text-text-muted mt-0.5">{c.startDateLabel} → {c.endDateLabel}</p>
+                        <p className="text-xs text-text-primary font-medium">{formatScheduleLabel(c.schedule, tc)}</p>
+                        <p className="text-xs text-text-muted mt-0.5">{formatDateLang(c.startDate, lang)} → {formatDateLang(c.endDate, lang)}</p>
                       </td>
                       <td className="px-4 py-3">
-                        <p className="text-sm text-text-primary">{c.trainerName}</p>
+                        <p className="text-sm text-text-primary">{c.trainer?.user?.name ?? tc('categories.emptyTrainer')}</p>
                         <p className="text-xs text-text-muted">{c.location ?? '—'}</p>
                       </td>
                       <td className="px-4 py-3">
@@ -483,7 +561,7 @@ export default function GroupClassesPage() {
                       <td className="px-4 py-3">
                         {actingId === c.id
                           ? <svg className="w-4 h-4 animate-spin text-primary-500" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                          : <button onClick={() => { setEditing(c); setModalOpen(true); }} title="Chỉnh sửa"
+                          : <button onClick={() => { setEditing(c); setModalOpen(true); }} title={tCommon('actions.edit')}
                               className="p-1.5 rounded-lg text-text-muted hover:text-primary-500 hover:bg-primary-500/10 cursor-pointer transition-all">
                               <Pencil size={15} />
                             </button>

@@ -1,0 +1,48 @@
+{
+  "title": "Thông tin Gym",
+  "subtitle": "Quản lý thông tin hiển thị của phòng gym",
+  "basicInfo": "Thông tin cơ bản",
+  "gymName": "Tên phòng gym *",
+  "gymNamePlaceholder": "VD: FitZone Gym",
+  "tagline": "Tagline / Slogan",
+  "taglinePlaceholder": "VD: Sức khoẻ của bạn, Ưu tiên của chúng tôi",
+  "established": "Năm thành lập",
+  "establishedPlaceholder": "VD: 2018",
+  "description": "Mô tả",
+  "descriptionPlaceholder": "Mô tả ngắn về phòng gym...",
+  "contact": "Liên hệ",
+  "address": "Địa chỉ",
+  "addressPlaceholder": "Số nhà, đường, quận, thành phố...",
+  "phone": "Số điện thoại",
+  "phonePlaceholder": "VD: 0901 234 567",
+  "email": "Email liên hệ",
+  "emailPlaceholder": "VD: info@gymms.com",
+  "website": "Website",
+  "websitePlaceholder": "https://...",
+  "socialLinks": "Mạng xã hội",
+  "facebook": "Facebook",
+  "instagram": "Instagram",
+  "youtube": "YouTube",
+  "tiktok": "TikTok",
+  "images": "Hình ảnh",
+  "logoUrl": "URL Logo",
+  "logoHint": "Đường dẫn trực tiếp đến ảnh logo (jpg, png, webp...)",
+  "coverImageUrl": "URL Ảnh bìa",
+  "coverHint": "Ảnh banner hiển thị trên trang portal hội viên",
+  "openingHours": "Giờ mở cửa",
+  "openingHoursHint": "Nhập dạng văn bản, các ngày phân cách bằng dấu phẩy. VD: \"Thứ 2-6: 06:00 - 22:00, Thứ 7-CN: 08:00 - 20:00\"",
+  "openingHoursPlaceholder": "Thứ 2 - Thứ 6: 06:00 - 22:00,\nThứ 7: 08:00 - 20:00,\nChủ nhật: 08:00 - 18:00",
+  "validation": {
+    "nameRequired": "Tên phòng gym là bắt buộc"
+  },
+  "toast": {
+    "loadError": "Không thể tải thông tin gym",
+    "saveSuccess": "Đã lưu thông tin gym thành công!",
+    "saveError": "Lưu thất bại"
+  },
+  "actions": {
+    "refresh": "Làm mới",
+    "save": "Lưu thay đổi",
+    "saving": "Đang lưu..."
+  }
+}

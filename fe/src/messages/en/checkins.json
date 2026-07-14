@@ -1,0 +1,49 @@
+{
+  "title": "Check-in Log",
+  "subtitle": "Member entry history",
+  "addCheckin": "Record check-in",
+  "count": "records",
+  "stats": {
+    "today": "Today",
+    "week": "Last 7 days",
+    "month": "Last 30 days",
+    "peakHour": "Peak hour"
+  },
+  "filters": {
+    "memberId": "Member ID",
+    "memberIdPlaceholder": "Filter by Member ID...",
+    "from": "From",
+    "to": "To",
+    "apply": "Filter",
+    "clear": "Clear"
+  },
+  "table": {
+    "time": "Time",
+    "member": "Member",
+    "memberId": "Member ID",
+    "note": "Note",
+    "recordedBy": "Recorded by"
+  },
+  "empty": {
+    "title": "No check-in records yet",
+    "description": "Click \"Record check-in\" to add the first entry."
+  },
+  "modal": {
+    "title": "Record check-in",
+    "memberLabel": "Member info",
+    "searchPlaceholder": "Enter name, phone or email...",
+    "noteLabel": "Note (optional)",
+    "notePlaceholder": "e.g. Walk-in guest...",
+    "notFound": "No matching member found",
+    "submit": "Record check-in",
+    "change": "Change",
+    "statusActive": "Active",
+    "statusSuspended": "Suspended",
+    "statusExpired": "Expired",
+    "validation": "Please select or enter member info"
+  },
+  "toast": {
+    "success": "Checked in: {{name}}",
+    "error": "Check-in failed."
+  }
+}

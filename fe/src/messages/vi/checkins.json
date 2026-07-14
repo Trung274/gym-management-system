@@ -1,0 +1,49 @@
+{
+  "title": "Check-in Log",
+  "subtitle": "Lịch sử ra vào của hội viên",
+  "addCheckin": "Ghi check-in",
+  "count": "bản ghi",
+  "stats": {
+    "today": "Hôm nay",
+    "week": "7 ngày qua",
+    "month": "30 ngày qua",
+    "peakHour": "Giờ cao điểm"
+  },
+  "filters": {
+    "memberId": "Member ID",
+    "memberIdPlaceholder": "Lọc theo Member ID...",
+    "from": "Từ ngày",
+    "to": "Đến ngày",
+    "apply": "Lọc",
+    "clear": "Xóa lọc"
+  },
+  "table": {
+    "time": "Thời gian",
+    "member": "Hội viên",
+    "memberId": "ID Hội viên",
+    "note": "Ghi chú",
+    "recordedBy": "Người ghi"
+  },
+  "empty": {
+    "title": "Chưa có bản ghi check-in nào",
+    "description": "Nhấn \"Ghi check-in\" để thêm bản ghi đầu tiên."
+  },
+  "modal": {
+    "title": "Ghi check-in",
+    "memberLabel": "Thông tin hội viên",
+    "searchPlaceholder": "Nhập tên, số điện thoại hoặc email...",
+    "noteLabel": "Ghi chú (tùy chọn)",
+    "notePlaceholder": "VD: Khách vãng lai...",
+    "notFound": "Không tìm thấy hội viên trùng khớp",
+    "submit": "Ghi check-in",
+    "change": "Thay đổi",
+    "statusActive": "Đang hoạt động",
+    "statusSuspended": "Bị khóa",
+    "statusExpired": "Hết hạn",
+    "validation": "Vui lòng chọn hoặc nhập thông tin hội viên"
+  },
+  "toast": {
+    "success": "Check-in thành công: {{name}}",
+    "error": "Ghi check-in thất bại."
+  }
+}

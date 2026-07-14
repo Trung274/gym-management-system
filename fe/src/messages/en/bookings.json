@@ -1,0 +1,50 @@
+{
+  "title": "PT Bookings",
+  "subtitle": "Manage personal training appointments",
+  "addBooking": "New booking",
+  "tabs": {
+    "upcoming": "Upcoming",
+    "history": "History"
+  },
+  "table": {
+    "member": "Member",
+    "trainer": "Trainer",
+    "date": "Date / Time",
+    "notes": "Notes"
+  },
+  "status": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "modal": {
+    "title": "New PT booking",
+    "trainerLabel": "Trainer *",
+    "trainerPlaceholder": "— Select trainer —",
+    "dateLabel": "Date *",
+    "startTimeLabel": "Start time *",
+    "endTimeLabel": "End time *",
+    "noteLabel": "Notes",
+    "notePlaceholder": "Training goals...",
+    "submit": "Confirm",
+    "submitting": "Booking..."
+  },
+  "card": {
+    "cancel": "Cancel booking",
+    "cancelling": "Cancelling..."
+  },
+  "status": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "toast": {
+    "bookSuccess": "Booking created!",
+    "bookError": "Booking failed",
+    "cancelSuccess": "Booking cancelled!",
+    "cancelError": "Cancel failed",
+    "loadError": "Failed to load data"
+  }
+}

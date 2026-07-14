@@ -1,0 +1,35 @@
+{
+  "title": "My Profile",
+  "subtitle": "Your account and membership details",
+  "editButton": "Edit",
+  "saveButton": "Save",
+  "cancelButton": "Cancel",
+  "fields": {
+    "name": "Full name",
+    "email": "Email",
+    "phone": "Phone",
+    "idCard": "ID card",
+    "dateOfBirth": "Date of birth",
+    "gender": "Gender",
+    "address": "Address",
+    "notes": "Notes"
+  },
+  "gender": {
+    "male": "Male",
+    "female": "Female",
+    "other": "Other"
+  },
+  "membership": {
+    "title": "Membership info",
+    "plan": "Plan",
+    "status": "Status",
+    "expiry": "Expiry date",
+    "daysRemaining": "{{days}} days remaining",
+    "expired": "Expired",
+    "noExpiry": "No expiry"
+  },
+  "toast": {
+    "updateSuccess": "Profile updated!",
+    "updateError": "Update failed."
+  }
+}

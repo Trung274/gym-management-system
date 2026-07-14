@@ -1,0 +1,82 @@
+{
+  "title": "Gói Tập",
+  "subtitle": "Quản lý hệ sinh thái gói đăng ký, phân tích mật độ phân hạng và triển khai gói mới.",
+  "addPlan": "Thêm gói tập",
+  "revenueReport": "Báo cáo doanh thu",
+  "count": "gói",
+  "stats": {
+    "total": "Tổng gói",
+    "active": "Hoạt động"
+  },
+  "types": {
+    "basic": "Cơ bản",
+    "premium": "Premium",
+    "vip": "VIP"
+  },
+  "features": {
+    "basic_0": "Truy cập phòng tập tiêu chuẩn",
+    "basic_1": "Sử dụng tủ đồ & phòng tắm",
+    "basic_2": "Lớp học nhóm HIIT/Yoga",
+    "basic_3": "Huấn luyện viên cá nhân hỗ trợ",
+    "premium_0": "Truy cập phòng tập 24/7",
+    "premium_1": "Sử dụng tủ đồ & phòng tắm",
+    "premium_2": "Lớp học nhóm HIIT/Yoga không giới hạn",
+    "premium_3": "Huấn luyện viên cá nhân hỗ trợ",
+    "vip_0": "Truy cập toàn hệ thống 24/7",
+    "vip_1": "Huấn luyện viên cá nhân hỗ trợ (2 buổi/tháng)",
+    "vip_2": "Đo chỉ số cơ thể & lên lộ trình dinh dưỡng",
+    "vip_3": "Lớp học nhóm HIIT/Yoga không giới hạn"
+  },
+  "card": {
+    "popular": "Phổ biến",
+    "basicDesc": "Quyền lợi cơ bản",
+    "premiumDesc": "Tối ưu hiệu năng",
+    "vipDesc": "Đặc quyền VIP",
+    "activeMembers": "Hội viên hoạt động",
+    "activate": "Kích hoạt",
+    "deactivate": "Tạm dừng"
+  },
+  "filters": {
+    "showInactive": "Hiện gói tạm dừng"
+  },
+  "empty": {
+    "title": "Chưa có gói tập nào",
+    "noResult": "Không có gói nào trong bộ lọc hiện tại.",
+    "description": "Tạo gói tập đầu tiên để bắt đầu."
+  },
+  "modal": {
+    "createTitle": "Thêm gói tập mới",
+    "editTitle": "Chỉnh sửa gói tập",
+    "name": "Tên gói",
+    "namePlaceholder": "VD: Gói Premium 3 tháng",
+    "type": "Loại gói",
+    "duration": "Thời hạn (ngày)",
+    "price": "Giá (VNĐ)",
+    "description": "Mô tả",
+    "optional": "(tuỳ chọn)",
+    "descriptionPlaceholder": "Quyền lợi, ưu đãi của gói..."
+  },
+  "toast": {
+    "addSuccess": "Thêm gói tập thành công!",
+    "editSuccess": "Cập nhật gói tập thành công!",
+    "activateSuccess": "Đã kích hoạt gói tập!",
+    "deactivateSuccess": "Đã tạm dừng gói tập.",
+    "error": "Có lỗi xảy ra, vui lòng thử lại.",
+    "toggleError": "Không thể thay đổi trạng thái, vui lòng thử lại."
+  },
+  "validation": {
+    "nameRequired": "Tên gói là bắt buộc",
+    "typeRequired": "Loại gói là bắt buộc",
+    "durationMin": "Thời hạn phải ≥ 1 ngày",
+    "priceMin": "Giá phải ≥ 0"
+  },
+  "analytics": {
+    "churnRate": "Tỷ lệ hủy (Churn Rate)",
+    "churnDesc": "Trung bình trên tất cả các nhóm đăng ký dịch vụ trong 30 ngày qua.",
+    "allocationTitle": "Phân bổ hội viên hoạt động theo phân hạng",
+    "basicHover": "Cơ bản: {{pct}}% ({{count}} HV)",
+    "premiumHover": "Premium: {{pct}}% ({{count}} HV)",
+    "vipHover": "VIP: {{pct}}% ({{count}} HV)",
+    "growthOpportunity": "Cơ hội phát triển"
+  }
+}

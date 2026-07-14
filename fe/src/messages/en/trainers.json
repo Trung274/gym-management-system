@@ -1,0 +1,79 @@
+{
+  "title": "Trainers",
+  "subtitle": "Manage gym PT team",
+  "addTrainer": "Add Trainer",
+  "tagInputHelp": "Press Enter to add",
+  "count": "trainers",
+  "stats": {
+    "total": "Total Trainers",
+    "active": "Active",
+    "inactive": "Inactive",
+    "avgExp": "Avg Experience",
+    "years": "years"
+  },
+  "card": {
+    "experience": "Experience",
+    "certifications": "Certifications",
+    "deactivate": "Deactivate",
+    "activate": "Activate"
+  },
+  "filters": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "allSpecializations": "All specializations"
+  },
+  "searchPlaceholder": "Search name, email...",
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "empty": {
+    "title": "No trainers yet",
+    "noResult": "No results matched.",
+    "description": "Add the first trainer to start."
+  },
+  "modal": {
+    "createTitle": "Add trainer",
+    "editTitle": "Edit trainer",
+    "accountInfo": "Account Info",
+    "name": "Full name",
+    "namePlaceholder": "John Doe",
+    "loginEmail": "Login email",
+    "loginEmailPlaceholder": "trainer@gym.com",
+    "password": "Password",
+    "passwordPlaceholder": "Minimum 6 characters",
+    "hireDate": "Hire date",
+    "personalInfo": "Personal Info",
+    "phone": "Phone number",
+    "phonePlaceholder": "0912345678",
+    "personalEmail": "Personal contact email",
+    "personalEmailPlaceholder": "personal@email.com",
+    "dateOfBirth": "Date of birth",
+    "gender": "Gender",
+    "address": "Address",
+    "addressPlaceholder": "123 Nguyen Trai, Hanoi",
+    "specializationSection": "Specializations",
+    "experienceYears": "Years of experience",
+    "specializations": "Specializations",
+    "certifications": "Certifications",
+    "bio": "Bio",
+    "bioPlaceholder": "Describe experience and training style...",
+    "genderNone": "Not selected",
+    "genderMale": "Male",
+    "genderFemale": "Female",
+    "genderOther": "Other"
+  },
+  "toast": {
+    "addSuccess": "Trainer added successfully!",
+    "editSuccess": "Trainer updated successfully!",
+    "deactivateSuccess": "Deactivated {{name}}.",
+    "activateSuccess": "Activated {{name}}!",
+    "error": "Something went wrong.",
+    "statusError": "Action failed."
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "emailRequired": "Email is required",
+    "passwordMin": "Password must be ≥ 6 characters"
+  }
+}

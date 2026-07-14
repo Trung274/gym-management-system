@@ -7,13 +7,11 @@ import StatsGrid from '@/src/components/ui/StatsGrid';
 import AddButton from '@/src/components/ui/AddButton';
 import PageHeader from '@/src/components/ui/PageHeader';
 import type { SubscriptionPlan, PlanType, CreatePlanPayload, UpdatePlanPayload } from '@/src/types/plan.types';
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import { usePageTitle } from '@/src/hooks/usePageTitle';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const PLAN_TYPES: { value: PlanType; label: string }[] = [
-  { value: 'basic', label: 'Cơ bản' },
-  { value: 'premium', label: 'Premium' },
-  { value: 'vip', label: 'VIP' },
-];
+const PLAN_TYPES: PlanType[] = ['basic', 'premium', 'vip'];
 
 const TYPE_STYLES: Record<PlanType, { badge: string; card: string; icon: string }> = {
   basic:   { badge: 'bg-sky-500/15 text-sky-500',      card: 'from-sky-500/10 to-transparent',    icon: '☁️' },
@@ -25,28 +23,28 @@ const TYPE_STYLES: Record<PlanType, { badge: string; card: string; icon: string 
 const EMPTY_FORM = { name: '', type: 'basic' as PlanType, durationDays: 30, price: 0, description: '' };
 
 // Helper to get plan features based on type
-const getPlanFeatures = (type: PlanType) => {
+const getPlanFeatures = (type: PlanType, te: any) => {
   switch (type) {
     case 'basic':
       return [
-        { label: 'Truy cập phòng tập tiêu chuẩn', active: true },
-        { label: 'Sử dụng tủ đồ & phòng tắm', active: true },
-        { label: 'Lớp học nhóm HIIT/Yoga', active: false },
-        { label: 'Huấn luyện viên cá nhân hỗ trợ', active: false },
+        { label: te('features.basic_0'), active: true },
+        { label: te('features.basic_1'), active: true },
+        { label: te('features.basic_2'), active: false },
+        { label: te('features.basic_3'), active: false },
       ];
     case 'premium':
       return [
-        { label: 'Truy cập phòng tập 24/7', active: true },
-        { label: 'Sử dụng tủ đồ & phòng tắm', active: true },
-        { label: 'Lớp học nhóm HIIT/Yoga không giới hạn', active: true },
-        { label: 'Huấn luyện viên cá nhân hỗ trợ', active: false },
+        { label: te('features.premium_0'), active: true },
+        { label: te('features.premium_1'), active: true },
+        { label: te('features.premium_2'), active: true },
+        { label: te('features.premium_3'), active: false },
       ];
     case 'vip':
       return [
-        { label: 'Truy cập toàn hệ thống 24/7', active: true },
-        { label: 'Huấn luyện viên cá nhân hỗ trợ (2 buổi/tháng)', active: true },
-        { label: 'Đo chỉ số cơ thể & lên lộ trình dinh dưỡng', active: true },
-        { label: 'Lớp học nhóm HIIT/Yoga không giới hạn', active: true },
+        { label: te('features.vip_0'), active: true },
+        { label: te('features.vip_1'), active: true },
+        { label: te('features.vip_2'), active: true },
+        { label: te('features.vip_3'), active: true },
       ];
     default:
       return [];
@@ -81,8 +79,12 @@ function PlanCard({
   onToggle: (id: string) => void;
   toggling: string | null;
 }) {
+  const { t } = useLanguage();
+  const te = t('plans');
+  const tCommon = t('common');
+
   const isToggling = toggling === plan.id;
-  const features = getPlanFeatures(plan.type);
+  const features = getPlanFeatures(plan.type, te);
   const { count: activeCount, avatars } = getMockActiveMembers(plan);
 
   // Styling maps based on plan type
@@ -115,12 +117,12 @@ function PlanCard({
               <h3 className="text-xl font-black text-text-primary font-headline tracking-tight">{plan.name}</h3>
               {plan.type === 'premium' && (
                 <span className="bg-primary-500/10 text-primary-500 text-[10px] px-2 py-0.5 rounded-full font-headline font-black uppercase tracking-wider">
-                  Phổ biến
+                  {te('card.popular')}
                 </span>
               )}
             </div>
             <p className="text-text-secondary text-xs font-medium">
-              {plan.type === 'basic' ? 'Quyền lợi cơ bản' : plan.type === 'premium' ? 'Tối ưu hiệu năng' : 'Đặc quyền VIP'}
+              {plan.type === 'basic' ? te('card.basicDesc') : plan.type === 'premium' ? te('card.premiumDesc') : te('card.vipDesc')}
             </p>
           </div>
           <div className={`px-2.5 py-1 rounded-lg text-xs font-semibold uppercase tracking-wider ${
@@ -162,7 +164,7 @@ function PlanCard({
         <div className="pt-5 border-t border-surface-border mt-auto flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Hội viên hoạt động</span>
+              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">{te('card.activeMembers')}</span>
               <span className="text-base font-black text-text-primary font-headline">{activeCount}</span>
             </div>
             <div className="flex -space-x-2 overflow-hidden">
@@ -190,7 +192,7 @@ function PlanCard({
               className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-surface-overlay hover:bg-surface-border text-text-primary font-semibold text-xs rounded-xl transition-all cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" /></svg>
-              Chỉnh sửa
+              {tCommon('actions.edit')}
             </button>
             <button
               onClick={() => onToggle(plan.id)}
@@ -214,7 +216,7 @@ function PlanCard({
                   } />
                 </svg>
               )}
-              {plan.isActive ? 'Tạm dừng' : 'Kích hoạt'}
+              {plan.isActive ? te('card.deactivate') : te('card.activate')}
             </button>
           </div>
         </div>
@@ -237,6 +239,10 @@ function PlanModal({
   onSave: (payload: CreatePlanPayload | UpdatePlanPayload, id?: string) => Promise<void>;
   isLoading: boolean;
 }) {
+  const { t } = useLanguage();
+  const te = t('plans');
+  const tCommon = t('common');
+
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -257,10 +263,10 @@ function PlanModal({
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.name.trim()) e.name = 'Tên gói là bắt buộc';
-    if (!form.type) e.type = 'Loại gói là bắt buộc';
-    if (!form.durationDays || form.durationDays < 1) e.durationDays = 'Thời hạn phải ≥ 1 ngày';
-    if (form.price == null || form.price < 0) e.price = 'Giá phải ≥ 0';
+    if (!form.name.trim()) e.name = te('validation.nameRequired');
+    if (!form.type) e.type = te('validation.typeRequired');
+    if (!form.durationDays || form.durationDays < 1) e.durationDays = te('validation.durationMin');
+    if (form.price == null || form.price < 0) e.price = te('validation.priceMin');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -290,7 +296,7 @@ function PlanModal({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border">
           <h2 className="text-base font-bold text-text-primary">
-            {editing ? 'Chỉnh sửa gói tập' : 'Thêm gói tập mới'}
+            {editing ? te('modal.editTitle') : te('modal.createTitle')}
           </h2>
           <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
@@ -303,12 +309,12 @@ function PlanModal({
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
           {/* Name */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">Tên gói <span className="text-danger-500">*</span></label>
+            <label className="text-xs font-semibold text-text-secondary">{te('modal.name')} <span className="text-danger-500">*</span></label>
             <input
               type="text"
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              placeholder="VD: Gói Premium 3 tháng"
+              placeholder={te('modal.namePlaceholder')}
               className={`w-full px-3 py-2.5 rounded-xl border text-sm text-text-primary bg-surface-raised placeholder-text-muted outline-none
                 transition-all duration-150
                 ${errors.name ? 'border-danger-500 focus:ring-2 focus:ring-danger-500/30' : 'border-surface-border focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'}`}
@@ -318,20 +324,20 @@ function PlanModal({
 
           {/* Type */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">Loại gói <span className="text-danger-500">*</span></label>
+            <label className="text-xs font-semibold text-text-secondary">{te('modal.type')} <span className="text-danger-500">*</span></label>
             <div className="grid grid-cols-3 gap-2">
               {PLAN_TYPES.map((t) => (
                 <button
-                  key={t.value}
+                  key={t}
                   type="button"
-                  onClick={() => setForm((f) => ({ ...f, type: t.value }))}
+                  onClick={() => setForm((f) => ({ ...f, type: t }))}
                   className={`py-2.5 rounded-xl text-sm font-semibold border transition-all cursor-pointer
-                    ${form.type === t.value
+                    ${form.type === t
                       ? 'border-primary-500 bg-primary-500/10 text-primary-500'
                       : 'border-surface-border bg-surface-raised text-text-secondary hover:border-primary-500/50'
                     }`}
                 >
-                  {TYPE_STYLES[t.value].icon} {t.label}
+                  {TYPE_STYLES[t].icon} {te(`types.${t}`)}
                 </button>
               ))}
             </div>
@@ -340,7 +346,7 @@ function PlanModal({
           {/* Duration + Price */}
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">Thời hạn (ngày) <span className="text-danger-500">*</span></label>
+              <label className="text-xs font-semibold text-text-secondary">{te('modal.duration')} <span className="text-danger-500">*</span></label>
               <input
                 type="number"
                 min="1"
@@ -353,7 +359,7 @@ function PlanModal({
               {errors.durationDays && <p className="text-xs text-danger-500">{errors.durationDays}</p>}
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">Giá (VNĐ) <span className="text-danger-500">*</span></label>
+              <label className="text-xs font-semibold text-text-secondary">{te('modal.price')} <span className="text-danger-500">*</span></label>
               <input
                 type="number"
                 min="0"
@@ -369,12 +375,12 @@ function PlanModal({
 
           {/* Description */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">Mô tả <span className="text-text-muted font-normal">(tuỳ chọn)</span></label>
+            <label className="text-xs font-semibold text-text-secondary">{te('modal.description')} <span className="text-text-muted font-normal">{te('modal.optional')}</span></label>
             <textarea
               rows={3}
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-              placeholder="Quyền lợi, ưu đãi của gói..."
+              placeholder={te('modal.descriptionPlaceholder')}
               className="w-full px-3 py-2.5 rounded-xl border border-surface-border text-sm text-text-primary bg-surface-raised placeholder-text-muted outline-none resize-none
                 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-150"
             />
@@ -388,7 +394,7 @@ function PlanModal({
               className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border
                 hover:bg-surface-overlay transition-all cursor-pointer"
             >
-              Huỷ
+              {tCommon('actions.cancel')}
             </button>
             <button
               type="submit"
@@ -403,7 +409,7 @@ function PlanModal({
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                 </svg>
               )}
-              {editing ? 'Lưu thay đổi' : 'Thêm gói tập'}
+              {editing ? tCommon('actions.save') : te('addPlan')}
             </button>
           </div>
         </form>
@@ -415,6 +421,10 @@ function PlanModal({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function PlansPage() {
   const { plans, isLoading, error, fetchPlans, createPlan, updatePlan, togglePlan, clearError } = usePlanStore();
+  const { t } = useLanguage();
+  const te = t('plans');
+  const tCommon = t('common');
+  usePageTitle('plans');
 
   const [filterType, setFilterType] = useState<PlanType | 'all'>('all');
   const [showInactive, setShowInactive] = useState(false);
@@ -492,19 +502,19 @@ export default function PlansPage() {
       try {
         if (id) {
           await updatePlan(id, payload as UpdatePlanPayload);
-          toast.success('Cập nhật gói tập thành công!');
+          toast.success(te('toast.editSuccess'));
         } else {
           await createPlan(payload as CreatePlanPayload);
-          toast.success('Thêm gói tập thành công!');
+          toast.success(te('toast.addSuccess'));
         }
         closeModal();
       } catch {
-        toast.error('Có lỗi xảy ra, vui lòng thử lại.');
+        toast.error(te('toast.error'));
       } finally {
         setSaving(false);
       }
     },
-    [createPlan, updatePlan, closeModal]
+    [createPlan, updatePlan, closeModal, te]
   );
 
   const handleToggle = useCallback(
@@ -513,15 +523,17 @@ export default function PlansPage() {
       try {
         await togglePlan(id);
         const plan = plans.find((p) => p.id === id);
-        toast.success(plan?.isActive ? 'Đã tạm dừng gói tập.' : 'Đã kích hoạt gói tập!');
+        toast.success(plan?.isActive ? te('toast.deactivateSuccess') : te('toast.activateSuccess'));
       } catch {
-        toast.error('Không thể thay đổi trạng thái, vui lòng thử lại.');
+        toast.error(te('toast.toggleError'));
       } finally {
         setTogglingId(null);
       }
     },
-    [togglePlan, plans]
+    [togglePlan, plans, te]
   );
+
+  const filterOptions = ['all', ...PLAN_TYPES] as const;
 
   return (
     <>
@@ -529,8 +541,8 @@ export default function PlansPage() {
         {/* Page header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <PageHeader
-            title="Gói Tập"
-            subtitle="Quản lý hệ sinh thái gói đăng ký, phân tích mật độ phân hạng và triển khai gói mới."
+            title={te('title')}
+            subtitle={te('subtitle')}
           />
           <div className="flex items-center gap-3">
             <button
@@ -541,9 +553,9 @@ export default function PlansPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
               </svg>
-              Revenue Report
+              {te('revenueReport')}
             </button>
-            <AddButton onClick={openCreate} label="Thêm gói tập" />
+            <AddButton onClick={openCreate} label={te('addPlan')} />
           </div>
         </div>
 
@@ -567,28 +579,28 @@ export default function PlansPage() {
           isLoading={isLoading}
           className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"
           items={[
-            { label: 'Tổng gói', value: stats.total, color: 'primary' },
-            { label: 'Hoạt động', value: stats.active, color: 'success' },
-            { label: '☁️ Cơ bản', value: stats.basic, color: 'secondary' },
-            { label: '🔥 Premium', value: stats.premium, color: 'primary' },
-            { label: '👑 VIP', value: stats.vip, color: 'warning' },
+            { label: te('stats.total'), value: stats.total, color: 'primary' },
+            { label: te('stats.active'), value: stats.active, color: 'success' },
+            { label: `☁️ ${te('types.basic')}`, value: stats.basic, color: 'secondary' },
+            { label: `🔥 ${te('types.premium')}`, value: stats.premium, color: 'primary' },
+            { label: `👑 ${te('types.vip')}`, value: stats.vip, color: 'warning' },
           ]}
         />
 
         {/* Filter bar */}
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
-            {([{ value: 'all', label: 'Tất cả' }, ...PLAN_TYPES.map((t) => ({ value: t.value, label: t.label }))] as { value: PlanType | 'all'; label: string }[]).map((f) => (
+            {filterOptions.map((opt) => (
               <button
-                key={f.value}
-                onClick={() => setFilterType(f.value)}
+                key={opt}
+                onClick={() => setFilterType(opt)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer
-                  ${filterType === f.value
+                  ${filterType === opt
                     ? 'bg-primary-500 text-white shadow'
                     : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'
                   }`}
               >
-                {f.label}
+                {opt === 'all' ? tCommon('filters.all') : te(`types.${opt}`)}
               </button>
             ))}
           </div>
@@ -606,10 +618,10 @@ export default function PlansPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
             </svg>
-            Hiện gói tạm dừng
+            {te('filters.showInactive')}
           </button>
 
-          <span className="ml-auto text-xs text-text-muted">{filtered.length} gói</span>
+          <span className="ml-auto text-xs text-text-muted">{filtered.length} {te('count')}</span>
         </div>
 
         {/* Loading skeleton */}
@@ -635,9 +647,9 @@ export default function PlansPage() {
           <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
             <span className="text-5xl">📋</span>
             <div>
-              <p className="text-base font-semibold text-text-primary">Chưa có gói tập nào</p>
+              <p className="text-base font-semibold text-text-primary">{te('empty.title')}</p>
               <p className="text-sm text-text-muted mt-1">
-                {filterType !== 'all' ? 'Không có gói nào trong bộ lọc hiện tại.' : 'Tạo gói tập đầu tiên để bắt đầu.'}
+                {filterType !== 'all' ? te('empty.noResult') : te('empty.description')}
               </p>
             </div>
             {filterType === 'all' && (
@@ -645,7 +657,7 @@ export default function PlansPage() {
                 onClick={openCreate}
                 className="px-4 py-2 rounded-xl bg-primary-500 hover:bg-primary-600 text-sm font-semibold text-white transition-all cursor-pointer"
               >
-                + Thêm gói tập
+                + {te('addPlan')}
               </button>
             )}
           </div>
@@ -672,31 +684,31 @@ export default function PlansPage() {
             <div className="lg:col-span-1 bg-surface-raised p-6 rounded-2xl flex flex-col justify-between border border-surface-border">
               <div>
                 <span className="text-primary-500 text-2xl mb-4 block">📈</span>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-headline">Tỷ lệ hủy (Churn Rate)</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-headline">{te('analytics.churnRate')}</h4>
                 <p className="text-3xl font-black text-text-primary font-headline">2.4%</p>
               </div>
               <p className="text-[11px] text-text-secondary mt-4">
-                Trung bình trên tất cả các nhóm đăng ký dịch vụ trong 30 ngày qua.
+                {te('analytics.churnDesc')}
               </p>
             </div>
 
             <div className="lg:col-span-3 bg-surface-raised p-6 rounded-2xl border border-surface-border flex flex-col justify-between">
               <div className="flex items-center justify-between mb-8">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-text-primary font-headline">
-                  Phân bổ hội viên hoạt động theo phân hạng
+                  {te('analytics.allocationTitle')}
                 </h4>
                 <div className="flex gap-4 text-xs font-medium">
                   <div className="flex items-center gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-full bg-slate-700"></div>
-                    <span className="text-text-secondary">Cơ bản</span>
+                    <span className="text-text-secondary">{te('types.basic')}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-full bg-primary-500"></div>
-                    <span className="text-text-secondary">Premium</span>
+                    <span className="text-text-secondary">{te('types.premium')}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-full bg-warning-500"></div>
-                    <span className="text-text-secondary">VIP</span>
+                    <span className="text-text-secondary">{te('types.vip')}</span>
                   </div>
                 </div>
               </div>
@@ -708,7 +720,7 @@ export default function PlansPage() {
                   className="flex-1 bg-slate-700 rounded-t-lg group relative min-h-[10%]"
                 >
                   <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-text-primary bg-surface-overlay px-1.5 py-0.5 rounded border border-surface-border z-10 whitespace-nowrap">
-                    Cơ bản: {basicPct}% ({basicMembers} HV)
+                    {te('analytics.basicHover').replace('{{pct}}', String(basicPct)).replace('{{count}}', String(basicMembers))}
                   </div>
                 </div>
                 <div
@@ -716,7 +728,7 @@ export default function PlansPage() {
                   className="flex-1 bg-primary-500 rounded-t-lg group relative min-h-[10%] shadow-lg shadow-primary-500/20"
                 >
                   <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-text-primary bg-surface-overlay px-1.5 py-0.5 rounded border border-surface-border z-10 whitespace-nowrap">
-                    Premium: {premiumPct}% ({premiumMembers} HV)
+                    {te('analytics.premiumHover').replace('{{pct}}', String(premiumPct)).replace('{{count}}', String(premiumMembers))}
                   </div>
                 </div>
                 <div
@@ -724,12 +736,12 @@ export default function PlansPage() {
                   className="flex-1 bg-warning-500 rounded-t-lg group relative min-h-[10%] shadow-lg shadow-warning-500/20"
                 >
                   <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-text-primary bg-surface-overlay px-1.5 py-0.5 rounded border border-surface-border z-10 whitespace-nowrap">
-                    VIP: {vipPct}% ({vipMembers} HV)
+                    {te('analytics.vipHover').replace('{{pct}}', String(vipPct)).replace('{{count}}', String(vipMembers))}
                   </div>
                 </div>
                 <div className="flex-1 h-full border-t border-dashed border-surface-border flex items-center justify-center">
                   <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider text-center">
-                    Cơ hội phát triển
+                    {te('analytics.growthOpportunity')}
                   </span>
                 </div>
               </div>

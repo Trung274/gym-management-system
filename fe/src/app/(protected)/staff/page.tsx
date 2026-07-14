@@ -12,16 +12,10 @@ import type {
   CreateStaffPayload,
   UpdateStaffPayload,
 } from '@/src/types/staff.types';
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import { usePageTitle } from '@/src/hooks/usePageTitle';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const STAFF_ROLES: { value: RoleName; label: string }[] = [
-  { value: 'admin',   label: 'Quản trị viên' },
-  { value: 'manager', label: 'Quản lý' },
-  { value: 'trainer', label: 'Huấn luyện viên' },
-  { value: 'staff',   label: 'Nhân viên' },
-];
-
-
 const ROLE_STYLES: Record<RoleName, string> = {
   admin:   'bg-danger-500/15 text-danger-500',
   manager: 'bg-primary-500/15 text-primary-500',
@@ -62,6 +56,8 @@ function StaffCard({
   actingId: string | null;
 }) {
   const isActing = actingId === member.id;
+  const { t, lang } = useLanguage();
+  const ts = t('staff');
 
   return (
     <div className={`
@@ -85,17 +81,17 @@ function StaffCard({
           shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full
           ${member.isActive ? 'bg-success-500/15 text-success-500' : 'bg-surface-overlay text-text-muted'}
         `}>
-          {member.isActive ? 'Hoạt động' : 'Vô hiệu'}
+          {member.isActive ? ts('card.active') : ts('card.inactive')}
         </span>
       </div>
 
       {/* Role badge */}
       <div className="flex items-center gap-2">
         <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${ROLE_STYLES[member.role.name] ?? 'bg-surface-overlay text-text-muted'}`}>
-          {member.roleLabel}
+          {ts(`roles.${member.role.name}`, member.roleLabel)}
         </span>
         <span className="text-xs text-text-muted ml-auto">
-          {new Date(member.createdAt).toLocaleDateString('vi-VN')}
+          {new Date(member.createdAt).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US')}
         </span>
       </div>
 
@@ -110,7 +106,7 @@ function StaffCard({
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
             <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
           </svg>
-          Sửa
+          {ts('card.edit')}
         </button>
 
         <button
@@ -123,7 +119,7 @@ function StaffCard({
             <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
           </svg>
-          Phân quyền
+          {ts('card.assignRole')}
         </button>
 
         <button
@@ -149,7 +145,7 @@ function StaffCard({
               }/>
             </svg>
           )}
-          {member.isActive ? 'Vô hiệu' : 'Kích hoạt'}
+          {member.isActive ? ts('card.deactivate') : ts('card.activate')}
         </button>
       </div>
     </div>
@@ -171,6 +167,15 @@ function CreateStaffModal({
   const [form, setForm] = useState(EMPTY_CREATE_FORM);
   const [showPwd, setShowPwd] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { t } = useLanguage();
+  const ts = t('staff');
+
+  const STAFF_ROLES_LIST = [
+    { value: 'admin' as RoleName, label: ts('stats.admin') },
+    { value: 'manager' as RoleName, label: ts('stats.manager') },
+    { value: 'trainer' as RoleName, label: ts('stats.trainer') },
+    { value: 'staff' as RoleName, label: ts('stats.staff') },
+  ];
 
   useEffect(() => {
     if (open) { setForm(EMPTY_CREATE_FORM); setErrors({}); }
@@ -178,12 +183,12 @@ function CreateStaffModal({
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.name.trim()) e.name = 'Tên là bắt buộc';
-    if (!form.email.trim()) e.email = 'Email là bắt buộc';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Email không hợp lệ';
-    if (!form.password) e.password = 'Mật khẩu là bắt buộc';
-    else if (form.password.length < 6) e.password = 'Mật khẩu phải ≥ 6 ký tự';
-    if (!form.roleName) e.roleName = 'Vai trò là bắt buộc';
+    if (!form.name.trim()) e.name = ts('validation.nameRequired');
+    if (!form.email.trim()) e.email = ts('validation.emailRequired');
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = ts('validation.emailInvalid');
+    if (!form.password) e.password = ts('validation.passwordRequired');
+    else if (form.password.length < 6) e.password = ts('validation.passwordMin');
+    if (!form.roleName) e.roleName = ts('validation.roleRequired');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -201,7 +206,7 @@ function CreateStaffModal({
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-md bg-surface-base rounded-2xl shadow-2xl border border-surface-border overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border">
-          <h2 className="text-base font-bold text-text-primary">Thêm nhân viên mới</h2>
+          <h2 className="text-base font-bold text-text-primary">{ts('modal.createTitle')}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
           </button>
@@ -210,7 +215,7 @@ function CreateStaffModal({
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
           {/* Name */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">Họ tên <span className="text-danger-500">*</span></label>
+            <label className="text-xs font-semibold text-text-secondary">{ts('modal.name')} <span className="text-danger-500">*</span></label>
             <input type="text" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               placeholder="Nguyễn Văn A"
               className={`w-full px-3 py-2.5 rounded-xl border text-sm text-text-primary bg-surface-raised placeholder-text-muted outline-none transition-all
@@ -221,7 +226,7 @@ function CreateStaffModal({
 
           {/* Email */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">Email <span className="text-danger-500">*</span></label>
+            <label className="text-xs font-semibold text-text-secondary">{ts('modal.email')} <span className="text-danger-500">*</span></label>
             <input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
               placeholder="staff@gym.com"
               className={`w-full px-3 py-2.5 rounded-xl border text-sm text-text-primary bg-surface-raised placeholder-text-muted outline-none transition-all
@@ -232,10 +237,10 @@ function CreateStaffModal({
 
           {/* Password */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">Mật khẩu <span className="text-danger-500">*</span></label>
+            <label className="text-xs font-semibold text-text-secondary">{ts('modal.password')} <span className="text-danger-500">*</span></label>
             <div className="relative">
               <input type={showPwd ? 'text' : 'password'} value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-                placeholder="Tối thiểu 6 ký tự"
+                placeholder={ts('modal.passwordHint')}
                 className={`w-full px-3 pr-10 py-2.5 rounded-xl border text-sm text-text-primary bg-surface-raised placeholder-text-muted outline-none transition-all
                   ${errors.password ? 'border-danger-500 focus:ring-2 focus:ring-danger-500/30' : 'border-surface-border focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'}`}
               />
@@ -254,9 +259,9 @@ function CreateStaffModal({
 
           {/* Role */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">Vai trò <span className="text-danger-500">*</span></label>
+            <label className="text-xs font-semibold text-text-secondary">{ts('modal.role')} <span className="text-danger-500">*</span></label>
             <div className="grid grid-cols-2 gap-2">
-              {STAFF_ROLES.map((r) => (
+              {STAFF_ROLES_LIST.map((r) => (
                 <button key={r.value} type="button" onClick={() => setForm((f) => ({ ...f, roleName: r.value }))}
                   className={`py-2.5 rounded-xl text-sm font-semibold border transition-all cursor-pointer
                     ${form.roleName === r.value
@@ -269,10 +274,10 @@ function CreateStaffModal({
           </div>
 
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">Huỷ</button>
+            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">{ts('modal.cancel')}</button>
             <button type="submit" disabled={isLoading} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2">
               {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-              Thêm nhân viên
+              {ts('modal.add')}
             </button>
           </div>
         </form>
@@ -297,6 +302,8 @@ function EditStaffModal({
 }) {
   const [form, setForm] = useState(EMPTY_EDIT_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { t } = useLanguage();
+  const ts = t('staff');
 
   useEffect(() => {
     if (member) { setForm({ name: member.name, email: member.email }); setErrors({}); }
@@ -304,9 +311,9 @@ function EditStaffModal({
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.name.trim()) e.name = 'Tên là bắt buộc';
-    if (!form.email.trim()) e.email = 'Email là bắt buộc';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Email không hợp lệ';
+    if (!form.name.trim()) e.name = ts('validation.nameRequired');
+    if (!form.email.trim()) e.email = ts('validation.emailRequired');
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = ts('validation.emailInvalid');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -324,14 +331,14 @@ function EditStaffModal({
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-md bg-surface-base rounded-2xl shadow-2xl border border-surface-border overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border">
-          <h2 className="text-base font-bold text-text-primary">Chỉnh sửa nhân viên</h2>
+          <h2 className="text-base font-bold text-text-primary">{ts('modal.editTitle')}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">Họ tên <span className="text-danger-500">*</span></label>
+            <label className="text-xs font-semibold text-text-secondary">{ts('modal.name')} <span className="text-danger-500">*</span></label>
             <input type="text" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               className={`w-full px-3 py-2.5 rounded-xl border text-sm text-text-primary bg-surface-raised outline-none transition-all
                 ${errors.name ? 'border-danger-500 focus:ring-2 focus:ring-danger-500/30' : 'border-surface-border focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'}`}
@@ -339,7 +346,7 @@ function EditStaffModal({
             {errors.name && <p className="text-xs text-danger-500">{errors.name}</p>}
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">Email <span className="text-danger-500">*</span></label>
+            <label className="text-xs font-semibold text-text-secondary">{ts('modal.email')} <span className="text-danger-500">*</span></label>
             <input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
               className={`w-full px-3 py-2.5 rounded-xl border text-sm text-text-primary bg-surface-raised outline-none transition-all
                 ${errors.email ? 'border-danger-500 focus:ring-2 focus:ring-danger-500/30' : 'border-surface-border focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'}`}
@@ -347,10 +354,10 @@ function EditStaffModal({
             {errors.email && <p className="text-xs text-danger-500">{errors.email}</p>}
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">Huỷ</button>
+            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">{ts('modal.cancel')}</button>
             <button type="submit" disabled={isLoading} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2">
               {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-              Lưu thay đổi
+              {ts('modal.save')}
             </button>
           </div>
         </form>
@@ -374,6 +381,15 @@ function AssignRoleModal({
   isLoading: boolean;
 }) {
   const [selectedRole, setSelectedRole] = useState<RoleName>('user');
+  const { t } = useLanguage();
+  const ts = t('staff');
+
+  const STAFF_ROLES_LIST = [
+    { value: 'admin' as RoleName, label: ts('stats.admin') },
+    { value: 'manager' as RoleName, label: ts('stats.manager') },
+    { value: 'trainer' as RoleName, label: ts('stats.trainer') },
+    { value: 'staff' as RoleName, label: ts('stats.staff') },
+  ];
 
   useEffect(() => {
     if (member) setSelectedRole(member.role.name);
@@ -386,15 +402,15 @@ function AssignRoleModal({
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-sm bg-surface-base rounded-2xl shadow-2xl border border-surface-border overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border">
-          <h2 className="text-base font-bold text-text-primary">Phân quyền</h2>
+          <h2 className="text-base font-bold text-text-primary">{ts('modal.assignTitle')}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
           </button>
         </div>
         <div className="p-6 flex flex-col gap-4">
-          <p className="text-sm text-text-secondary">Chọn vai trò cho <span className="font-semibold text-text-primary">{member.name}</span></p>
+          <p className="text-sm text-text-secondary">{ts('modal.assignDesc')}<span className="font-semibold text-text-primary">{member.name}</span></p>
           <div className="flex flex-col gap-2">
-            {STAFF_ROLES.map((r) => (
+            {STAFF_ROLES_LIST.map((r) => (
               <button key={r.value} type="button" onClick={() => setSelectedRole(r.value)}
                 className={`flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-semibold transition-all cursor-pointer
                   ${selectedRole === r.value
@@ -408,10 +424,10 @@ function AssignRoleModal({
             ))}
           </div>
           <div className="flex gap-3">
-            <button onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">Huỷ</button>
+            <button onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">{ts('modal.cancel')}</button>
             <button onClick={() => onSave(member.id, selectedRole)} disabled={isLoading} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2">
               {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-              Xác nhận
+              {ts('modal.confirm')}
             </button>
           </div>
         </div>
@@ -423,6 +439,10 @@ function AssignRoleModal({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function StaffPage() {
   const { staff, pagination, isLoading, error, fetchStaff, createStaff, updateStaff, assignRole, deactivateStaff, activateStaff, clearError } = useStaffStore();
+  const { t } = useLanguage();
+  const ts = t('staff');
+  const tCommon = t('common');
+  usePageTitle('staff');
 
   const [filterRole, setFilterRole] = useState<RoleName | 'all'>('all');
   const [filterActive, setFilterActive] = useState<'all' | 'active' | 'inactive'>('all');
@@ -458,46 +478,46 @@ export default function StaffPage() {
     setSaving(true);
     try {
       await createStaff(payload);
-      toast.success('Thêm nhân viên thành công!');
+      toast.success(ts('toast.addSuccess'));
       setCreateOpen(false);
-    } catch { toast.error('Có lỗi xảy ra, vui lòng thử lại.'); }
+    } catch { toast.error(ts('toast.error')); }
     finally { setSaving(false); }
-  }, [createStaff]);
+  }, [createStaff, ts]);
 
   const handleEdit = useCallback(async (id: string, payload: UpdateStaffPayload) => {
     setSaving(true);
     try {
       await updateStaff(id, payload);
-      toast.success('Cập nhật thành công!');
+      toast.success(ts('toast.editSuccess'));
       setEditMember(null);
-    } catch { toast.error('Có lỗi xảy ra, vui lòng thử lại.'); }
+    } catch { toast.error(ts('toast.error')); }
     finally { setSaving(false); }
-  }, [updateStaff]);
+  }, [updateStaff, ts]);
 
   const handleAssignRole = useCallback(async (id: string, roleName: RoleName) => {
     setSaving(true);
     try {
       await assignRole(id, { roleName });
-      toast.success('Phân quyền thành công!');
+      toast.success(ts('toast.assignSuccess'));
       setAssignMember(null);
-    } catch { toast.error('Phân quyền thất bại, vui lòng thử lại.'); }
+    } catch { toast.error(ts('toast.assignError')); }
     finally { setSaving(false); }
-  }, [assignRole]);
+  }, [assignRole, ts]);
 
   const handleToggle = useCallback(async (member: StaffMember) => {
     setActingId(member.id);
     try {
       if (member.isActive) {
         await deactivateStaff(member.id);
-        toast.success('Đã vô hiệu hoá tài khoản.');
+        toast.success(ts('toast.deactivateSuccess'));
       } else {
         await activateStaff(member.id);
-        toast.success('Đã kích hoạt tài khoản!');
+        toast.success(ts('toast.activateSuccess'));
       }
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Có lỗi xảy ra.');
+      toast.error(err?.response?.data?.message || ts('toast.error'));
     } finally { setActingId(null); }
-  }, [deactivateStaff, activateStaff]);
+  }, [deactivateStaff, activateStaff, ts]);
 
   return (
     <>
@@ -505,10 +525,10 @@ export default function StaffPage() {
         {/* Page header */}
         <div className="flex items-center justify-between gap-4">
           <PageHeader
-            title="Nhân viên"
-            subtitle="Quản lý tài khoản và phân quyền nhân viên"
+            title={ts('title')}
+            subtitle={ts('subtitle')}
           />
-          <AddButton onClick={() => setCreateOpen(true)} label="Thêm nhân viên" />
+          <AddButton onClick={() => setCreateOpen(true)} label={ts('addStaff')} />
         </div>
 
         {/* Error banner */}
@@ -526,12 +546,12 @@ export default function StaffPage() {
         <StatsGrid
           isLoading={isLoading}
           items={[
-            { label: 'Tổng nhân viên', value: stats.total, color: 'primary' },
-            { label: 'Đang hoạt động', value: stats.active, color: 'success' },
-            { label: 'Quản trị viên', value: stats.admin, color: 'danger' },
-            { label: 'Quản lý', value: stats.manager, color: 'primary' },
-            { label: 'Nhân viên', value: stats.staff, color: 'secondary' },
-            { label: 'HLV', value: stats.trainer, color: 'warning' },
+            { label: ts('stats.total'), value: stats.total, color: 'primary' },
+            { label: ts('stats.active'), value: stats.active, color: 'success' },
+            { label: ts('stats.admin'), value: stats.admin, color: 'danger' },
+            { label: ts('stats.manager'), value: stats.manager, color: 'primary' },
+            { label: ts('stats.staff'), value: stats.staff, color: 'secondary' },
+            { label: ts('stats.trainer'), value: stats.trainer, color: 'warning' },
           ]}
         />
 
@@ -543,7 +563,7 @@ export default function StaffPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
             </svg>
             <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm tên, email..."
+              placeholder={ts('filters.searchPlaceholder')}
               className="pl-9 pr-4 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all w-52"
             />
           </div>
@@ -551,11 +571,11 @@ export default function StaffPage() {
           {/* Role filter */}
           <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
             {([
-              { value: 'all',     label: 'Tất cả' },
-              { value: 'admin',   label: 'Admin' },
-              { value: 'manager', label: 'Quản lý' },
-              { value: 'staff',   label: 'Nhân viên' },
-              { value: 'trainer', label: 'HLV' },
+              { value: 'all',     label: tCommon('filters.all') },
+              { value: 'admin',   label: ts('roles.admin') },
+              { value: 'manager', label: ts('roles.manager') },
+              { value: 'staff',   label: ts('roles.staff') },
+              { value: 'trainer', label: ts('stats.hlv') },
             ] as { value: RoleName | 'all'; label: string }[]).map((f) => (
 
               <button key={f.value} onClick={() => setFilterRole(f.value)}
@@ -568,7 +588,11 @@ export default function StaffPage() {
 
           {/* Status filter */}
           <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
-            {([{ value: 'all', label: 'Tất cả' }, { value: 'active', label: 'Hoạt động' }, { value: 'inactive', label: 'Vô hiệu' }] as { value: 'all' | 'active' | 'inactive'; label: string }[]).map((f) => (
+            {([
+              { value: 'all', label: tCommon('filters.all') },
+              { value: 'active', label: ts('card.active') },
+              { value: 'inactive', label: ts('card.inactive') }
+            ] as { value: 'all' | 'active' | 'inactive'; label: string }[]).map((f) => (
               <button key={f.value} onClick={() => setFilterActive(f.value)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer
                   ${filterActive === f.value ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'}`}>
@@ -577,7 +601,9 @@ export default function StaffPage() {
             ))}
           </div>
 
-          <span className="ml-auto text-xs text-text-muted">{filtered.length} nhân viên</span>
+          <span className="ml-auto text-xs text-text-muted">
+            {ts('filters.count', '{{count}} nhân viên').replace('{{count}}', filtered.length.toString())}
+          </span>
         </div>
 
         {/* Skeleton loading */}
@@ -601,8 +627,10 @@ export default function StaffPage() {
           <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
             <span className="text-5xl">🧑‍💼</span>
             <div>
-              <p className="text-base font-semibold text-text-primary">Chưa có nhân viên nào</p>
-              <p className="text-sm text-text-muted mt-1">{searchQuery || filterRole !== 'all' || filterActive !== 'all' ? 'Không có kết quả phù hợp với bộ lọc.' : 'Thêm nhân viên đầu tiên để bắt đầu.'}</p>
+              <p className="text-base font-semibold text-text-primary">{ts('empty.title')}</p>
+              <p className="text-sm text-text-muted mt-1">
+                {searchQuery || filterRole !== 'all' || filterActive !== 'all' ? ts('empty.noResults') : ts('empty.description')}
+              </p>
             </div>
           </div>
         )}
@@ -624,7 +652,10 @@ export default function StaffPage() {
         {/* Pagination info */}
         {pagination && pagination.totalPages > 1 && (
           <p className="text-center text-xs text-text-muted">
-            Trang {pagination.currentPage}/{pagination.totalPages} · {pagination.total} nhân viên
+            {ts('pagination')
+              .replace('{{current}}', pagination.currentPage.toString())
+              .replace('{{total}}', pagination.totalPages.toString())
+              .replace('{{count}}', pagination.total.toString())}
           </p>
         )}
       </div>

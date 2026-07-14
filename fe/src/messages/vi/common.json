@@ -1,0 +1,54 @@
+{
+  "actions": {
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "add": "Thêm",
+    "search": "Tìm kiếm",
+    "filter": "Lọc",
+    "refresh": "Làm mới",
+    "close": "Đóng",
+    "confirm": "Xác nhận",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "submit": "Gửi",
+    "loading": "Đang tải...",
+    "retry": "Thử lại",
+    "clearFilter": "Xóa lọc",
+    "viewAll": "Tất cả",
+    "details": "Chi tiết"
+  },
+  "status": {
+    "active": "Hoạt động",
+    "inactive": "Ngừng hoạt động",
+    "suspended": "Tạm dừng",
+    "expired": "Hết hạn",
+    "pending": "Chờ xác nhận",
+    "confirmed": "Đã xác nhận",
+    "completed": "Hoàn thành",
+    "cancelled": "Đã hủy"
+  },
+  "pagination": {
+    "page": "Trang",
+    "of": "/",
+    "previous": "← Trước",
+    "next": "Sau →"
+  },
+  "empty": {
+    "noData": "Không có dữ liệu",
+    "noResults": "Không tìm thấy kết quả phù hợp"
+  },
+  "error": {
+    "generic": "Có lỗi xảy ra, vui lòng thử lại",
+    "loadFailed": "Không thể tải dữ liệu"
+  },
+  "language": {
+    "label": "Ngôn ngữ",
+    "vi": "Tiếng Việt",
+    "en": "English"
+  },
+  "filters": {
+    "all": "Tất cả"
+  }
+}

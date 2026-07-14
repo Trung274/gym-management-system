@@ -1,0 +1,36 @@
+{
+  "title": "Tổng quan",
+  "subtitle": "Cập nhật lúc",
+  "refresh": "Làm mới",
+  "sections": {
+    "members": "Hội viên",
+    "bookings": "Lịch đặt PT",
+    "equipment": "Thiết bị",
+    "classes": "Lịch lớp học hôm nay",
+    "plans": "Gói tập",
+    "groupClasses": "Lớp học nhóm"
+  },
+  "stats": {
+    "totalMembers": "Tổng hội viên",
+    "activeTrainers": "HLV đang HĐ",
+    "checkinsToday": "Check-in hôm nay",
+    "pendingBookings": "Lịch PT chờ duyệt",
+    "membersActive": "Đang hoạt động",
+    "membersSuspended": "Bị tạm dừng",
+    "membersNewThisMonth": "Mới tháng này",
+    "bookingsTotal": "Tổng",
+    "bookingsPending": "Chờ duyệt",
+    "bookingsConfirmed": "Đã xác nhận",
+    "bookingsCompletedThisMonth": "Hoàn thành T/M",
+    "equipmentOperational": "Đang hoạt động",
+    "equipmentMaintenance": "Đang bảo trì",
+    "equipmentOutOfOrder": "Hỏng / nghỉ",
+    "equipmentTotal": "Tổng thiết bị",
+    "plansActive": "Đang kích hoạt",
+    "plansTotal": "Tổng gói",
+    "classesActive": "Đang hoạt động",
+    "classesTotal": "Tổng lớp"
+  },
+  "noClassesToday": "Không có lớp học nào hôm nay",
+  "loadError": "Không thể tải dashboard."
+}

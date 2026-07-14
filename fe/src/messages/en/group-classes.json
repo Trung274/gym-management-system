@@ -1,0 +1,87 @@
+{
+  "title": "Group Classes",
+  "subtitle": "Manage schedules and lists of group fitness classes",
+  "addClass": "Add Class",
+  "stats": {
+    "total": "Total classes",
+    "active": "Active",
+    "cancelled": "Cancelled",
+    "completed": "Completed"
+  },
+  "days": {
+    "sunday": "Sunday",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday"
+  },
+  "daysShort": {
+    "0": "Sun",
+    "1": "Mon",
+    "2": "Tue",
+    "3": "Wed",
+    "4": "Thu",
+    "5": "Fri",
+    "6": "Sat"
+  },
+  "categories": {
+    "yoga": "Yoga",
+    "zumba": "Zumba",
+    "cycling": "Cycling",
+    "hiit": "HIIT",
+    "pilates": "Pilates",
+    "boxing": "Boxing",
+    "other": "Other",
+    "emptyTrainer": "— No trainer —"
+  },
+  "table": {
+    "class": "Class",
+    "schedule": "Schedule",
+    "trainerLocation": "Trainer / Location",
+    "capacity": "Capacity",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "empty": {
+    "title": "No classes found",
+    "description": "Try changing the filters or adding a new class."
+  },
+  "modal": {
+    "createTitle": "Add New Class",
+    "editTitle": "Edit Class",
+    "name": "Class name",
+    "category": "Category",
+    "trainer": "Trainer",
+    "trainerSearchPlaceholder": "Search by trainer name or email...",
+    "trainerLoading": "Loading trainer list...",
+    "trainerNotFound": "No trainers found",
+    "trainerChange": "Change",
+    "location": "Location",
+    "capacity": "Capacity",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "description": "Description",
+    "schedule": "Schedule",
+    "addScheduleItem": "Add slot",
+    "cancel": "Cancel",
+    "save": "Save changes",
+    "add": "Add Class"
+  },
+  "validation": {
+    "nameRequired": "Class name is required",
+    "scheduleRequired": "At least 1 class slot is required"
+  },
+  "toast": {
+    "addSuccess": "Class added successfully!",
+    "editSuccess": "Class updated successfully!",
+    "statusSuccess": "Status updated successfully!",
+    "error": "An error occurred.",
+    "statusError": "Operation failed."
+  },
+  "filters": {
+    "searchPlaceholder": "Class name, trainer, location...",
+    "count": "{{count}} classes"
+  }
+}

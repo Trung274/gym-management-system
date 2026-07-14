@@ -1,0 +1,85 @@
+{
+  "title": "Hệ Thống Thiết Bị",
+  "subtitle": "Theo dõi thời gian thực trạng thái và quản lý vòng đời tài sản GymMS.",
+  "addEquipment": "Thêm Thiết Bị",
+  "reportButton": "Xuất Báo Cáo",
+  "searchPlaceholder": "Tìm ID, tên, vị trí...",
+  "count": "thiết bị",
+  "filters": {
+    "all": "Tất cả",
+    "allStatus": "Mọi trạng thái"
+  },
+  "stats": {
+    "total": "Tổng tài sản",
+    "operational": "Sẵn sàng sử dụng",
+    "maintenance": "Đang bảo trì",
+    "outOfOrder": "Cần sửa gấp",
+    "maintenanceDue": "Cần bảo trì"
+  },
+  "status": {
+    "operational": "Hoạt động tốt",
+    "maintenance": "Đang bảo trì",
+    "out_of_order": "Hỏng / Ngừng dùng"
+  },
+  "categories": {
+    "cardio": "Cardio",
+    "strength": "Sức mạnh",
+    "flexibility": "Linh hoạt",
+    "free_weights": "Tạ tự do",
+    "other": "Khác"
+  },
+  "table": {
+    "details": "Chi tiết tài sản",
+    "location": "Khu vực / Vị trí",
+    "nextMaintenance": "Lịch bảo trì tiếp theo",
+    "nextMaintenanceLabel": "Bảo trì tiếp theo:",
+    "status": "Trạng thái",
+    "actions": "Hành động"
+  },
+  "empty": {
+    "title": "Không có thiết bị nào",
+    "description": "Thử thay đổi bộ lọc hoặc thêm thiết bị mới."
+  },
+  "modal": {
+    "createTitle": "Thêm thiết bị mới",
+    "editTitle": "Chỉnh sửa thiết bị",
+    "basicInfo": "Thông tin cơ bản",
+    "maintenanceInfo": "Mua sắm & Bảo trì",
+    "name": "Tên thiết bị",
+    "category": "Danh mục",
+    "location": "Vị trí đặt",
+    "status": "Trạng thái",
+    "brand": "Thương hiệu",
+    "model": "Model",
+    "serialNumber": "Số serial",
+    "quantity": "Số lượng",
+    "purchaseDate": "Ngày mua",
+    "purchasePrice": "Giá mua (VNĐ)",
+    "supplier": "Nhà cung cấp",
+    "nextMaintenanceDate": "Lịch bảo trì tiếp theo",
+    "notes": "Ghi chú",
+    "notesPlaceholder": "Lưu ý đặc biệt về thiết bị...",
+    "submitCreate": "Thêm thiết bị",
+    "submitEdit": "Lưu thay đổi"
+  },
+  "toast": {
+    "addSuccess": "Thêm thiết bị thành công!",
+    "editSuccess": "Cập nhật thiết bị thành công!",
+    "deleteSuccess": "Đã xóa \"{{name}}\".",
+    "statusSuccess": "Cập nhật trạng thái thành công!",
+    "statusMaintenanceSuccess": "Đã chuyển sang bảo trì, cập nhật ngày bảo trì cuối.",
+    "error": "Có lỗi xảy ra.",
+    "statusError": "Thao tác thất bại.",
+    "deleteError": "Xóa thất bại."
+  },
+  "deleteModal": {
+    "title": "Xóa thiết bị?",
+    "subtitle": "Thao tác này không thể hoàn tác.",
+    "confirm": "Bạn chắc chắn muốn xóa \"{{name}}\"?"
+  },
+  "validation": {
+    "nameRequired": "Tên thiết bị là bắt buộc",
+    "categoryRequired": "Danh mục là bắt buộc",
+    "quantityMin": "Số lượng phải ≥ 1"
+  }
+}

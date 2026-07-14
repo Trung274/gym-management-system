@@ -1,0 +1,48 @@
+{
+  "title": "Gym Info",
+  "subtitle": "Manage public display information for the gym",
+  "basicInfo": "Basic Info",
+  "gymName": "Gym Name *",
+  "gymNamePlaceholder": "e.g., FitZone Gym",
+  "tagline": "Tagline / Slogan",
+  "taglinePlaceholder": "e.g., Your Health, Our Priority",
+  "established": "Established Year",
+  "establishedPlaceholder": "e.g., 2018",
+  "description": "Description",
+  "descriptionPlaceholder": "Short description about the gym...",
+  "contact": "Contact",
+  "address": "Address",
+  "addressPlaceholder": "Street, district, city...",
+  "phone": "Phone number",
+  "phonePlaceholder": "e.g., 0901 234 567",
+  "email": "Contact Email",
+  "emailPlaceholder": "e.g., info@gymms.com",
+  "website": "Website",
+  "websitePlaceholder": "https://...",
+  "socialLinks": "Social Links",
+  "facebook": "Facebook",
+  "instagram": "Instagram",
+  "youtube": "YouTube",
+  "tiktok": "TikTok",
+  "images": "Images",
+  "logoUrl": "Logo URL",
+  "logoHint": "Direct link to the logo image (jpg, png, webp...)",
+  "coverImageUrl": "Cover Image URL",
+  "coverHint": "Banner image displayed on member portal page",
+  "openingHours": "Opening Hours",
+  "openingHoursHint": "Enter as text, comma separated. e.g., \"Mon-Fri: 06:00 - 22:00, Sat-Sun: 08:00 - 20:00\"",
+  "openingHoursPlaceholder": "Monday - Friday: 06:00 - 22:00,\nSaturday: 08:00 - 20:00,\nSunday: 08:00 - 18:00",
+  "validation": {
+    "nameRequired": "Gym name is required"
+  },
+  "toast": {
+    "loadError": "Could not load gym info",
+    "saveSuccess": "Gym info saved successfully!",
+    "saveError": "Save failed"
+  },
+  "actions": {
+    "refresh": "Refresh",
+    "save": "Save Changes",
+    "saving": "Saving..."
+  }
+}

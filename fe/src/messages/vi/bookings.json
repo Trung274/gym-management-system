@@ -1,0 +1,50 @@
+{
+  "title": "Đặt lịch PT",
+  "subtitle": "Quản lý lịch hẹn cá nhân với huấn luyện viên",
+  "addBooking": "Đặt lịch mới",
+  "tabs": {
+    "upcoming": "Sắp tới",
+    "history": "Lịch sử"
+  },
+  "table": {
+    "member": "Hội viên",
+    "trainer": "Huấn luyện viên",
+    "date": "Ngày / Giờ",
+    "notes": "Ghi chú"
+  },
+  "status": {
+    "pending": "Chờ xác nhận",
+    "confirmed": "Đã xác nhận",
+    "completed": "Hoàn thành",
+    "cancelled": "Đã hủ"
+  },
+  "modal": {
+    "title": "Đặt lịch PT mới",
+    "trainerLabel": "Huấn luyện viên *",
+    "trainerPlaceholder": "— Chọn HLV —",
+    "dateLabel": "Ngày *",
+    "startTimeLabel": "Giờ bắt đầu *",
+    "endTimeLabel": "Giờ kết thúc *",
+    "noteLabel": "Ghi chú",
+    "notePlaceholder": "Mục tiêu tập luyện...",
+    "submit": "Xác nhận",
+    "submitting": "Đang đặt..."
+  },
+  "card": {
+    "cancel": "Hủy lịch",
+    "cancelling": "Đang hủy..."
+  },
+  "status": {
+    "pending": "Chờ xác nhận",
+    "confirmed": "Đã xác nhận",
+    "completed": "Hoàn thành",
+    "cancelled": "Đã hủy"
+  },
+  "toast": {
+    "bookSuccess": "Đặt lịch PT thành công!",
+    "bookError": "Đặt lịch thất bại",
+    "cancelSuccess": "Hủy lịch thành công!",
+    "cancelError": "Hủy thất bại",
+    "loadError": "Tải dữ liệu thất bại"
+  }
+}

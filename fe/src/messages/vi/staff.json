@@ -1,0 +1,74 @@
+{
+  "title": "Nhân viên",
+  "subtitle": "Quản lý tài khoản và phân quyền nhân viên",
+  "addStaff": "Thêm nhân viên",
+  "stats": {
+    "total": "Tổng nhân viên",
+    "active": "Đang hoạt động",
+    "admin": "Quản trị viên",
+    "manager": "Quản lý",
+    "staff": "Nhân viên",
+    "trainer": "Huấn luyện viên",
+    "hlv": "HLV"
+  },
+  "roles": {
+    "admin": "Quản trị viên",
+    "manager": "Quản lý",
+    "staff": "Nhân viên",
+    "trainer": "Huấn luyện viên",
+    "user": "Người dùng",
+    "member": "Hội viên"
+  },
+  "filters": {
+    "searchPlaceholder": "Tìm tên, email...",
+    "role": "Vai trò",
+    "status": "Trạng thái",
+    "count": "{{count}} nhân viên"
+  },
+  "card": {
+    "active": "Hoạt động",
+    "inactive": "Vô hiệu",
+    "edit": "Sửa",
+    "assignRole": "Phân quyền",
+    "deactivate": "Vô hiệu",
+    "activate": "Kích hoạt"
+  },
+  "empty": {
+    "title": "Chưa có nhân viên nào",
+    "noResults": "Không có kết quả phù hợp với bộ lọc.",
+    "description": "Thêm nhân viên đầu tiên để bắt đầu."
+  },
+  "modal": {
+    "createTitle": "Thêm nhân viên mới",
+    "editTitle": "Chỉnh sửa nhân viên",
+    "assignTitle": "Phân quyền",
+    "assignDesc": "Chọn vai trò cho ",
+    "name": "Họ tên",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "passwordHint": "Tối thiểu 6 ký tự",
+    "role": "Vai trò",
+    "cancel": "Huỷ",
+    "confirm": "Xác nhận",
+    "save": "Lưu thay đổi",
+    "add": "Thêm nhân viên"
+  },
+  "validation": {
+    "nameRequired": "Tên là bắt buộc",
+    "emailRequired": "Email là bắt buộc",
+    "emailInvalid": "Email không hợp lệ",
+    "passwordRequired": "Mật khẩu là bắt buộc",
+    "passwordMin": "Mật khẩu phải ≥ 6 ký tự",
+    "roleRequired": "Vai trò là bắt buộc"
+  },
+  "toast": {
+    "addSuccess": "Thêm nhân viên thành công!",
+    "editSuccess": "Cập nhật thành công!",
+    "assignSuccess": "Phân quyền thành công!",
+    "assignError": "Phân quyền thất bại, vui lòng thử lại.",
+    "deactivateSuccess": "Đã vô hiệu hoá tài khoản.",
+    "activateSuccess": "Đã kích hoạt tài khoản!",
+    "error": "Có lỗi xảy ra, vui lòng thử lại."
+  },
+  "pagination": "Trang {{current}}/{{total}} · {{count}} nhân viên"
+}

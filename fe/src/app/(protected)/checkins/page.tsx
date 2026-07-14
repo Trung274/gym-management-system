@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, X, AlertCircle, ClipboardCheck, Search, Check, Loader2 } from 'lucide-react';
+import { Plus, X, AlertCircle, ClipboardCheck, Search, Loader2 } from 'lucide-react';
 import { useCheckinStore } from '@/src/stores/checkinStore';
 import StatsGrid from '@/src/components/ui/StatsGrid';
 import AddButton from '@/src/components/ui/AddButton';
@@ -10,6 +10,8 @@ import { toast } from '@/src/utils/toast';
 import { getMembers } from '@/src/lib/memberService';
 import PageHeader from '@/src/components/ui/PageHeader';
 import type { Member } from '@/src/types/member.types';
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import { usePageTitle } from '@/src/hooks/usePageTitle';
 
 // ─── Record modal ─────────────────────────────────────────────────────────────
 function RecordModal({ open, onClose, onSubmit, isLoading }: {
@@ -17,6 +19,10 @@ function RecordModal({ open, onClose, onSubmit, isLoading }: {
   onSubmit: (memberId: string, note?: string) => Promise<void>;
   isLoading: boolean;
 }) {
+  const { t } = useLanguage();
+  const tc = t('checkins');
+  const tCommon = t('common');
+
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Member[]>([]);
   const [searching, setSearching] = useState(false);
@@ -27,45 +33,29 @@ function RecordModal({ open, onClose, onSubmit, isLoading }: {
 
   useEffect(() => {
     if (!open) {
-      setSearchTerm('');
-      setSearchResults([]);
-      setSelectedMember(null);
-      setShowDropdown(false);
-      setNote('');
-      setErr('');
+      setSearchTerm(''); setSearchResults([]); setSelectedMember(null);
+      setShowDropdown(false); setNote(''); setErr('');
     }
   }, [open]);
 
   useEffect(() => {
-    if (!searchTerm.trim()) {
-      setSearchResults([]);
-      setShowDropdown(false);
-      return;
-    }
-
+    if (!searchTerm.trim()) { setSearchResults([]); setShowDropdown(false); return; }
     const delayDebounceFn = setTimeout(async () => {
       setSearching(true);
       try {
         const { members } = await getMembers({ search: searchTerm, limit: 10 });
-        setSearchResults(members);
-        setShowDropdown(true);
+        setSearchResults(members); setShowDropdown(true);
       } catch (err) {
-        console.error('Lỗi tìm kiếm hội viên:', err);
-      } finally {
-        setSearching(false);
-      }
+        console.error('Search error:', err);
+      } finally { setSearching(false); }
     }, 300);
-
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const submitVal = selectedMember ? selectedMember.id : searchTerm.trim();
-    if (!submitVal) {
-      setErr('Vui lòng chọn hoặc nhập thông tin hội viên');
-      return;
-    }
+    if (!submitVal) { setErr(tc('modal.validation')); return; }
     setErr('');
     await onSubmit(submitVal, note.trim() || undefined);
   };
@@ -81,88 +71,87 @@ function RecordModal({ open, onClose, onSubmit, isLoading }: {
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-md bg-surface-base border border-surface-border rounded-2xl shadow-2xl">
         <div className="flex items-center justify-between px-5 py-4 border-b border-surface-border">
-          <h2 className="text-base font-bold text-text-primary">Ghi check-in</h2>
+          <h2 className="text-base font-bold text-text-primary">{tc('modal.title')}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay cursor-pointer transition-all">
             <X size={16} />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5 relative">
-            <label className="text-xs font-semibold text-text-secondary">Thông tin hội viên <span className="text-danger-500">*</span></label>
-            
+            <label className="text-xs font-semibold text-text-secondary">
+              {tc('modal.memberLabel')} <span className="text-danger-500">*</span>
+            </label>
+
             {selectedMember ? (
               <div className="flex items-center justify-between p-3 rounded-xl border border-primary-500/30 bg-primary-500/5">
                 <div className="flex flex-col">
                   <p className="text-sm font-semibold text-text-primary">{selectedMember.name}</p>
                   <p className="text-xs text-text-muted">{selectedMember.phone || selectedMember.email}</p>
                   <span className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded-full mt-1 w-max ${
-                    selectedMember.status === 'active' ? 'bg-success-500/15 text-success-500' :
-                    selectedMember.status === 'suspended' ? 'bg-danger-500/15 text-danger-500' : 'bg-warning-500/15 text-warning-500'
+                    selectedMember.status === 'active'    ? 'bg-success-500/15 text-success-500' :
+                    selectedMember.status === 'suspended' ? 'bg-danger-500/15 text-danger-500'   : 'bg-warning-500/15 text-warning-500'
                   }`}>
-                    {selectedMember.status === 'active' ? 'Đang hoạt động' : 
-                     selectedMember.status === 'suspended' ? 'Bị khóa' : 'Hết hạn'}
+                    {selectedMember.status === 'active'    ? tc('modal.statusActive')    :
+                     selectedMember.status === 'suspended' ? tc('modal.statusSuspended') : tc('modal.statusExpired')}
                   </span>
                 </div>
                 <button type="button" onClick={() => setSelectedMember(null)}
                   className="text-xs text-danger-500 hover:underline hover:text-danger-600 font-semibold cursor-pointer">
-                  Thay đổi
+                  {tc('modal.change')}
                 </button>
               </div>
             ) : (
               <div className="relative">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
                 <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-                  placeholder="Nhập tên, số điện thoại hoặc email..." className={inp} autoFocus />
+                  placeholder={tc('modal.searchPlaceholder')} className={inp} autoFocus />
                 {searching && (
                   <Loader2 size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted animate-spin" />
                 )}
-
                 {showDropdown && searchResults.length > 0 && (
                   <div className="absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto z-10 bg-surface-base border border-surface-border rounded-xl shadow-xl">
                     {searchResults.map((m) => (
-                      <div key={m.id} onClick={() => {
-                        setSelectedMember(m);
-                        setSearchTerm('');
-                        setShowDropdown(false);
-                      }} className="flex flex-col px-4 py-2.5 hover:bg-surface-raised cursor-pointer border-b border-surface-border last:border-0 transition-colors">
+                      <div key={m.id} onClick={() => { setSelectedMember(m); setSearchTerm(''); setShowDropdown(false); }}
+                        className="flex flex-col px-4 py-2.5 hover:bg-surface-raised cursor-pointer border-b border-surface-border last:border-0 transition-colors">
                         <div className="flex justify-between items-center">
                           <p className="text-sm font-semibold text-text-primary">{m.name}</p>
                           <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
                             m.status === 'active' ? 'bg-success-500/10 text-success-500' : 'bg-warning-500/10 text-warning-500'
                           }`}>
-                            {m.status === 'active' ? 'Đang hoạt động' : 'Hết hạn'}
+                            {m.status === 'active' ? tc('modal.statusActive') : tc('modal.statusExpired')}
                           </span>
                         </div>
-                        <p className="text-xs text-text-muted mt-0.5">{m.phone || 'Không có SĐT'} • {m.email}</p>
+                        <p className="text-xs text-text-muted mt-0.5">{m.phone || '—'} • {m.email}</p>
                       </div>
                     ))}
                   </div>
                 )}
-                
                 {showDropdown && searchResults.length === 0 && !searching && (
                   <div className="absolute left-0 right-0 mt-1 p-3 z-10 bg-surface-base border border-surface-border rounded-xl shadow-xl text-center text-xs text-text-muted">
-                    Không tìm thấy hội viên trùng khớp
+                    {tc('modal.notFound')}
                   </div>
                 )}
               </div>
             )}
-            
             {err && <p className="text-xs text-danger-500 mt-1">{err}</p>}
           </div>
+
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">Ghi chú (tùy chọn)</label>
+            <label className="text-xs font-semibold text-text-secondary">{tc('modal.noteLabel')}</label>
             <input type="text" value={note} onChange={e => setNote(e.target.value)}
-              placeholder="VD: Khách vãng lai..." className="w-full px-3 py-2.5 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all" />
+              placeholder={tc('modal.notePlaceholder')}
+              className="w-full px-3 py-2.5 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all" />
           </div>
+
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose}
               className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay cursor-pointer transition-all">
-              Hủy
+              {tCommon('actions.cancel')}
             </button>
             <button type="submit" disabled={isLoading}
               className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 cursor-pointer transition-all flex items-center justify-center gap-2">
               {isLoading && <Loader2 size={16} className="animate-spin" />}
-              Ghi check-in
+              {tc('modal.submit')}
             </button>
           </div>
         </form>
@@ -174,18 +163,18 @@ function RecordModal({ open, onClose, onSubmit, isLoading }: {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function CheckinPage() {
   const { logs, stats, isLoading, error, fetchLogs, fetchStats, recordCheckin, clearError } = useCheckinStore();
+  const { t } = useLanguage();
+  const tc = t('checkins');
+  const tCommon = t('common');
+  usePageTitle('checkins');
 
-  const [dateFrom,    setDateFrom]    = useState('');
-  const [dateTo,      setDateTo]      = useState('');
+  const [dateFrom,       setDateFrom]       = useState('');
+  const [dateTo,         setDateTo]         = useState('');
   const [memberIdFilter, setMemberIdFilter] = useState('');
-  const [modalOpen,   setModalOpen]   = useState(false);
-  const [saving,      setSaving]      = useState(false);
+  const [modalOpen,      setModalOpen]      = useState(false);
+  const [saving,         setSaving]         = useState(false);
 
-  useEffect(() => {
-    fetchLogs();
-    fetchStats();
-  }, [fetchLogs, fetchStats]);
-
+  useEffect(() => { fetchLogs(); fetchStats(); }, [fetchLogs, fetchStats]);
   useEffect(() => () => clearError(), [clearError]);
 
   const applyFilter = useCallback(() => {
@@ -205,26 +194,26 @@ export default function CheckinPage() {
     setSaving(true);
     try {
       const log = await recordCheckin({ memberId, note });
-      toast.success(`Check-in thành công: ${log.memberName}`);
+      toast.success(tc('toast.success').replace('{{name}}', log.memberName));
       setModalOpen(false);
       fetchStats();
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Ghi check-in thất bại.');
-    } finally {
-      setSaving(false);
-    }
-  }, [recordCheckin, fetchStats]);
+      toast.error(err?.response?.data?.message || tc('toast.error'));
+    } finally { setSaving(false); }
+  }, [recordCheckin, fetchStats, tc]);
+
+  const tableHeaders = [
+    tc('table.time'), tc('table.member'), tc('table.memberId'),
+    tc('table.note'), tc('table.recordedBy'),
+  ];
 
   return (
     <>
       <div className="flex flex-col gap-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between gap-4">
-          <PageHeader
-            title="Check-in Log"
-            subtitle="Lịch sử ra vào của hội viên"
-          />
-          <AddButton onClick={() => setModalOpen(true)} label="Ghi check-in" />
+          <PageHeader title={tc('title')} subtitle={tc('subtitle')} />
+          <AddButton onClick={() => setModalOpen(true)} label={tc('addCheckin')} />
         </div>
 
         {/* Error */}
@@ -240,40 +229,40 @@ export default function CheckinPage() {
         <StatsGrid
           isLoading={isLoading && !stats}
           items={[
-            { label: 'Hôm nay', value: stats?.todayCount ?? '—', color: 'primary' },
-            { label: '7 ngày qua', value: stats?.weekCount ?? '—', color: 'success' },
-            { label: '30 ngày qua', value: stats?.monthCount ?? '—', color: 'info' },
-            { label: 'Giờ cao điểm', value: stats ? peakHourLabel(stats.peakHour) : '—', color: 'warning' },
+            { label: tc('stats.today'),    value: stats?.todayCount  ?? '—', color: 'primary' },
+            { label: tc('stats.week'),     value: stats?.weekCount   ?? '—', color: 'success' },
+            { label: tc('stats.month'),    value: stats?.monthCount  ?? '—', color: 'info'    },
+            { label: tc('stats.peakHour'), value: stats ? peakHourLabel(stats.peakHour) : '—', color: 'warning' },
           ]}
         />
 
         {/* Filters */}
         <div className="flex flex-wrap items-end gap-2">
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-text-muted font-medium">Member ID</label>
+            <label className="text-xs text-text-muted font-medium">{tc('filters.memberId')}</label>
             <input type="text" value={memberIdFilter} onChange={e => setMemberIdFilter(e.target.value)}
-              placeholder="Lọc theo Member ID..."
+              placeholder={tc('filters.memberIdPlaceholder')}
               className="px-3 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 transition-all w-52" />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-text-muted font-medium">Từ ngày</label>
+            <label className="text-xs text-text-muted font-medium">{tc('filters.from')}</label>
             <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
               className="px-3 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary outline-none focus:border-primary-500 transition-all" />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-text-muted font-medium">Đến ngày</label>
+            <label className="text-xs text-text-muted font-medium">{tc('filters.to')}</label>
             <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
               className="px-3 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary outline-none focus:border-primary-500 transition-all" />
           </div>
           <button onClick={applyFilter}
             className="px-4 py-2 rounded-xl bg-primary-500 hover:bg-primary-600 text-sm font-semibold text-white cursor-pointer transition-all">
-            Lọc
+            {tc('filters.apply')}
           </button>
           <button onClick={clearFilter}
             className="px-4 py-2 rounded-xl border border-surface-border text-sm font-semibold text-text-secondary hover:bg-surface-overlay cursor-pointer transition-all">
-            Xóa lọc
+            {tc('filters.clear')}
           </button>
-          <span className="ml-auto text-xs text-text-muted self-end pb-1">{logs.length} bản ghi</span>
+          <span className="ml-auto text-xs text-text-muted self-end pb-1">{logs.length} {tc('count')}</span>
         </div>
 
         {/* Table */}
@@ -282,7 +271,7 @@ export default function CheckinPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-surface-border bg-surface-raised">
-                  {['Thời gian', 'Hội viên', 'ID Hội viên', 'Ghi chú', 'Người ghi'].map(h => (
+                  {tableHeaders.map(h => (
                     <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
@@ -301,8 +290,8 @@ export default function CheckinPage() {
                     <tr>
                       <td colSpan={5} className="px-4 py-16 text-center">
                         <ClipboardCheck size={40} className="mx-auto text-text-muted mb-3 opacity-40" />
-                        <p className="text-sm font-semibold text-text-primary">Chưa có bản ghi check-in nào</p>
-                        <p className="text-xs text-text-muted mt-1">Nhấn "Ghi check-in" để thêm bản ghi đầu tiên.</p>
+                        <p className="text-sm font-semibold text-text-primary">{tc('empty.title')}</p>
+                        <p className="text-xs text-text-muted mt-1">{tc('empty.description')}</p>
                       </td>
                     </tr>
                   )
@@ -324,9 +313,7 @@ export default function CheckinPage() {
                       <td className="px-4 py-3 text-sm text-text-secondary max-w-[200px] truncate">
                         {log.note ?? <span className="text-text-muted">—</span>}
                       </td>
-                      <td className="px-4 py-3 text-sm text-text-secondary">
-                        {log.recordedByName}
-                      </td>
+                      <td className="px-4 py-3 text-sm text-text-secondary">{log.recordedByName}</td>
                     </tr>
                   ))
                 }

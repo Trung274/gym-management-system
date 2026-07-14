@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Manrope, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/src/components/providers/ThemeProvider";
+import { LanguageProvider } from "@/src/components/providers/LanguageProvider";
 
 const manrope = Manrope({
   variable: "--font-sans",
@@ -26,14 +27,16 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      // suppressHydrationWarning cho phép ThemeProvider client-side toggle class "dark"
-      // mà không gây hydration mismatch
+      // suppressHydrationWarning cho phép ThemeProvider + LanguageProvider
+      // client-side toggle mà không gây hydration mismatch
       suppressHydrationWarning
       className={`${manrope.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-surface-base text-text-primary">
         <ThemeProvider>
-          {children}
+          <LanguageProvider>
+            {children}
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

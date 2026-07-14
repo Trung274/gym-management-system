@@ -1,0 +1,36 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Updated at",
+  "refresh": "Refresh",
+  "sections": {
+    "members": "Members",
+    "bookings": "PT Bookings",
+    "equipment": "Equipment",
+    "classes": "Today's Class Schedule",
+    "plans": "Plans",
+    "groupClasses": "Group Classes"
+  },
+  "stats": {
+    "totalMembers": "Total members",
+    "activeTrainers": "Active trainers",
+    "checkinsToday": "Check-ins today",
+    "pendingBookings": "Pending PT bookings",
+    "membersActive": "Active",
+    "membersSuspended": "Suspended",
+    "membersNewThisMonth": "New this month",
+    "bookingsTotal": "Total",
+    "bookingsPending": "Pending",
+    "bookingsConfirmed": "Confirmed",
+    "bookingsCompletedThisMonth": "Completed this month",
+    "equipmentOperational": "Operational",
+    "equipmentMaintenance": "Under maintenance",
+    "equipmentOutOfOrder": "Out of order",
+    "equipmentTotal": "Total equipment",
+    "plansActive": "Active",
+    "plansTotal": "Total plans",
+    "classesActive": "Active",
+    "classesTotal": "Total classes"
+  },
+  "noClassesToday": "No classes scheduled today",
+  "loadError": "Failed to load dashboard."
+}

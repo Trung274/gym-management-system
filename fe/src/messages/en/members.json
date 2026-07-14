@@ -1,0 +1,101 @@
+{
+  "title": "Members",
+  "subtitle": "Manage gym members",
+  "addMember": "Add member",
+  "searchPlaceholder": "Search name, email...",
+  "count": "members",
+  "filters": {
+    "all": "All",
+    "active": "Active",
+    "expired": "Expired",
+    "suspended": "Suspended",
+    "allPlans": "All plans",
+    "basic": "Basic",
+    "premium": "Premium",
+    "vip": "VIP"
+  },
+  "stats": {
+    "total": "Total members",
+    "active": "Active",
+    "expired": "Expired",
+    "suspended": "Suspended"
+  },
+  "table": {
+    "member": "Member",
+    "contact": "Contact",
+    "plan": "Plan / Expiry",
+    "status": "Status",
+    "lastCheckin": "Last check-in",
+    "actions": "Actions"
+  },
+  "empty": {
+    "title": "No members found",
+    "description": "Try adjusting filters or add a new member."
+  },
+  "daysRemaining": "{{days}} days left",
+  "expired": "Expired",
+  "expiry": "Exp",
+  "createModal": {
+    "title": "Add new member",
+    "sectionAccount": "Account info",
+    "sectionPersonal": "Personal info",
+    "sectionPlan": "Membership plan",
+    "name": "Full name",
+    "loginEmail": "Login email",
+    "contactEmail": "Contact email",
+    "contactEmailHint": "Personal email (optional)",
+    "password": "Password",
+    "passwordHint": "At least 6 characters",
+    "phone": "Phone number",
+    "idCard": "ID card",
+    "dateOfBirth": "Date of birth",
+    "gender": "Gender",
+    "address": "Address",
+    "planSelect": "Membership plan",
+    "startDate": "Start date",
+    "startDateHint": "Default: today",
+    "endDate": "End date",
+    "notes": "Notes",
+    "notesPlaceholder": "Special notes about this member...",
+    "useManualDate": "Enter date manually",
+    "useByPlan": "Select by plan",
+    "submit": "Add member",
+    "genderNone": "Not specified",
+    "genderMale": "Male",
+    "genderFemale": "Female",
+    "genderOther": "Other"
+  },
+  "renewModal": {
+    "title": "Renew membership",
+    "byPlan": "By plan",
+    "manual": "Manual date",
+    "submit": "Renew",
+    "currentExpiry": "Expires",
+    "currentPlan": "Current plan"
+  },
+  "actions": {
+    "checkin": "Check-in",
+    "renew": "Renew",
+    "suspend": "Suspend",
+    "activate": "Activate"
+  },
+  "toast": {
+    "addSuccess": "Member added successfully!",
+    "checkinSuccess": "Checked in {{name}} successfully!",
+    "renewSuccess": "Membership renewed!",
+    "suspendSuccess": "Suspended {{name}}.",
+    "activateSuccess": "Activated {{name}}!",
+    "addError": "Something went wrong.",
+    "checkinError": "Check-in failed.",
+    "renewError": "Renewal failed.",
+    "statusError": "Action failed."
+  },
+  "validation": {
+    "nameRequired": "Full name is required",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Invalid email address",
+    "passwordLength": "Password must be at least 6 characters",
+    "planRequired": "Choose a plan or enter end date manually",
+    "endDateRequired": "End date is required"
+  }
+}

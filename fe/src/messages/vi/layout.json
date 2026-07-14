@@ -1,0 +1,31 @@
+{
+  "nav": {
+    "dashboard": "Tổng quan",
+    "members": "Hội viên",
+    "trainers": "Huấn luyện viên",
+    "staff": "Nhân viên",
+    "plans": "Gói tập",
+    "checkins": "Check-in",
+    "bookings": "Đặt lịch PT",
+    "groupClasses": "Lớp học nhóm",
+    "equipment": "Thiết bị",
+    "gymInfo": "Thông tin phòng gym"
+  },
+  "header": {
+    "darkMode": "Giao diện tối",
+    "lightMode": "Giao diện sáng",
+    "logout": "Đăng xuất",
+    "loggingOut": "Đang đăng xuất...",
+    "leaveAccount": "Thoát khỏi tài khoản",
+    "language": "Ngôn ngữ / Language"
+  },
+  "portal": {
+    "home": "Trang chủ",
+    "profile": "Hồ sơ",
+    "checkins": "Check-in",
+    "bookings": "Đặt PT",
+    "classes": "Lớp học",
+    "trainers": "HLV",
+    "gymInfo": "Phòng gym"
+  }
+}

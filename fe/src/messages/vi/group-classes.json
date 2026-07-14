@@ -1,0 +1,87 @@
+{
+  "title": "Lớp học nhóm",
+  "subtitle": "Quản lý lịch và danh sách lớp học thể dục nhóm",
+  "addClass": "Thêm lớp",
+  "stats": {
+    "total": "Tổng lớp",
+    "active": "Đang hoạt động",
+    "cancelled": "Đã hủy",
+    "completed": "Đã kết thúc"
+  },
+  "days": {
+    "sunday": "Chủ nhật",
+    "monday": "Thứ 2",
+    "tuesday": "Thứ 3",
+    "wednesday": "Thứ 4",
+    "thursday": "Thứ 5",
+    "friday": "Thứ 6",
+    "saturday": "Thứ 7"
+  },
+  "daysShort": {
+    "0": "CN",
+    "1": "T2",
+    "2": "T3",
+    "3": "T4",
+    "4": "T5",
+    "5": "T6",
+    "6": "T7"
+  },
+  "categories": {
+    "yoga": "Yoga",
+    "zumba": "Zumba",
+    "cycling": "Đạp xe",
+    "hiit": "HIIT",
+    "pilates": "Pilates",
+    "boxing": "Boxing",
+    "other": "Khác",
+    "emptyTrainer": "— Chưa có HLV —"
+  },
+  "table": {
+    "class": "Lớp học",
+    "schedule": "Lịch học",
+    "trainerLocation": "HLV / Địa điểm",
+    "capacity": "Sức chứa",
+    "status": "Trạng thái",
+    "actions": "Hành động"
+  },
+  "empty": {
+    "title": "Không có lớp học nào",
+    "description": "Thử thay đổi bộ lọc hoặc thêm lớp học mới."
+  },
+  "modal": {
+    "createTitle": "Thêm lớp học mới",
+    "editTitle": "Chỉnh sửa lớp học",
+    "name": "Tên lớp",
+    "category": "Danh mục",
+    "trainer": "Huấn luyện viên",
+    "trainerSearchPlaceholder": "Tìm theo tên HLV hoặc email...",
+    "trainerLoading": "Đang tải danh sách...",
+    "trainerNotFound": "Không tìm thấy huấn luyện viên nào",
+    "trainerChange": "Thay đổi",
+    "location": "Địa điểm",
+    "capacity": "Sức chứa",
+    "startDate": "Ngày bắt đầu",
+    "endDate": "Ngày kết thúc",
+    "description": "Mô tả",
+    "schedule": "Lịch học",
+    "addScheduleItem": "Thêm buổi",
+    "cancel": "Hủy",
+    "save": "Lưu thay đổi",
+    "add": "Thêm lớp học"
+  },
+  "validation": {
+    "nameRequired": "Tên lớp là bắt buộc",
+    "scheduleRequired": "Cần ít nhất 1 buổi học"
+  },
+  "toast": {
+    "addSuccess": "Thêm lớp học thành công!",
+    "editSuccess": "Cập nhật lớp học thành công!",
+    "statusSuccess": "Cập nhật trạng thái thành công!",
+    "error": "Có lỗi xảy ra.",
+    "statusError": "Thao tác thất bại."
+  },
+  "filters": {
+    "searchPlaceholder": "Tên lớp, HLV, địa điểm...",
+    "count": "{{count}} lớp"
+  }
+}

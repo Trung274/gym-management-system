@@ -1,0 +1,82 @@
+{
+  "title": "Plans",
+  "subtitle": "Manage subscription plans, analyze distribution metrics, and deploy new offerings.",
+  "addPlan": "Add Plan",
+  "revenueReport": "Revenue Report",
+  "count": "plans",
+  "stats": {
+    "total": "Total Plans",
+    "active": "Active"
+  },
+  "types": {
+    "basic": "Basic",
+    "premium": "Premium",
+    "vip": "VIP"
+  },
+  "features": {
+    "basic_0": "Standard gym access",
+    "basic_1": "Locker & shower access",
+    "basic_2": "Group classes (HIIT/Yoga)",
+    "basic_3": "Personal trainer support",
+    "premium_0": "24/7 gym access",
+    "premium_1": "Locker & shower access",
+    "premium_2": "Unlimited group classes",
+    "premium_3": "Personal trainer support",
+    "vip_0": "All-location 24/7 access",
+    "vip_1": "Personal trainer support (2 sessions/mo)",
+    "vip_2": "Body analysis & meal planning",
+    "vip_3": "Unlimited group classes"
+  },
+  "card": {
+    "popular": "Popular",
+    "basicDesc": "Basic benefits",
+    "premiumDesc": "Optimal performance",
+    "vipDesc": "VIP privileges",
+    "activeMembers": "Active members",
+    "activate": "Activate",
+    "deactivate": "Deactivate"
+  },
+  "filters": {
+    "showInactive": "Show deactivated plans"
+  },
+  "empty": {
+    "title": "No plans yet",
+    "noResult": "No plans matched the current filters.",
+    "description": "Create the first plan to get started."
+  },
+  "modal": {
+    "createTitle": "Add new plan",
+    "editTitle": "Edit plan",
+    "name": "Plan name",
+    "namePlaceholder": "e.g., Premium 3 Months",
+    "type": "Plan type",
+    "duration": "Duration (days)",
+    "price": "Price (USD)",
+    "description": "Description",
+    "optional": "(optional)",
+    "descriptionPlaceholder": "Benefits, special offers..."
+  },
+  "toast": {
+    "addSuccess": "Plan added successfully!",
+    "editSuccess": "Plan updated successfully!",
+    "activateSuccess": "Plan activated!",
+    "deactivateSuccess": "Plan deactivated.",
+    "error": "Something went wrong, please try again.",
+    "toggleError": "Could not toggle status, please try again."
+  },
+  "validation": {
+    "nameRequired": "Plan name is required",
+    "typeRequired": "Plan type is required",
+    "durationMin": "Duration must be ≥ 1 day",
+    "priceMin": "Price must be ≥ 0"
+  },
+  "analytics": {
+    "churnRate": "Churn Rate",
+    "churnDesc": "Average across all subscription groups in the last 30 days.",
+    "allocationTitle": "Active Member Distribution by Tier",
+    "basicHover": "Basic: {{pct}}% ({{count}} members)",
+    "premiumHover": "Premium: {{pct}}% ({{count}} members)",
+    "vipHover": "VIP: {{pct}}% ({{count}} members)",
+    "growthOpportunity": "Growth opportunity"
+  }
+}

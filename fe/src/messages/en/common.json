@@ -1,0 +1,54 @@
+{
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "refresh": "Refresh",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "clearFilter": "Clear filter",
+    "viewAll": "All",
+    "details": "Details"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "suspended": "Suspended",
+    "expired": "Expired",
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "pagination": {
+    "page": "Page",
+    "of": "/",
+    "previous": "← Prev",
+    "next": "Next →"
+  },
+  "empty": {
+    "noData": "No data available",
+    "noResults": "No matching results found"
+  },
+  "error": {
+    "generic": "Something went wrong, please try again",
+    "loadFailed": "Failed to load data"
+  },
+  "language": {
+    "label": "Language",
+    "vi": "Tiếng Việt",
+    "en": "English"
+  },
+  "filters": {
+    "all": "All"
+  }
+}

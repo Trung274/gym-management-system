@@ -1,0 +1,101 @@
+{
+  "title": "Hội viên",
+  "subtitle": "Quản lý hội viên phòng gym",
+  "addMember": "Thêm hội viên",
+  "searchPlaceholder": "Tìm tên, email...",
+  "count": "hội viên",
+  "filters": {
+    "all": "Tất cả",
+    "active": "Hoạt động",
+    "expired": "Hết hạn",
+    "suspended": "Tạm dừng",
+    "allPlans": "Mọi gói",
+    "basic": "Cơ bản",
+    "premium": "Premium",
+    "vip": "VIP"
+  },
+  "stats": {
+    "total": "Tổng hội viên",
+    "active": "Hoạt động",
+    "expired": "Hết hạn",
+    "suspended": "Tạm dừng"
+  },
+  "table": {
+    "member": "Hội viên",
+    "contact": "Liên hệ",
+    "plan": "Gói / Hết hạn",
+    "status": "Trạng thái",
+    "lastCheckin": "Check-in gần nhất",
+    "actions": "Hành động"
+  },
+  "empty": {
+    "title": "Không có hội viên nào",
+    "description": "Thử thay đổi bộ lọc hoặc thêm hội viên mới."
+  },
+  "daysRemaining": "Còn {{days}} ngày",
+  "expired": "Đã hết hạn",
+  "expiry": "HH",
+  "createModal": {
+    "title": "Thêm hội viên mới",
+    "sectionAccount": "Thông tin tài khoản",
+    "sectionPersonal": "Thông tin cá nhân",
+    "sectionPlan": "Gói đăng ký",
+    "name": "Họ tên",
+    "loginEmail": "Email đăng nhập",
+    "contactEmail": "Email liên hệ",
+    "contactEmailHint": "Email cá nhân (tuỳ chọn)",
+    "password": "Mật khẩu",
+    "passwordHint": "Tối thiểu 6 ký tự",
+    "phone": "Số điện thoại",
+    "idCard": "CMND/CCCD",
+    "dateOfBirth": "Ngày sinh",
+    "gender": "Giới tính",
+    "address": "Địa chỉ",
+    "planSelect": "Gói tập",
+    "startDate": "Ngày bắt đầu",
+    "startDateHint": "Mặc định: hôm nay",
+    "endDate": "Ngày kết thúc",
+    "notes": "Ghi chú",
+    "notesPlaceholder": "Lưu ý đặc biệt về hội viên...",
+    "useManualDate": "Nhập ngày thủ công",
+    "useByPlan": "Chọn theo gói",
+    "submit": "Thêm hội viên",
+    "genderNone": "Không chọn",
+    "genderMale": "Nam",
+    "genderFemale": "Nữ",
+    "genderOther": "Khác"
+  },
+  "renewModal": {
+    "title": "Gia hạn thành viên",
+    "byPlan": "Theo gói tập",
+    "manual": "Nhập thủ công",
+    "submit": "Gia hạn",
+    "currentExpiry": "Hết hạn",
+    "currentPlan": "Gói hiện tại"
+  },
+  "actions": {
+    "checkin": "Check-in",
+    "renew": "Gia hạn",
+    "suspend": "Tạm dừng",
+    "activate": "Kích hoạt"
+  },
+  "toast": {
+    "addSuccess": "Thêm hội viên thành công!",
+    "checkinSuccess": "Check-in {{name}} thành công!",
+    "renewSuccess": "Gia hạn thành công!",
+    "suspendSuccess": "Đã tạm dừng {{name}}.",
+    "activateSuccess": "Đã kích hoạt {{name}}!",
+    "addError": "Có lỗi xảy ra.",
+    "checkinError": "Check-in thất bại.",
+    "renewError": "Gia hạn thất bại.",
+    "statusError": "Thao tác thất bại."
+  },
+  "validation": {
+    "nameRequired": "Họ tên là bắt buộc",
+    "emailRequired": "Email là bắt buộc",
+    "emailInvalid": "Email không hợp lệ",
+    "passwordLength": "Mật khẩu phải ≥ 6 ký tự",
+    "planRequired": "Chọn gói tập hoặc nhập ngày kết thúc thủ công",
+    "endDateRequired": "Ngày kết thúc là bắt buộc"
+  }
+}

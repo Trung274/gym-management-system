@@ -12,6 +12,8 @@ import type {
   CreateMemberPayload, UpdateMemberPayload, RenewMembershipPayload,
 } from '@/src/types/member.types';
 import type { PlanType } from '@/src/types/plan.types';
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import { usePageTitle } from '@/src/hooks/usePageTitle';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUS_STYLES: Record<MemberStatus, string> = {
@@ -49,6 +51,16 @@ function CreateMemberModal({ open, onClose, onSave, isLoading, plans }: {
   onSave: (p: CreateMemberPayload) => Promise<void>; isLoading: boolean;
   plans: Array<{ id: string; name: string; durationLabel: string; priceLabel: string }>;
 }) {
+  const { t } = useLanguage();
+  const tm = t('members');
+  const tCommon = t('common');
+
+  const genderOptions = [
+    { value: '', label: tm('createModal.genderNone') },
+    { value: 'male', label: tm('createModal.genderMale') },
+    { value: 'female', label: tm('createModal.genderFemale') },
+    { value: 'other', label: tm('createModal.genderOther') },
+  ];
   const [form, setForm] = useState(EMPTY_CREATE);
   const [showPwd, setShowPwd] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -60,12 +72,12 @@ function CreateMemberModal({ open, onClose, onSave, isLoading, plans }: {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.name.trim()) e.name = 'Họ tên là bắt buộc';
-    if (!form.email.trim()) e.email = 'Email là bắt buộc';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Email không hợp lệ';
-    if (!form.password || form.password.length < 6) e.password = 'Mật khẩu phải ≥ 6 ký tự';
-    if (usePlan && !form.planId) e.planId = 'Chọn gói tập hoặc nhập ngày kết thúc thủ công';
-    if (!usePlan && !form.endDate) e.endDate = 'Ngày kết thúc là bắt buộc';
+    if (!form.name.trim()) e.name = tm('validation.nameRequired');
+    if (!form.email.trim()) e.email = tm('validation.emailRequired');
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = tm('validation.emailInvalid');
+    if (!form.password || form.password.length < 6) e.password = tm('validation.passwordLength');
+    if (usePlan && !form.planId) e.planId = tm('validation.planRequired');
+    if (!usePlan && !form.endDate) e.endDate = tm('validation.endDateRequired');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -97,7 +109,7 @@ function CreateMemberModal({ open, onClose, onSave, isLoading, plans }: {
       <div className="relative w-full max-w-2xl bg-surface-base rounded-2xl shadow-2xl border border-surface-border overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border shrink-0">
-          <h2 className="text-base font-bold text-text-primary">Thêm hội viên mới</h2>
+          <h2 className="text-base font-bold text-text-primary">{tm('createModal.title')}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
           </button>
@@ -106,22 +118,22 @@ function CreateMemberModal({ open, onClose, onSave, isLoading, plans }: {
         <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 p-6 flex flex-col gap-5">
           {/* Section: Tài khoản */}
           <div>
-            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Thông tin tài khoản</p>
+            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{tm('createModal.sectionAccount')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Họ tên <span className="text-danger-500">*</span></label>
+                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.name')} <span className="text-danger-500">*</span></label>
                 <input type="text" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Nguyễn Văn B" className={inputCls('name')} />
                 {errors.name && <p className="text-xs text-danger-500">{errors.name}</p>}
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Email đăng nhập <span className="text-danger-500">*</span></label>
+                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.loginEmail')} <span className="text-danger-500">*</span></label>
                 <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="member@gym.com" className={inputCls('email')} />
                 {errors.email && <p className="text-xs text-danger-500">{errors.email}</p>}
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Mật khẩu <span className="text-danger-500">*</span></label>
+                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.password')} <span className="text-danger-500">*</span></label>
                 <div className="relative">
-                  <input type={showPwd ? 'text' : 'password'} value={form.password} onChange={(e) => set('password', e.target.value)} placeholder="Tối thiểu 6 ký tự" className={`${inputCls('password')} pr-10`} />
+                  <input type={showPwd ? 'text' : 'password'} value={form.password} onChange={(e) => set('password', e.target.value)} placeholder={tm('createModal.passwordHint')} className={`${inputCls('password')} pr-10`} />
                   <button type="button" onClick={() => setShowPwd(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d={showPwd ? "M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" : "M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"} /></svg>
                   </button>
@@ -129,36 +141,36 @@ function CreateMemberModal({ open, onClose, onSave, isLoading, plans }: {
                 {errors.password && <p className="text-xs text-danger-500">{errors.password}</p>}
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Email liên hệ</label>
-                <input type="email" value={form.memberEmail} onChange={(e) => set('memberEmail', e.target.value)} placeholder="Email cá nhân (tuỳ chọn)" className={inputCls('memberEmail')} />
+                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.contactEmail')}</label>
+                <input type="email" value={form.memberEmail} onChange={(e) => set('memberEmail', e.target.value)} placeholder={tm('createModal.contactEmailHint')} className={inputCls('memberEmail')} />
               </div>
             </div>
           </div>
 
           {/* Section: Thông tin cá nhân */}
           <div>
-            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Thông tin cá nhân</p>
+            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{tm('createModal.sectionPersonal')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Số điện thoại</label>
+                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.phone')}</label>
                 <input type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="0912345678" className={inputCls('phone')} />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">CMND/CCCD</label>
+                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.idCard')}</label>
                 <input type="text" value={form.idCard} onChange={(e) => set('idCard', e.target.value)} placeholder="012345678901" className={inputCls('idCard')} />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Ngày sinh</label>
+                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.dateOfBirth')}</label>
                 <input type="date" value={form.dateOfBirth} onChange={(e) => set('dateOfBirth', e.target.value)} className={inputCls('dateOfBirth')} />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Giới tính</label>
+                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.gender')}</label>
                 <select value={form.gender ?? ''} onChange={(e) => set('gender', e.target.value || undefined)} className={inputCls('gender')}>
-                  {GENDER_OPTIONS.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
+                  {genderOptions.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
                 </select>
               </div>
               <div className="flex flex-col gap-1.5 sm:col-span-2">
-                <label className="text-xs font-semibold text-text-secondary">Địa chỉ</label>
+                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.address')}</label>
                 <input type="text" value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="123 Nguyễn Trãi, Hà Nội" className={inputCls('address')} />
               </div>
             </div>
@@ -167,31 +179,31 @@ function CreateMemberModal({ open, onClose, onSave, isLoading, plans }: {
           {/* Section: Gói tập */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-bold text-text-muted uppercase tracking-wider">Gói đăng ký</p>
+              <p className="text-xs font-bold text-text-muted uppercase tracking-wider">{tm('createModal.sectionPlan')}</p>
               <button type="button" onClick={() => setUsePlan(v => !v)}
                 className="text-xs text-primary-500 hover:underline cursor-pointer">
-                {usePlan ? 'Nhập ngày thủ công' : 'Chọn theo gói'}
+                {usePlan ? tm('createModal.useManualDate') : tm('createModal.useByPlan')}
               </button>
             </div>
             {usePlan ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5 sm:col-span-2">
-                  <label className="text-xs font-semibold text-text-secondary">Gói tập <span className="text-danger-500">*</span></label>
+                  <label className="text-xs font-semibold text-text-secondary">{tm('createModal.planSelect')} <span className="text-danger-500">*</span></label>
                   <select value={form.planId} onChange={(e) => set('planId', e.target.value)} className={inputCls('planId')}>
-                    <option value="">-- Chọn gói tập --</option>
+                    <option value="">-- {tm('createModal.planSelect')} --</option>
                     {plans.map((p) => <option key={p.id} value={p.id}>{p.name} — {p.durationLabel} — {p.priceLabel}</option>)}
                   </select>
                   {errors.planId && <p className="text-xs text-danger-500">{errors.planId}</p>}
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-text-secondary">Ngày bắt đầu</label>
+                  <label className="text-xs font-semibold text-text-secondary">{tm('createModal.startDate')}</label>
                   <input type="date" value={form.startDate} onChange={(e) => set('startDate', e.target.value)} className={inputCls('startDate')} />
-                  <p className="text-xs text-text-muted">Mặc định: hôm nay</p>
+                  <p className="text-xs text-text-muted">{tm('createModal.startDateHint')}</p>
                 </div>
               </div>
             ) : (
               <div className="flex flex-col gap-1.5 max-w-xs">
-                <label className="text-xs font-semibold text-text-secondary">Ngày kết thúc <span className="text-danger-500">*</span></label>
+                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.endDate')} <span className="text-danger-500">*</span></label>
                 <input type="date" value={form.endDate} onChange={(e) => set('endDate', e.target.value)} className={inputCls('endDate')} />
                 {errors.endDate && <p className="text-xs text-danger-500">{errors.endDate}</p>}
               </div>
@@ -200,16 +212,16 @@ function CreateMemberModal({ open, onClose, onSave, isLoading, plans }: {
 
           {/* Notes */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">Ghi chú</label>
-            <textarea rows={2} value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Lưu ý đặc biệt về hội viên..." className={`${inputCls('notes')} resize-none`} />
+            <label className="text-xs font-semibold text-text-secondary">{tm('createModal.notes')}</label>
+            <textarea rows={2} value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder={tm('createModal.notesPlaceholder')} className={`${inputCls('notes')} resize-none`} />
           </div>
 
           {/* Footer */}
           <div className="flex gap-3 pt-2 sticky bottom-0 bg-surface-base border-t border-surface-border -mx-6 px-6 py-4 -mb-6">
-            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">Huỷ</button>
+            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">{tCommon('actions.cancel')}</button>
             <button type="submit" disabled={isLoading} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2">
               {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-              Thêm hội viên
+              {tm('createModal.submit')}
             </button>
           </div>
         </form>
@@ -224,6 +236,10 @@ function RenewModal({ open, member, onClose, onSave, isLoading, plans }: {
   onSave: (id: string, p: RenewMembershipPayload) => Promise<void>; isLoading: boolean;
   plans: Array<{ id: string; name: string; durationLabel: string; priceLabel: string }>;
 }) {
+  const { t } = useLanguage();
+  const tm = t('members');
+  const tCommon = t('common');
+
   const [usePlan, setUsePlan] = useState(true);
   const [planId, setPlanId] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -232,8 +248,8 @@ function RenewModal({ open, member, onClose, onSave, isLoading, plans }: {
   if (!open || !member) return null;
 
   const handleConfirm = async () => {
-    if (usePlan && !planId) { toast.error('Vui lòng chọn gói tập'); return; }
-    if (!usePlan && !endDate) { toast.error('Vui lòng nhập ngày kết thúc'); return; }
+    if (usePlan && !planId) { toast.error(tm('toast.statusError')); return; }
+    if (!usePlan && !endDate) { toast.error(tm('toast.statusError')); return; }
     await onSave(member.id, usePlan ? { planId } : { endDate });
   };
 
@@ -242,7 +258,7 @@ function RenewModal({ open, member, onClose, onSave, isLoading, plans }: {
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-md bg-surface-base rounded-2xl shadow-2xl border border-surface-border overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border">
-          <h2 className="text-base font-bold text-text-primary">Gia hạn thành viên</h2>
+          <h2 className="text-base font-bold text-text-primary">{tm('renewModal.title')}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
           </button>
@@ -250,17 +266,17 @@ function RenewModal({ open, member, onClose, onSave, isLoading, plans }: {
         <div className="p-6 flex flex-col gap-4">
           <div className="p-3 rounded-xl bg-surface-raised border border-surface-border">
             <p className="font-semibold text-sm text-text-primary">{member.name}</p>
-            <p className="text-xs text-text-muted">Hết hạn: {member.endDateLabel}</p>
-            <p className="text-xs text-text-muted">Gói hiện tại: {member.planName}</p>
+            <p className="text-xs text-text-muted">{tm('renewModal.currentExpiry')}: {member.endDateLabel}</p>
+            <p className="text-xs text-text-muted">{tm('renewModal.currentPlan')}: {member.planName}</p>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => setUsePlan(true)} className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-all cursor-pointer ${usePlan ? 'border-primary-500 bg-primary-500/10 text-primary-500' : 'border-surface-border text-text-secondary hover:border-primary-500/50'}`}>Theo gói tập</button>
-            <button onClick={() => setUsePlan(false)} className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-all cursor-pointer ${!usePlan ? 'border-primary-500 bg-primary-500/10 text-primary-500' : 'border-surface-border text-text-secondary hover:border-primary-500/50'}`}>Nhập thủ công</button>
+            <button onClick={() => setUsePlan(true)} className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-all cursor-pointer ${usePlan ? 'border-primary-500 bg-primary-500/10 text-primary-500' : 'border-surface-border text-text-secondary hover:border-primary-500/50'}`}>{tm('renewModal.byPlan')}</button>
+            <button onClick={() => setUsePlan(false)} className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-all cursor-pointer ${!usePlan ? 'border-primary-500 bg-primary-500/10 text-primary-500' : 'border-surface-border text-text-secondary hover:border-primary-500/50'}`}>{tm('renewModal.manual')}</button>
           </div>
           {usePlan ? (
             <select value={planId} onChange={(e) => setPlanId(e.target.value)}
               className="w-full px-3 py-2.5 rounded-xl border border-surface-border text-sm text-text-primary bg-surface-raised outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all">
-              <option value="">-- Chọn gói tập --</option>
+              <option value="">-- {tm('createModal.planSelect')} --</option>
               {plans.map((p) => <option key={p.id} value={p.id}>{p.name} — {p.durationLabel} — {p.priceLabel}</option>)}
             </select>
           ) : (
@@ -269,10 +285,10 @@ function RenewModal({ open, member, onClose, onSave, isLoading, plans }: {
             />
           )}
           <div className="flex gap-3">
-            <button onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">Huỷ</button>
+            <button onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">{tCommon('actions.cancel')}</button>
             <button onClick={handleConfirm} disabled={isLoading} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2">
               {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-              Gia hạn
+              {tm('renewModal.submit')}
             </button>
           </div>
         </div>
@@ -289,6 +305,9 @@ function MemberRow({ member, onCheckIn, onRenew, onToggleStatus, actingId }: {
   onToggleStatus: (m: Member) => void;
   actingId: string | null;
 }) {
+  const { t } = useLanguage();
+  const tm = t('members');
+
   const isActing = actingId === member.id;
   const daysClass = member.daysRemaining <= 0 ? 'text-danger-500' : member.daysRemaining <= 7 ? 'text-warning-500' : 'text-text-muted';
 
@@ -315,7 +334,7 @@ function MemberRow({ member, onCheckIn, onRenew, onToggleStatus, actingId }: {
       <td className="px-4 py-3">
         <p className="text-sm text-text-primary">{member.planName}</p>
         <p className={`text-xs ${daysClass}`}>
-          {member.daysRemaining > 0 ? `Còn ${member.daysRemaining} ngày` : 'Đã hết hạn'} · HH: {member.endDateLabel}
+          {member.daysRemaining > 0 ? tm('daysRemaining').replace('{{days}}', String(member.daysRemaining)) : tm('expired')} · {tm('expiry')}: {member.endDateLabel}
         </p>
       </td>
       {/* Status */}
@@ -337,19 +356,19 @@ function MemberRow({ member, onCheckIn, onRenew, onToggleStatus, actingId }: {
             <>
               {/* Check-in */}
               {member.status === 'active' && (
-                <button onClick={() => onCheckIn(member)} title="Check-in"
+                <button onClick={() => onCheckIn(member)} title={tm('actions.checkin')}
                   className="p-1.5 rounded-lg text-success-500 hover:bg-success-500/10 transition-all cursor-pointer">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" /></svg>
                 </button>
               )}
               {/* Renew */}
-              <button onClick={() => onRenew(member)} title="Gia hạn"
+              <button onClick={() => onRenew(member)} title={tm('actions.renew')}
                 className="p-1.5 rounded-lg text-primary-500 hover:bg-primary-500/10 transition-all cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
               </button>
               {/* Toggle suspend */}
               {member.status !== 'expired' && (
-                <button onClick={() => onToggleStatus(member)} title={member.status === 'active' ? 'Tạm dừng' : 'Kích hoạt'}
+                <button onClick={() => onToggleStatus(member)} title={member.status === 'active' ? tm('actions.suspend') : tm('actions.activate')}
                   className={`p-1.5 rounded-lg transition-all cursor-pointer ${member.status === 'active' ? 'text-warning-500 hover:bg-warning-500/10' : 'text-success-500 hover:bg-success-500/10'}`}>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                     <path strokeLinecap="round" strokeLinejoin="round" d={member.status === 'active' ? "M15.75 5.25v13.5m-7.5-13.5v13.5" : "M5.636 5.636a9 9 0 1 0 12.728 12.728M5.636 5.636a9 9 0 0 1 12.728 12.728M5.636 5.636 12 12m6.364-6.364L12 12"} />
@@ -366,6 +385,11 @@ function MemberRow({ member, onCheckIn, onRenew, onToggleStatus, actingId }: {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function MembersPage() {
+  const { t } = useLanguage();
+  const tm = t('members');
+  const tCommon = t('common');
+  usePageTitle('members');
+
   const {
     members, pagination, isLoading, error, queryParams,
     fetchMembers, createMember, changeStatus, renewMembership, checkIn, clearError,
@@ -414,44 +438,46 @@ export default function MembersPage() {
     setSaving(true);
     try {
       await createMember(payload);
-      toast.success('Thêm hội viên thành công!');
+      toast.success(tm('toast.addSuccess'));
       setCreateOpen(false);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Có lỗi xảy ra.');
+      toast.error(err?.response?.data?.message || tm('toast.addError'));
     } finally { setSaving(false); }
-  }, [createMember]);
+  }, [createMember, tm]);
 
   const handleCheckIn = useCallback(async (m: Member) => {
     setActingId(m.id);
     try {
       await checkIn(m.id);
-      toast.success(`Check-in ${m.name} thành công!`);
+      toast.success(tm('toast.checkinSuccess').replace('{{name}}', m.name));
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Check-in thất bại.');
+      toast.error(err?.response?.data?.message || tm('toast.checkinError'));
     } finally { setActingId(null); }
-  }, [checkIn]);
+  }, [checkIn, tm]);
 
   const handleRenew = useCallback(async (id: string, payload: RenewMembershipPayload) => {
     setSaving(true);
     try {
       await renewMembership(id, payload);
-      toast.success('Gia hạn thành công!');
+      toast.success(tm('toast.renewSuccess'));
       setRenewMember(null);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Gia hạn thất bại.');
+      toast.error(err?.response?.data?.message || tm('toast.renewError'));
     } finally { setSaving(false); }
-  }, [renewMembership]);
+  }, [renewMembership, tm]);
 
   const handleToggleStatus = useCallback(async (m: Member) => {
     setActingId(m.id);
     const newStatus = m.status === 'active' ? 'suspended' : 'active';
     try {
       await changeStatus(m.id, { status: newStatus });
-      toast.success(newStatus === 'suspended' ? `Đã tạm dừng ${m.name}.` : `Đã kích hoạt ${m.name}!`);
+      toast.success(newStatus === 'suspended'
+        ? tm('toast.suspendSuccess').replace('{{name}}', m.name)
+        : tm('toast.activateSuccess').replace('{{name}}', m.name));
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Thao tác thất bại.');
+      toast.error(err?.response?.data?.message || tm('toast.statusError'));
     } finally { setActingId(null); }
-  }, [changeStatus]);
+  }, [changeStatus, tm]);
 
   const handlePageChange = (page: number) => {
     const params: any = { page };
@@ -466,11 +492,8 @@ export default function MembersPage() {
       <div className="flex flex-col gap-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between gap-4">
-          <PageHeader
-            title="Hội viên"
-            subtitle="Quản lý hội viên phòng gym"
-          />
-          <AddButton onClick={() => setCreateOpen(true)} label="Thêm hội viên" />
+          <PageHeader title={tm('title')} subtitle={tm('subtitle')} />
+          <AddButton onClick={() => setCreateOpen(true)} label={tm('addMember')} />
         </div>
 
         {/* Error */}
@@ -486,10 +509,10 @@ export default function MembersPage() {
         <StatsGrid
           isLoading={isLoading}
           items={[
-            { label: 'Tổng hội viên', value: stats.total, color: 'primary' },
-            { label: 'Hoạt động', value: stats.active, color: 'success' },
-            { label: 'Hết hạn', value: stats.expired, color: 'danger' },
-            { label: 'Tạm dừng', value: stats.suspended, color: 'warning' },
+            { label: tm('stats.total'),     value: stats.total,     color: 'primary' },
+            { label: tm('stats.active'),    value: stats.active,    color: 'success' },
+            { label: tm('stats.expired'),   value: stats.expired,   color: 'danger'  },
+            { label: tm('stats.suspended'), value: stats.suspended, color: 'warning' },
           ]}
         />
 
@@ -505,19 +528,29 @@ export default function MembersPage() {
           </div>
           {/* Status filter */}
           <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
-            {([{ v: 'all', l: 'Tất cả' }, { v: 'active', l: 'Hoạt động' }, { v: 'expired', l: 'Hết hạn' }, { v: 'suspended', l: 'Tạm dừng' }]).map((f) => (
+            {([
+              { v: 'all',       l: tCommon('actions.viewAll') },
+              { v: 'active',    l: tCommon('status.active')   },
+              { v: 'expired',   l: tCommon('status.expired')  },
+              { v: 'suspended', l: tCommon('status.suspended')},
+            ]).map((f) => (
               <button key={f.v} onClick={() => setFilterStatus(f.v as any)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterStatus === f.v ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'}`}>{f.l}</button>
             ))}
           </div>
           {/* Plan type filter */}
           <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
-            {([{ v: 'all', l: 'Mọi gói' }, { v: 'basic', l: 'Cơ bản' }, { v: 'premium', l: 'Premium' }, { v: 'vip', l: 'VIP' }]).map((f) => (
+            {([
+              { v: 'all',     l: tm('filters.allPlans') },
+              { v: 'basic',   l: tm('filters.basic')    },
+              { v: 'premium', l: tm('filters.premium')  },
+              { v: 'vip',     l: tm('filters.vip')      },
+            ]).map((f) => (
               <button key={f.v} onClick={() => setFilterPlanType(f.v as any)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterPlanType === f.v ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'}`}>{f.l}</button>
             ))}
           </div>
-          <span className="ml-auto text-xs text-text-muted">{pagination?.total ?? 0} hội viên</span>
+          <span className="ml-auto text-xs text-text-muted">{pagination?.total ?? 0} {tm('count')}</span>
         </div>
 
         {/* Table */}
@@ -526,7 +559,7 @@ export default function MembersPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-surface-border bg-surface-raised">
-                  {['Hội viên', 'Liên hệ', 'Gói / Hết hạn', 'Trạng thái', 'Check-in gần nhất', 'Hành động'].map((h) => (
+                  {[tm('table.member'), tm('table.contact'), tm('table.plan'), tm('table.status'), tm('table.lastCheckin'), tm('table.actions')].map((h) => (
                     <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
@@ -543,8 +576,8 @@ export default function MembersPage() {
                   ? (
                     <tr><td colSpan={6} className="px-4 py-16 text-center">
                       <p className="text-4xl mb-3">👥</p>
-                      <p className="text-sm font-semibold text-text-primary">Không có hội viên nào</p>
-                      <p className="text-xs text-text-muted mt-1">Thử thay đổi bộ lọc hoặc thêm hội viên mới.</p>
+                      <p className="text-sm font-semibold text-text-primary">{tm('empty.title')}</p>
+                      <p className="text-xs text-text-muted mt-1">{tm('empty.description')}</p>
                     </td></tr>
                   )
                   : members.map((m) => (
@@ -560,12 +593,12 @@ export default function MembersPage() {
           {/* Pagination */}
           {pagination && pagination.totalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-surface-border">
-              <p className="text-xs text-text-muted">Trang {pagination.currentPage}/{pagination.totalPages} · {pagination.total} hội viên</p>
+              <p className="text-xs text-text-muted">{tCommon('pagination.page')} {pagination.currentPage}{tCommon('pagination.of')}{pagination.totalPages} · {pagination.total} {tm('count')}</p>
               <div className="flex gap-1">
                 <button onClick={() => handlePageChange(pagination.currentPage - 1)} disabled={pagination.currentPage <= 1}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay disabled:opacity-40 transition-all cursor-pointer">← Trước</button>
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay disabled:opacity-40 transition-all cursor-pointer">{tCommon('pagination.previous')}</button>
                 <button onClick={() => handlePageChange(pagination.currentPage + 1)} disabled={pagination.currentPage >= pagination.totalPages}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay disabled:opacity-40 transition-all cursor-pointer">Sau →</button>
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay disabled:opacity-40 transition-all cursor-pointer">{tCommon('pagination.next')}</button>
               </div>
             </div>
           )}
