@@ -4,9 +4,11 @@ import { useEffect, useState, useCallback } from 'react';
 import { getMyBookings, createBooking, cancelBooking } from '@/src/lib/bookingService';
 import { getTrainers } from '@/src/lib/trainerService';
 import { toast } from '@/src/utils/toast';
-import { Plus, X, AlertCircle, CalendarDays, Clock } from 'lucide-react';
+import { X, AlertCircle, CalendarDays, Clock } from 'lucide-react';
 import type { Booking, CreateBookingPayload, BookingStatus } from '@/src/types/booking.types';
 import type { Trainer } from '@/src/types/trainer.types';
+import PageHeader from '@/src/components/ui/PageHeader';
+import AddButton from '@/src/components/ui/AddButton';
 
 const STATUS_STYLES: Record<BookingStatus, string> = {
   pending:   'bg-warning-500/10 text-warning-500',
@@ -104,12 +106,9 @@ export default function PortalBookingsPage() {
   return (
     <>
       <div className="flex flex-col gap-5">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-text-primary">Đặt lịch PT</h1>
-          <button onClick={() => setModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary-500 hover:bg-primary-600 text-sm font-semibold text-white cursor-pointer transition-all">
-            <Plus size={14} /> Đặt lịch mới
-          </button>
+        <div className="flex items-center justify-between gap-4">
+          <PageHeader title="Đặt lịch PT" subtitle="Quản lý lịch tập cá nhân của bạn" />
+          <AddButton onClick={() => setModalOpen(true)} label="Đặt lịch mới" />
         </div>
 
         {error && <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm"><AlertCircle size={15} /> {error}</div>}

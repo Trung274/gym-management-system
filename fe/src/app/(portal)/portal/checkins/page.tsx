@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getMyCheckins } from '@/src/lib/checkinService';
 import { ScanLine, AlertCircle } from 'lucide-react';
 import type { CheckinLog } from '@/src/types/checkin.types';
+import PageHeader from '@/src/components/ui/PageHeader';
 
 export default function PortalCheckinsPage() {
   const [logs,    setLogs]    = useState<CheckinLog[]>([]);
@@ -25,7 +26,7 @@ export default function PortalCheckinsPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="text-xl font-bold text-text-primary">Lịch sử Check-in</h1>
+      <PageHeader title="Lịch sử Check-in" subtitle="Toàn bộ lần ra vào của bạn" />
 
       {/* Stat */}
       <div className="bg-surface-base border border-surface-border rounded-2xl px-5 py-4 flex items-center gap-3">

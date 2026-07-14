@@ -5,6 +5,7 @@ import { getGymInfo } from '@/src/lib/gymInfoService';
 import { AlertCircle, MapPin, Phone, Mail, Globe, Clock } from 'lucide-react';
 import type { GymInfo, OpeningHour } from '@/src/types/member-portal.types';
 import { DAY_OF_WEEK_VI } from '@/src/types/member-portal.types';
+import PageHeader from '@/src/components/ui/PageHeader';
 
 export default function PortalGymInfoPage() {
   const [info,    setInfo]    = useState<GymInfo | null>(null);
@@ -97,7 +98,7 @@ export default function PortalGymInfoPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="text-xl font-bold text-text-primary">Thông tin phòng gym</h1>
+      <PageHeader title="Thông tin phòng gym" subtitle="Địa chỉ, liên hệ và giờ mở cửa" />
 
       {/* Cover + brand */}
       {info.coverImageUrl && (

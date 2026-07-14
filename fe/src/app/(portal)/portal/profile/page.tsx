@@ -6,6 +6,7 @@ import { toast } from '@/src/utils/toast';
 import { User, Phone, Calendar, MapPin, AlertCircle, Pencil, X, Check } from 'lucide-react';
 import type { MemberProfile, UpdateMemberProfilePayload } from '@/src/types/member-portal.types';
 import { GENDER_LABELS, MEMBER_STATUS_LABELS, MEMBER_STATUS_COLORS } from '@/src/types/member-portal.types';
+import PageHeader from '@/src/components/ui/PageHeader';
 
 const fmtDate = (iso?: string) =>
   iso ? new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
@@ -67,8 +68,8 @@ export default function PortalProfilePage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-text-primary">Hồ sơ cá nhân</h1>
+      <div className="flex items-center justify-between gap-4">
+        <PageHeader title="Hồ sơ cá nhân" subtitle="Thông tin tài khoản và gói tập của bạn" />
         {!editing
           ? <button onClick={() => setEditing(true)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-surface-border text-sm font-semibold text-text-secondary hover:bg-surface-overlay cursor-pointer transition-all">
               <Pencil size={13} /> Chỉnh sửa

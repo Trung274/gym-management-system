@@ -5,6 +5,7 @@ import { getClasses } from '@/src/lib/classService';
 import { CATEGORY_LABELS, DAY_LABELS } from '@/src/lib/classHelpers';
 import { AlertCircle, Users2 } from 'lucide-react';
 import type { GymClass, ClassCategory } from '@/src/types/class.types';
+import PageHeader from '@/src/components/ui/PageHeader';
 
 const CATEGORY_ICONS: Record<ClassCategory, string> = {
   yoga: '🧘', zumba: '💃', cycling: '🚴', hiit: '⚡',
@@ -35,7 +36,7 @@ export default function PortalClassesPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="text-xl font-bold text-text-primary">Lịch lớp học nhóm</h1>
+      <PageHeader title="Lớp học nhóm" subtitle="Xem lịch các lớp học hoạt động" />
 
       {error && <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm"><AlertCircle size={15} /> {error}</div>}
 

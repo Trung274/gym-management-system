@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getTrainers, getTrainerById } from '@/src/lib/trainerService';
 import { AlertCircle, X } from 'lucide-react';
 import type { Trainer } from '@/src/types/trainer.types';
+import PageHeader from '@/src/components/ui/PageHeader';
 
 function TrainerCard({ t, onClick }: { t: Trainer; onClick: () => void }) {
   return (
@@ -106,7 +107,7 @@ export default function PortalTrainersPage() {
   return (
     <>
       <div className="flex flex-col gap-5">
-        <h1 className="text-xl font-bold text-text-primary">Huấn luyện viên</h1>
+        <PageHeader title="Huấn luyện viên" subtitle="Danh sách HLV đang hoạt động" />
 
         {error && <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm"><AlertCircle size={15} /> {error}</div>}
 
