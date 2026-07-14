@@ -24,6 +24,12 @@ exports.getStaff = asyncHandler(async (req, res, next) => {
       return res.status(200).json({ success: true, count: 0, total: 0, currentPage: page, totalPages: 0, data: [] });
     }
     filter.role = role._id;
+  } else {
+    // Exclude 'member' role by default
+    const memberRole = await Role.findOne({ name: 'member' });
+    if (memberRole) {
+      filter.role = { $ne: memberRole._id };
+    }
   }
 
   const total = await User.countDocuments(filter);
