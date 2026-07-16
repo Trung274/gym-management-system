@@ -41,14 +41,30 @@ export default function Sidebar() {
     const tLayout = t('layout');
 
     return (
-        <aside
-            className={`
-                flex flex-col bg-surface-base border-r border-surface-border
-                transition-all duration-300 ease-in-out
-                ${collapsed ? 'w-16' : 'w-60'}
-                min-h-screen shrink-0
-            `}
-        >
+        <>
+            {/* Mobile backdrop */}
+            {!collapsed && (
+                <div 
+                    className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity" 
+                    onClick={() => setCollapsed(true)} 
+                    aria-hidden="true"
+                />
+            )}
+
+            <aside
+                className={`
+                    flex flex-col bg-surface-base border-r border-surface-border
+                    transition-all duration-300 ease-in-out
+                    min-h-screen shrink-0
+                    
+                    /* Mobile: fixed overlay */
+                    fixed z-50 top-0 left-0 bottom-0
+                    ${collapsed ? 'w-16' : 'w-60'}
+                    
+                    /* Desktop: relative, normal flow */
+                    md:relative md:z-auto
+                `}
+            >
             {/* Brand + Collapse toggle */}
             <div className={`flex items-center h-16 border-b border-surface-border px-3 ${collapsed ? 'justify-center' : 'justify-between'}`}>
                 {!collapsed && (
@@ -85,6 +101,11 @@ export default function Sidebar() {
                         <Link
                             key={href}
                             href={href}
+                            onClick={() => {
+                                if (window.innerWidth < 768) {
+                                    setCollapsed(true);
+                                }
+                            }}
                             title={collapsed ? label : undefined}
                             className={`
                                 group relative flex items-center gap-3 px-3 py-2.5 rounded-xl
@@ -140,5 +161,8 @@ export default function Sidebar() {
                 </div>
             )}
         </aside>
+            {/* Spacer for mobile to push main content to accommodate the collapsed sidebar */}
+            <div className="md:hidden w-16 shrink-0" aria-hidden="true" />
+        </>
     );
 }

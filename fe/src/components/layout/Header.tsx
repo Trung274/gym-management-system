@@ -91,7 +91,7 @@ export default function Header() {
                                             onClick={() => { setLang('vi'); setIsLangDropdownOpen(false); }}
                                             className={`w-full flex items-center gap-2.5 px-4 py-2 text-sm transition-colors cursor-pointer hover:bg-surface-overlay ${lang === 'vi' ? 'text-primary-500 font-semibold' : 'text-text-primary font-medium'}`}
                                         >
-                                            <span>🇻🇳</span>
+                                            <img src="https://flagcdn.com/w20/vn.png" srcSet="https://flagcdn.com/w40/vn.png 2x" width="20" alt="Vietnamese flag" className="rounded-sm shadow-sm" />
                                             <span>Tiếng Việt</span>
                                             {lang === 'vi' && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-500" />}
                                         </button>
@@ -99,7 +99,7 @@ export default function Header() {
                                             onClick={() => { setLang('en'); setIsLangDropdownOpen(false); }}
                                             className={`w-full flex items-center gap-2.5 px-4 py-2 text-sm transition-colors cursor-pointer hover:bg-surface-overlay ${lang === 'en' ? 'text-primary-500 font-semibold' : 'text-text-primary font-medium'}`}
                                         >
-                                            <span>🇬🇧</span>
+                                            <img src="https://flagcdn.com/w20/gb.png" srcSet="https://flagcdn.com/w40/gb.png 2x" width="20" alt="UK flag" className="rounded-sm shadow-sm" />
                                             <span>English</span>
                                             {lang === 'en' && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-500" />}
                                         </button>
