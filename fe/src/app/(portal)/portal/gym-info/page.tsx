@@ -4,10 +4,15 @@ import { useEffect, useState } from 'react';
 import { getGymInfo } from '@/src/lib/gymInfoService';
 import { AlertCircle, MapPin, Phone, Mail, Globe, Clock } from 'lucide-react';
 import type { GymInfo, OpeningHour } from '@/src/types/member-portal.types';
-import { DAY_OF_WEEK_VI } from '@/src/types/member-portal.types';
 import PageHeader from '@/src/components/ui/PageHeader';
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import { usePageTitle } from '@/src/hooks/usePageTitle';
 
 export default function PortalGymInfoPage() {
+  const { t } = useLanguage();
+  const tp = t('portal');
+  usePageTitle('portal', 'gymInfo.title');
+
   const [info,    setInfo]    = useState<GymInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState<string | null>(null);
@@ -15,7 +20,7 @@ export default function PortalGymInfoPage() {
   useEffect(() => {
     getGymInfo()
       .then(setInfo)
-      .catch((e: any) => setError(e?.response?.data?.message || 'Không thể tải thông tin'))
+      .catch((e: any) => setError(e?.response?.data?.message ?? ''))
       .finally(() => setLoading(false));
   }, []);
 
@@ -25,9 +30,9 @@ export default function PortalGymInfoPage() {
     </div>
   );
 
-  if (error) return (
+  if (error !== null) return (
     <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm">
-      <AlertCircle size={15} /> {error}
+      <AlertCircle size={15} /> {error || tp('gymInfo.loadError')}
     </div>
   );
 
@@ -86,8 +91,8 @@ export default function PortalGymInfoPage() {
             return (
               <div key={h.dayOfWeek}
                 className={`flex justify-between py-2 text-sm border-b border-surface-border last:border-0 ${isToday ? 'font-bold text-primary-500' : 'text-text-secondary'}`}>
-                <span>{DAY_OF_WEEK_VI[h.dayOfWeek] ?? h.dayOfWeek}{isToday && ' (hôm nay)'}</span>
-                <span>{h.isClosed ? <span className="text-danger-500">Đóng cửa</span> : `${h.openTime} – ${h.closeTime}`}</span>
+                <span>{tp(`shared.daysLong.${h.dayOfWeek}`, h.dayOfWeek)}{isToday && ` ${tp('gymInfo.today')}`}</span>
+                <span>{h.isClosed ? <span className="text-danger-500">{tp('gymInfo.closed')}</span> : `${h.openTime} – ${h.closeTime}`}</span>
               </div>
             );
           })}
@@ -98,7 +103,7 @@ export default function PortalGymInfoPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title="Thông tin phòng gym" subtitle="Địa chỉ, liên hệ và giờ mở cửa" />
+      <PageHeader title={tp('gymInfo.title')} subtitle={tp('gymInfo.subtitle')} />
 
       {/* Cover + brand */}
       {info.coverImageUrl && (
@@ -114,7 +119,7 @@ export default function PortalGymInfoPage() {
         <div>
           <h2 className="text-lg font-bold text-text-primary">{info.name}</h2>
           {info.tagline && <p className="text-sm text-primary-500 italic">{info.tagline}</p>}
-          {info.established && <p className="text-xs text-text-muted mt-1">Thành lập năm {info.established}</p>}
+          {info.established && <p className="text-xs text-text-muted mt-1">{tp('gymInfo.established').replace('{{year}}', String(info.established))}</p>}
         </div>
       </div>
 
@@ -127,7 +132,7 @@ export default function PortalGymInfoPage() {
 
       {/* Contact */}
       <div className="bg-surface-base border border-surface-border rounded-2xl p-5">
-        <h2 className="text-sm font-bold text-text-primary mb-4">Liên hệ</h2>
+        <h2 className="text-sm font-bold text-text-primary mb-4">{tp('gymInfo.contact')}</h2>
         <div className="flex flex-col gap-3">
           {info.address && (
             <a href={`https://maps.google.com/?q=${encodeURIComponent(info.address)}`} target="_blank" rel="noreferrer"
@@ -169,7 +174,7 @@ export default function PortalGymInfoPage() {
         <div className="bg-surface-base border border-surface-border rounded-2xl p-5">
           <div className="flex items-center gap-2 mb-4">
             <Clock size={15} className="text-primary-500" />
-            <h2 className="text-sm font-bold text-text-primary">Giờ mở cửa</h2>
+            <h2 className="text-sm font-bold text-text-primary">{tp('gymInfo.openingHours')}</h2>
           </div>
           {openingHoursContent}
         </div>

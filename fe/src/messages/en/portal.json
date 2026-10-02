@@ -1,35 +1,201 @@
 {
-  "title": "My Profile",
-  "subtitle": "Your account and membership details",
-  "editButton": "Edit",
-  "saveButton": "Save",
-  "cancelButton": "Cancel",
-  "fields": {
-    "name": "Full name",
-    "email": "Email",
-    "phone": "Phone",
-    "idCard": "ID card",
-    "dateOfBirth": "Date of birth",
-    "gender": "Gender",
-    "address": "Address",
-    "notes": "Notes"
+  "layout": {
+    "brand": "Gym Portal",
+    "logout": "Log out",
+    "nav": {
+      "home": "Home",
+      "profile": "Profile",
+      "checkins": "Check-in",
+      "bookings": "Book PT",
+      "classes": "Classes",
+      "trainers": "Trainers",
+      "gymInfo": "Gym Info"
+    }
   },
-  "gender": {
-    "male": "Male",
-    "female": "Female",
-    "other": "Other"
+  "shared": {
+    "memberStatus": {
+      "active": "Active",
+      "expired": "Expired",
+      "suspended": "Suspended"
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female",
+      "other": "Other"
+    },
+    "daysShort": {
+      "0": "Sun",
+      "1": "Mon",
+      "2": "Tue",
+      "3": "Wed",
+      "4": "Thu",
+      "5": "Fri",
+      "6": "Sat"
+    },
+    "daysLong": {
+      "Monday": "Monday",
+      "Tuesday": "Tuesday",
+      "Wednesday": "Wednesday",
+      "Thursday": "Thursday",
+      "Friday": "Friday",
+      "Saturday": "Saturday",
+      "Sunday": "Sunday"
+    },
+    "categories": {
+      "yoga": "Yoga",
+      "zumba": "Zumba",
+      "cycling": "Cycling",
+      "hiit": "HIIT",
+      "pilates": "Pilates",
+      "boxing": "Boxing",
+      "other": "Other"
+    },
+    "experienceYears": "{{years}} years of experience",
+    "noExperience": "No experience yet"
   },
-  "membership": {
-    "title": "Membership info",
-    "plan": "Plan",
-    "status": "Status",
-    "expiry": "Expiry date",
-    "daysRemaining": "{{days}} days remaining",
-    "expired": "Expired",
-    "noExpiry": "No expiry"
+  "home": {
+    "welcome": "Welcome back 👋",
+    "subscription": {
+      "title": "Membership",
+      "details": "Details",
+      "planName": "Plan",
+      "expiryDate": "Expires",
+      "daysLeft": "{{days}} days left",
+      "expired": "Expired",
+      "noPlan": "No active membership. Contact the front desk to register.",
+      "plan": "Plan:"
+    },
+    "recentCheckins": {
+      "title": "Recent Check-ins",
+      "viewAll": "View all",
+      "empty": "No check-ins yet."
+    },
+    "upcomingBookings": {
+      "title": "Upcoming PT Sessions",
+      "viewAll": "View all",
+      "empty": "No upcoming PT sessions."
+    },
+    "loadError": "Failed to load data"
   },
-  "toast": {
-    "updateSuccess": "Profile updated!",
-    "updateError": "Update failed."
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Your account info and membership details",
+    "editButton": "Edit",
+    "saveButton": "Save",
+    "cancelButton": "Cancel",
+    "saving": "Saving...",
+    "accountInfo": "Account Information",
+    "contactInfo": "Contact Information",
+    "subscriptionInfo": "Membership Plan",
+    "fields": {
+      "dateOfBirth": "Date of birth",
+      "gender": "Gender",
+      "address": "Address",
+      "memberId": "Member ID",
+      "phone": "Phone number",
+      "emergencyContact": "Emergency contact",
+      "notes": "Notes",
+      "planName": "Plan name",
+      "planType": "Plan type",
+      "startDate": "Start date",
+      "endDate": "End date"
+    },
+    "noSubscription": "No active membership. Contact the front desk for assistance.",
+    "toast": {
+      "updateSuccess": "Profile updated successfully!",
+      "updateError": "Update failed",
+      "loadError": "Could not load profile"
+    },
+    "placeholders": {
+      "emergencyContact": "John Doe - 0911111111",
+      "notes": "Additional information..."
+    }
+  },
+  "checkins": {
+    "title": "Check-in History",
+    "subtitle": "All your gym visits",
+    "thisMonth": "Check-ins this month",
+    "table": {
+      "date": "Date",
+      "time": "Time",
+      "note": "Note"
+    },
+    "empty": "No check-ins yet.",
+    "loadError": "Could not load history"
+  },
+  "bookings": {
+    "title": "PT Bookings",
+    "subtitle": "Manage your personal training sessions",
+    "addButton": "Book new session",
+    "tabs": {
+      "upcoming": "Upcoming",
+      "history": "History"
+    },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "card": {
+      "cancel": "Cancel booking",
+      "cancelling": "Cancelling..."
+    },
+    "modal": {
+      "title": "Book a PT Session",
+      "trainer": "Trainer *",
+      "trainerPlaceholder": "— Select a trainer —",
+      "date": "Date *",
+      "startTime": "Start time *",
+      "endTime": "End time *",
+      "notes": "Notes",
+      "notesPlaceholder": "Training goals...",
+      "cancel": "Cancel",
+      "submit": "Confirm",
+      "submitting": "Booking..."
+    },
+    "empty": "No sessions found.",
+    "loadError": "Failed to load data",
+    "toast": {
+      "bookSuccess": "PT session booked successfully!",
+      "bookError": "Booking failed",
+      "cancelSuccess": "Booking cancelled successfully!",
+      "cancelError": "Cancel failed"
+    }
+  },
+  "classes": {
+    "title": "Group Classes",
+    "subtitle": "Browse available class schedules",
+    "filters": {
+      "allDays": "All days",
+      "allCategories": "All",
+      "today": "(Today)"
+    },
+    "trainerPrefix": "Trainer:",
+    "empty": "No classes match the selected filters.",
+    "loadError": "Failed to load data"
+  },
+  "trainers": {
+    "title": "Trainers",
+    "subtitle": "Our active personal trainers",
+    "modal": {
+      "title": "Trainer Info",
+      "specializations": "Specializations",
+      "bio": "About",
+      "certifications": "Certifications",
+      "bookButton": "Book a session with this trainer"
+    },
+    "empty": "No trainers available.",
+    "loadError": "Failed to load data"
+  },
+  "gymInfo": {
+    "title": "Gym Information",
+    "subtitle": "Address, contact details, and opening hours",
+    "established": "Established {{year}}",
+    "contact": "Contact",
+    "openingHours": "Opening Hours",
+    "today": "(today)",
+    "closed": "Closed",
+    "loadError": "Could not load gym info"
   }
 }

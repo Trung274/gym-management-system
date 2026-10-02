@@ -5,8 +5,15 @@ import { getMyCheckins } from '@/src/lib/checkinService';
 import { ScanLine, AlertCircle } from 'lucide-react';
 import type { CheckinLog } from '@/src/types/checkin.types';
 import PageHeader from '@/src/components/ui/PageHeader';
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import { usePageTitle } from '@/src/hooks/usePageTitle';
 
 export default function PortalCheckinsPage() {
+  const { t, lang } = useLanguage();
+  const tp = t('portal');
+  const locale = lang === 'vi' ? 'vi-VN' : 'en-US';
+  usePageTitle('portal', 'checkins.title');
+
   const [logs,    setLogs]    = useState<CheckinLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState<string | null>(null);
@@ -14,7 +21,7 @@ export default function PortalCheckinsPage() {
   useEffect(() => {
     getMyCheckins()
       .then(setLogs)
-      .catch((e: any) => setError(e?.response?.data?.message || 'Không thể tải lịch sử'))
+      .catch((e: any) => setError(e?.response?.data?.message ?? ''))
       .finally(() => setLoading(false));
   }, []);
 
@@ -26,7 +33,7 @@ export default function PortalCheckinsPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title="Lịch sử Check-in" subtitle="Toàn bộ lần ra vào của bạn" />
+      <PageHeader title={tp('checkins.title')} subtitle={tp('checkins.subtitle')} />
 
       {/* Stat */}
       <div className="bg-surface-base border border-surface-border rounded-2xl px-5 py-4 flex items-center gap-3">
@@ -34,14 +41,14 @@ export default function PortalCheckinsPage() {
           <ScanLine size={18} className="text-primary-500" />
         </div>
         <div>
-          <p className="text-xs text-text-muted">Lần check-in tháng này</p>
+          <p className="text-xs text-text-muted">{tp('checkins.thisMonth')}</p>
           <p className="text-2xl font-bold text-text-primary">{loading ? '—' : thisMonth}</p>
         </div>
       </div>
 
-      {error && (
+      {error !== null && (
         <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm">
-          <AlertCircle size={15} /> {error}
+          <AlertCircle size={15} /> {error || tp('checkins.loadError')}
         </div>
       )}
 
@@ -50,7 +57,7 @@ export default function PortalCheckinsPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-surface-border bg-surface-raised">
-              {['Ngày', 'Giờ', 'Ghi chú'].map(h => (
+              {[tp('checkins.table.date'), tp('checkins.table.time'), tp('checkins.table.note')].map(h => (
                 <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wide">{h}</th>
               ))}
             </tr>
@@ -63,11 +70,15 @@ export default function PortalCheckinsPage() {
                 </tr>
               ))
               : logs.length === 0
-              ? <tr><td colSpan={3} className="px-4 py-12 text-center text-sm text-text-muted">Chưa có lần check-in nào.</td></tr>
+              ? <tr><td colSpan={3} className="px-4 py-12 text-center text-sm text-text-muted">{tp('checkins.empty')}</td></tr>
               : logs.map(l => (
                 <tr key={l.id} className="border-b border-surface-border last:border-0 hover:bg-surface-raised transition-colors">
-                  <td className="px-4 py-3 text-sm text-text-primary">{l.checkinDateOnly}</td>
-                  <td className="px-4 py-3 text-sm font-semibold text-text-primary">{l.checkinTimeOnly}</td>
+                  <td className="px-4 py-3 text-sm text-text-primary">
+                    {new Date(l.checkinAt).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                  </td>
+                  <td className="px-4 py-3 text-sm font-semibold text-text-primary">
+                    {new Date(l.checkinAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: false })}
+                  </td>
                   <td className="px-4 py-3 text-sm text-text-secondary">{l.note ?? '—'}</td>
                 </tr>
               ))

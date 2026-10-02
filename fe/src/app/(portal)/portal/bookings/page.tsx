@@ -9,6 +9,8 @@ import type { Booking, CreateBookingPayload, BookingStatus } from '@/src/types/b
 import type { Trainer } from '@/src/types/trainer.types';
 import PageHeader from '@/src/components/ui/PageHeader';
 import AddButton from '@/src/components/ui/AddButton';
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import { usePageTitle } from '@/src/hooks/usePageTitle';
 
 const STATUS_STYLES: Record<BookingStatus, string> = {
   pending:   'bg-warning-500/10 text-warning-500',
@@ -16,12 +18,14 @@ const STATUS_STYLES: Record<BookingStatus, string> = {
   completed: 'bg-surface-overlay text-text-muted',
   cancelled: 'bg-danger-500/10 text-danger-500',
 };
-const STATUS_LABELS: Record<BookingStatus, string> = {
-  pending: 'Chờ xác nhận', confirmed: 'Đã xác nhận',
-  completed: 'Hoàn thành',  cancelled: 'Đã hủy',
-};
 
 function BookingCard({ b, onCancel, cancelling }: { b: Booking; onCancel: () => void; cancelling: boolean }) {
+  const { t, lang } = useLanguage();
+  const tp = t('portal');
+  const sessionDate = new Date(b.sessionDate).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+  });
+
   return (
     <div className="bg-surface-base border border-surface-border rounded-xl p-4 flex flex-col gap-2">
       <div className="flex items-start justify-between gap-2">
@@ -30,18 +34,18 @@ function BookingCard({ b, onCancel, cancelling }: { b: Booking; onCancel: () => 
           <p className="text-xs text-text-muted">{b.trainerEmail}</p>
         </div>
         <span className={`px-2.5 py-1 rounded-full text-xs font-semibold shrink-0 ${STATUS_STYLES[b.status]}`}>
-          {STATUS_LABELS[b.status]}
+          {tp(`bookings.status.${b.status}`)}
         </span>
       </div>
       <div className="flex items-center gap-3 text-xs text-text-secondary">
-        <span className="flex items-center gap-1"><CalendarDays size={11} /> {b.sessionDateLabel}</span>
+        <span className="flex items-center gap-1"><CalendarDays size={11} /> {sessionDate}</span>
         <span className="flex items-center gap-1"><Clock size={11} /> {b.timeRangeLabel}</span>
       </div>
       {b.notes && <p className="text-xs text-text-muted italic">"{b.notes}"</p>}
       {b.status === 'pending' && (
         <button onClick={onCancel} disabled={cancelling}
           className="mt-1 text-xs text-danger-500 hover:underline cursor-pointer disabled:opacity-50 self-start">
-          {cancelling ? 'Đang hủy...' : 'Hủy lịch'}
+          {cancelling ? tp('bookings.card.cancelling') : tp('bookings.card.cancel')}
         </button>
       )}
     </div>
@@ -49,6 +53,10 @@ function BookingCard({ b, onCancel, cancelling }: { b: Booking; onCancel: () => 
 }
 
 export default function PortalBookingsPage() {
+  const { t } = useLanguage();
+  const tp = t('portal');
+  usePageTitle('portal', 'bookings.title');
+
   const [bookings,  setBookings]  = useState<Booking[]>([]);
   const [trainers,  setTrainers]  = useState<Trainer[]>([]);
   const [tab,       setTab]       = useState<'upcoming' | 'history'>('upcoming');
@@ -68,7 +76,7 @@ export default function PortalBookingsPage() {
       const [b, t] = await Promise.all([getMyBookings(), getTrainers()]);
       setBookings(b);
       setTrainers(t.filter(tr => tr.status === 'active'));
-    } catch (e: any) { setError(e?.response?.data?.message || 'Tải dữ liệu thất bại'); }
+    } catch (e: any) { setError(e?.response?.data?.message ?? ''); }
     finally { setLoading(false); }
   }, []);
 
@@ -86,8 +94,8 @@ export default function PortalBookingsPage() {
       setBookings(prev => [nb, ...prev]);
       setModalOpen(false);
       setForm({ trainerId: '', sessionDate: '', startTime: '07:00', endTime: '08:00', notes: '' });
-      toast.success('Đặt lịch PT thành công!');
-    } catch (e: any) { toast.error(e?.response?.data?.message || 'Đặt lịch thất bại'); }
+      toast.success(tp('bookings.toast.bookSuccess'));
+    } catch (e: any) { toast.error(e?.response?.data?.message || tp('bookings.toast.bookError')); }
     finally { setSaving(false); }
   };
 
@@ -95,9 +103,9 @@ export default function PortalBookingsPage() {
     setCancelId(id);
     try {
       await cancelBooking(id);
-      setBookings(prev => prev.map(b => b.id === id ? { ...b, status: 'cancelled', statusLabel: 'Đã hủy' } : b));
-      toast.success('Hủy lịch thành công!');
-    } catch (e: any) { toast.error(e?.response?.data?.message || 'Hủy thất bại'); }
+      setBookings(prev => prev.map(b => b.id === id ? { ...b, status: 'cancelled', statusLabel: tp('bookings.status.cancelled') } : b));
+      toast.success(tp('bookings.toast.cancelSuccess'));
+    } catch (e: any) { toast.error(e?.response?.data?.message || tp('bookings.toast.cancelError')); }
     finally { setCancelId(null); }
   };
 
@@ -107,18 +115,18 @@ export default function PortalBookingsPage() {
     <>
       <div className="flex flex-col gap-5">
         <div className="flex items-center justify-between gap-4">
-          <PageHeader title="Đặt lịch PT" subtitle="Quản lý lịch tập cá nhân của bạn" />
-          <AddButton onClick={() => setModalOpen(true)} label="Đặt lịch mới" />
+          <PageHeader title={tp('bookings.title')} subtitle={tp('bookings.subtitle')} />
+          <AddButton onClick={() => setModalOpen(true)} label={tp('bookings.addButton')} />
         </div>
 
-        {error && <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm"><AlertCircle size={15} /> {error}</div>}
+        {error !== null && <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm"><AlertCircle size={15} /> {error || tp('bookings.loadError')}</div>}
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border w-fit">
-          {([['upcoming','Sắp tới'],['history','Lịch sử']] as const).map(([key, label]) => (
+          {(['upcoming', 'history'] as const).map(key => (
             <button key={key} onClick={() => setTab(key)}
               className={`px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer transition-all ${tab === key ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>
-              {label} {tab === key && <span className="ml-1 text-xs opacity-70">({(key === 'upcoming' ? upcoming : history).length})</span>}
+              {tp(`bookings.tabs.${key}`)} {tab === key && <span className="ml-1 text-xs opacity-70">({(key === 'upcoming' ? upcoming : history).length})</span>}
             </button>
           ))}
         </div>
@@ -127,7 +135,7 @@ export default function PortalBookingsPage() {
         {loading
           ? <div className="grid sm:grid-cols-2 gap-3">{[...Array(4)].map((_, i) => <div key={i} className="h-28 bg-surface-overlay rounded-xl animate-pulse" />)}</div>
           : displayed.length === 0
-          ? <div className="text-center py-12 text-text-muted text-sm">Không có lịch nào.</div>
+          ? <div className="text-center py-12 text-text-muted text-sm">{tp('bookings.empty')}</div>
           : <div className="grid sm:grid-cols-2 gap-3">
               {displayed.map(b => <BookingCard key={b.id} b={b} onCancel={() => handleCancel(b.id)} cancelling={cancelId === b.id} />)}
             </div>
@@ -140,39 +148,39 @@ export default function PortalBookingsPage() {
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setModalOpen(false)} />
           <div className="relative w-full max-w-md bg-surface-base border border-surface-border rounded-2xl shadow-2xl">
             <div className="flex items-center justify-between px-5 py-4 border-b border-surface-border">
-              <h2 className="font-bold text-text-primary">Đặt lịch PT mới</h2>
+              <h2 className="font-bold text-text-primary">{tp('bookings.modal.title')}</h2>
               <button onClick={() => setModalOpen(false)} className="p-1.5 rounded-lg text-text-muted hover:bg-surface-overlay cursor-pointer"><X size={15} /></button>
             </div>
             <form onSubmit={handleCreate} className="p-5 flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Huấn luyện viên *</label>
+                <label className="text-xs font-semibold text-text-secondary">{tp('bookings.modal.trainer')}</label>
                 <select value={form.trainerId} onChange={e => setForm(f => ({ ...f, trainerId: e.target.value }))} required className={inp}>
-                  <option value="">— Chọn HLV —</option>
+                  <option value="">{tp('bookings.modal.trainerPlaceholder')}</option>
                   {trainers.map(t => <option key={t.id} value={t.id}>{t.name} {t.specializations.length ? `(${t.specializations.slice(0,2).join(', ')})` : ''}</option>)}
                 </select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Ngày *</label>
+                <label className="text-xs font-semibold text-text-secondary">{tp('bookings.modal.date')}</label>
                 <input type="date" value={form.sessionDate} onChange={e => setForm(f => ({ ...f, sessionDate: e.target.value }))} required min={new Date().toISOString().slice(0,10)} className={inp} />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-text-secondary">Giờ bắt đầu *</label>
+                  <label className="text-xs font-semibold text-text-secondary">{tp('bookings.modal.startTime')}</label>
                   <input type="time" value={form.startTime} onChange={e => setForm(f => ({ ...f, startTime: e.target.value }))} required className={inp} />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-text-secondary">Giờ kết thúc *</label>
+                  <label className="text-xs font-semibold text-text-secondary">{tp('bookings.modal.endTime')}</label>
                   <input type="time" value={form.endTime} onChange={e => setForm(f => ({ ...f, endTime: e.target.value }))} required className={inp} />
                 </div>
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Ghi chú</label>
-                <input type="text" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Mục tiêu tập luyện..." className={inp} />
+                <label className="text-xs font-semibold text-text-secondary">{tp('bookings.modal.notes')}</label>
+                <input type="text" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={tp('bookings.modal.notesPlaceholder')} className={inp} />
               </div>
               <div className="flex gap-2 pt-1">
-                <button type="button" onClick={() => setModalOpen(false)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-surface-border text-text-secondary hover:bg-surface-overlay cursor-pointer transition-all">Hủy</button>
+                <button type="button" onClick={() => setModalOpen(false)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-surface-border text-text-secondary hover:bg-surface-overlay cursor-pointer transition-all">{tp('bookings.modal.cancel')}</button>
                 <button type="submit" disabled={saving} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-primary-500 hover:bg-primary-600 text-white disabled:opacity-50 cursor-pointer transition-all">
-                  {saving ? 'Đang đặt...' : 'Xác nhận'}
+                  {saving ? tp('bookings.modal.submitting') : tp('bookings.modal.submit')}
                 </button>
               </div>
             </form>

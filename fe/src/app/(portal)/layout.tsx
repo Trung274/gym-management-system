@@ -4,29 +4,29 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/src/hooks/useAuth';
-import { LogOut, Dumbbell, LayoutDashboard, User, ScanLine, CalendarDays, Users, MapPin, Info } from 'lucide-react';
+import { LogOut, Dumbbell, LayoutDashboard, User, ScanLine, CalendarDays, Users, MapPin } from 'lucide-react';
 import { getHomePath, ADMIN_ROLES } from '@/src/types/member-portal.types';
-
-const PORTAL_NAV = [
-  { href: '/portal',          label: 'Trang chủ',  Icon: LayoutDashboard },
-  { href: '/portal/profile',  label: 'Hồ sơ',      Icon: User },
-  { href: '/portal/checkins', label: 'Check-in',   Icon: ScanLine },
-  { href: '/portal/bookings', label: 'Đặt PT',     Icon: CalendarDays },
-  { href: '/portal/classes',  label: 'Lớp học',    Icon: Users },
-  { href: '/portal/trainers', label: 'HLV',        Icon: Users },
-  { href: '/portal/gym-info', label: 'Phòng gym',  Icon: MapPin },
-] as const;
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const { t } = useLanguage();
+  const tp = t('portal');
 
   const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const PORTAL_NAV = [
+    { href: '/portal',          label: tp('layout.nav.home'),     Icon: LayoutDashboard },
+    { href: '/portal/profile',  label: tp('layout.nav.profile'),  Icon: User },
+    { href: '/portal/checkins', label: tp('layout.nav.checkins'), Icon: ScanLine },
+    { href: '/portal/bookings', label: tp('layout.nav.bookings'), Icon: CalendarDays },
+    { href: '/portal/classes',  label: tp('layout.nav.classes'),  Icon: Users },
+    { href: '/portal/trainers', label: tp('layout.nav.trainers'), Icon: Users },
+    { href: '/portal/gym-info', label: tp('layout.nav.gymInfo'),  Icon: MapPin },
+  ];
 
   // Role guard: admin/manager/staff → /dashboard
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
             <div className="w-8 h-8 rounded-xl bg-primary-500 flex items-center justify-center">
               <Dumbbell size={16} className="text-white" />
             </div>
-            <span className="font-bold text-sm text-text-primary hidden sm:block">Gym Portal</span>
+            <span className="font-bold text-sm text-text-primary hidden sm:block">{tp('layout.brand')}</span>
           </Link>
 
           {/* Nav links — scrollable on mobile */}
@@ -80,7 +80,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
           {/* User + logout */}
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-xs text-text-muted hidden md:block max-w-[120px] truncate">{user?.name}</span>
-            <button onClick={handleLogout} title="Đăng xuất"
+            <button onClick={handleLogout} title={tp('layout.logout')}
               className="p-1.5 rounded-lg text-text-muted hover:text-danger-500 hover:bg-danger-500/10 cursor-pointer transition-all">
               <LogOut size={15} />
             </button>

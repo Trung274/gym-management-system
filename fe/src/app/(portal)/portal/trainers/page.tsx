@@ -6,8 +6,18 @@ import { getTrainers, getTrainerById } from '@/src/lib/trainerService';
 import { AlertCircle, X } from 'lucide-react';
 import type { Trainer } from '@/src/types/trainer.types';
 import PageHeader from '@/src/components/ui/PageHeader';
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import { usePageTitle } from '@/src/hooks/usePageTitle';
+
+function useExperienceLabel() {
+  const { t } = useLanguage();
+  const tp = t('portal');
+  return (years: number) =>
+    years > 0 ? tp('shared.experienceYears').replace('{{years}}', String(years)) : tp('shared.noExperience');
+}
 
 function TrainerCard({ t, onClick }: { t: Trainer; onClick: () => void }) {
+  const experienceLabel = useExperienceLabel();
   return (
     <button onClick={onClick} className="text-left bg-surface-base border border-surface-border rounded-xl p-4 hover:border-primary-500/50 hover:shadow-md transition-all cursor-pointer w-full flex flex-col gap-2">
       <div className="flex items-center gap-3">
@@ -16,7 +26,7 @@ function TrainerCard({ t, onClick }: { t: Trainer; onClick: () => void }) {
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-text-primary truncate">{t.name}</p>
-          <p className="text-xs text-text-muted">{t.experienceLabel}</p>
+          <p className="text-xs text-text-muted">{experienceLabel(t.experienceYears)}</p>
         </div>
       </div>
       {t.specializations.length > 0 && (
@@ -32,12 +42,15 @@ function TrainerCard({ t, onClick }: { t: Trainer; onClick: () => void }) {
 }
 
 function TrainerModal({ trainer, onClose, onBook }: { trainer: Trainer; onClose: () => void; onBook: (id: string) => void }) {
+  const { t } = useLanguage();
+  const tp = t('portal');
+  const experienceLabel = useExperienceLabel();
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-md bg-surface-base border border-surface-border rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-5 py-4 border-b border-surface-border">
-          <h2 className="font-bold text-text-primary">Thông tin HLV</h2>
+          <h2 className="font-bold text-text-primary">{tp('trainers.modal.title')}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:bg-surface-overlay cursor-pointer"><X size={15} /></button>
         </div>
         <div className="p-5 flex flex-col gap-4">
@@ -48,13 +61,13 @@ function TrainerModal({ trainer, onClose, onBook }: { trainer: Trainer; onClose:
             </div>
             <div>
               <p className="text-lg font-bold text-text-primary">{trainer.name}</p>
-              <p className="text-sm text-text-muted">{trainer.experienceLabel}</p>
+              <p className="text-sm text-text-muted">{experienceLabel(trainer.experienceYears)}</p>
             </div>
           </div>
           {/* Specializations */}
           {trainer.specializations.length > 0 && (
             <div className="flex flex-col gap-1.5">
-              <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">Chuyên môn</p>
+              <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">{tp('trainers.modal.specializations')}</p>
               <div className="flex flex-wrap gap-1.5">
                 {trainer.specializations.map(s => <span key={s} className="px-2.5 py-1 rounded-full text-xs bg-primary-500/10 text-primary-500 font-medium">{s}</span>)}
               </div>
@@ -63,14 +76,14 @@ function TrainerModal({ trainer, onClose, onBook }: { trainer: Trainer; onClose:
           {/* Bio */}
           {trainer.bio && (
             <div className="flex flex-col gap-1.5">
-              <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">Giới thiệu</p>
+              <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">{tp('trainers.modal.bio')}</p>
               <p className="text-sm text-text-secondary leading-relaxed">{trainer.bio}</p>
             </div>
           )}
           {/* Certifications */}
           {trainer.certifications.length > 0 && (
             <div className="flex flex-col gap-1.5">
-              <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">Chứng chỉ</p>
+              <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">{tp('trainers.modal.certifications')}</p>
               <ul className="flex flex-col gap-1">
                 {trainer.certifications.map(c => <li key={c} className="text-sm text-text-secondary flex items-center gap-1.5">🏅 {c}</li>)}
               </ul>
@@ -78,7 +91,7 @@ function TrainerModal({ trainer, onClose, onBook }: { trainer: Trainer; onClose:
           )}
           <button onClick={() => onBook(trainer.id)}
             className="w-full py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold cursor-pointer transition-all mt-2">
-            Đặt lịch với HLV này
+            {tp('trainers.modal.bookButton')}
           </button>
         </div>
       </div>
@@ -88,6 +101,10 @@ function TrainerModal({ trainer, onClose, onBook }: { trainer: Trainer; onClose:
 
 export default function PortalTrainersPage() {
   const router = useRouter();
+  const { t } = useLanguage();
+  const tp = t('portal');
+  usePageTitle('portal', 'trainers.title');
+
   const [trainers, setTrainers] = useState<Trainer[]>([]);
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState<string | null>(null);
@@ -96,7 +113,7 @@ export default function PortalTrainersPage() {
   useEffect(() => {
     getTrainers()
       .then(setTrainers)
-      .catch((e: any) => setError(e?.response?.data?.message || 'Tải dữ liệu thất bại'))
+      .catch((e: any) => setError(e?.response?.data?.message ?? ''))
       .finally(() => setLoading(false));
   }, []);
 
@@ -107,14 +124,14 @@ export default function PortalTrainersPage() {
   return (
     <>
       <div className="flex flex-col gap-5">
-        <PageHeader title="Huấn luyện viên" subtitle="Danh sách HLV đang hoạt động" />
+        <PageHeader title={tp('trainers.title')} subtitle={tp('trainers.subtitle')} />
 
-        {error && <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm"><AlertCircle size={15} /> {error}</div>}
+        {error !== null && <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm"><AlertCircle size={15} /> {error || tp('trainers.loadError')}</div>}
 
         {loading
           ? <div className="grid sm:grid-cols-2 gap-3">{[...Array(6)].map((_, i) => <div key={i} className="h-32 bg-surface-overlay rounded-xl animate-pulse" />)}</div>
           : trainers.length === 0
-          ? <p className="text-center py-12 text-text-muted text-sm">Không có HLV nào.</p>
+          ? <p className="text-center py-12 text-text-muted text-sm">{tp('trainers.empty')}</p>
           : <div className="grid sm:grid-cols-2 gap-3">
               {trainers.map(t => <TrainerCard key={t.id} t={t} onClick={() => setSelected(t)} />)}
             </div>
