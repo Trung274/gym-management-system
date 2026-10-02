@@ -10,6 +10,7 @@
     "seed:roles": "node src/config/seedRolesPermissions.js",
     "seed:staff": "node src/config/seedStaffPermissions.js",
     "seed:staff-role": "node src/config/seedStaffRole.js",
+    "seed:trainer-role": "node src/config/seedTrainerRole.js",
     "seed:members": "node src/config/seedMemberPermissions.js",
     "seed:plans": "node src/config/seedSubscriptionPlans.js",
     "seed:trainers": "node src/config/seedTrainerPermissions.js",

@@ -54,8 +54,9 @@ Khi deploy trên Render, `RENDER_EXTERNAL_HOSTNAME` (Render tự set) cũng đư
 | 10 | `seed:checkins` | Xóa CheckinLog → permission check-in |
 | 11 | `seed:dashboard` | Permission `dashboard:view` |
 | 12 | `seed:staff-role` | Role `staff` (lễ tân) — chạy cuối vì cần permission của mọi domain |
+| 13 | `seed:trainer-role` | Quyền role `trainer` — chạy cuối vì cần permission của mọi domain |
 
-Mỗi script cũng chạy riêng được (`npm run seed:<tên>`). `seed:staff-role` an toàn để chạy lại bất kỳ lúc nào.
+Mỗi script cũng chạy riêng được (`npm run seed:<tên>`). `seed:staff-role` và `seed:trainer-role` an toàn để chạy lại bất kỳ lúc nào (dùng chung `seedRoleHelper.js`).
 
 Tài khoản mặc định: **`admin@example.com` / `Admin@123`** — đổi mật khẩu khi dùng thật. Các tài khoản khác (hội viên, HLV, nhân viên) được tạo qua API / trang quản trị kèm mật khẩu.
 
@@ -70,7 +71,7 @@ Tài khoản mặc định: **`admin@example.com` / `Admin@123`** — đổi m�
 | `admin` | Tất cả |
 | `manager` | Toàn bộ nghiệp vụ: hội viên, gói tập, HLV, nhân viên, booking, lớp, thiết bị, check-in, dashboard |
 | `staff` | Lễ tân: hội viên, check-in, booking, xem lịch/thiết bị — không quản lý nhân sự hay cấu hình |
-| `trainer` | Hồ sơ cá nhân |
+| `trainer` | Xem dashboard, lớp học, danh sách hội viên; xem / xác nhận / hoàn thành **lịch PT của mình** (không hủy, không tạo / sửa / xóa) |
 | `member` | Hồ sơ cá nhân, tự đặt/hủy lịch PT, xem check-in của mình (endpoint `/me`, `/my`) |
 
 Middleware trong [src/middleware/auth.js](src/middleware/auth.js):
@@ -106,7 +107,7 @@ Chi tiết request/response xem Swagger. Cột quyền: 🌐 công khai · 🔑 
 | | `POST /`, `PUT /:id`, `PATCH /:id/status` | `trainers:create/update/status` |
 | **Bookings** `/bookings` | `GET /my`, `PATCH /:id/cancel` | 🔑 |
 | | `GET /`, `GET /:id`, `POST /` | `bookings:list/read/create` |
-| | `PATCH /:id/confirm`, `PATCH /:id/complete` | `bookings:manage` |
+| | `PATCH /:id/confirm`, `PATCH /:id/complete` | `bookings:manage` (trainer: chỉ lịch của mình) |
 | **Classes** `/classes` | `GET /`, `GET /:id` | 🌐 |
 | | `POST /`, `PUT /:id`, `PATCH /:id/status` | `classes:create/update/status` |
 | **Equipment** `/equipment` | `GET /`, `GET /:id` | 🌐 |
@@ -138,8 +139,8 @@ openspec/                # Proposal/design/spec/tasks của từng tính năng (
 
 1. Model trong `src/models/`, controller trong `src/controllers/`, router trong `src/routes/` (kèm Swagger JSDoc).
 2. Đăng ký router trong `src/server.js`.
-3. Tạo script `src/config/seed<Domain>Permissions.js` thêm permission và gán cho `admin`/`manager`; thêm vào `package.json` và vào danh sách trong `seedAll.js` (trước `seed:staff-role`).
-4. Nếu lễ tân cần quyền mới, thêm vào danh sách `required` trong `seedStaffRole.js`.
+3. Tạo script `src/config/seed<Domain>Permissions.js` thêm permission và gán cho `admin`/`manager`; thêm vào `package.json` và vào danh sách trong `seedAll.js` (trước `seed:staff-role` / `seed:trainer-role`).
+4. Nếu lễ tân / HLV cần quyền mới, thêm vào danh sách `required` trong `seedStaffRole.js` / `seedTrainerRole.js`.
 
 ## Test
 

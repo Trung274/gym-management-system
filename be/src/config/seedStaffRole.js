@@ -10,9 +10,8 @@
  */
 require('dotenv').config();
 const mongoose = require('mongoose');
-const Permission = require('../models/Permission.model');
-const Role = require('../models/Role.model');
 const { ROLES } = require('./roles');
+const { upsertRolePermissions } = require('./seedRoleHelper');
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -52,42 +51,11 @@ const seedStaffRole = async () => {
       { resource: 'dashboard', action: 'view'    },
     ];
 
-    const permIds = [];
-    const missing = [];
-
-    for (const { resource, action } of required) {
-      const doc = await Permission.findOne({ resource, action });
-      if (doc) {
-        permIds.push(doc._id);
-        console.log(`  ✓ ${resource}:${action}`);
-      } else {
-        missing.push(`${resource}:${action}`);
-        console.log(`  ✗ ${resource}:${action} — not found (domain chưa seed?)`);
-      }
-    }
-
-    if (missing.length > 0) {
-      console.log(`\n  ⚠ ${missing.length}/${required.length} permissions chưa tồn tại.`);
-      console.log('    Chạy npm run seed:all để đảm bảo đầy đủ.\n');
-    }
-
-    // Upsert role staff
-    let staffRole = await Role.findOne({ name: ROLES.STAFF });
-    if (!staffRole) {
-      staffRole = await Role.create({
-        name: ROLES.STAFF,
-        description: 'Nhân viên vận hành / lễ tân — check-in, quản lý hội viên, xem lịch tập',
-        permissions: permIds,
-      });
-      console.log('\n  ✓ Created role: staff');
-    } else {
-      staffRole.permissions = permIds;
-      staffRole.description = 'Nhân viên vận hành / lễ tân — check-in, quản lý hội viên, xem lịch tập';
-      await staffRole.save();
-      console.log('\n  ✓ Updated role: staff');
-    }
-
-    console.log(`\n🎉 Done! Role staff: ${permIds.length}/${required.length} permissions assigned.`);
+    await upsertRolePermissions(
+      ROLES.STAFF,
+      'Nhân viên vận hành / lễ tân — check-in, quản lý hội viên, xem lịch tập',
+      required
+    );
     process.exit(0);
   } catch (error) {
     console.error('❌ Seed error:', error);

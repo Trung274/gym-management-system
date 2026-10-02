@@ -20,6 +20,9 @@ import SegmentedControl from '@/src/components/ui/SegmentedControl';
 import { TableSkeleton } from '@/src/components/ui/Skeleton';
 import EmptyState from '@/src/components/ui/EmptyState';
 import { useFormat } from '@/src/hooks/useFormat';
+import { useAuth } from '@/src/hooks/useAuth';
+import { hasRole } from '@/src/lib/auth';
+import { ROLES } from '@/src/lib/roles';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUS_OPTION_KEYS: { value: BookingStatus | 'all'; key: string }[] = [
@@ -77,12 +80,14 @@ function BookingRow({
   onCancel,
   onComplete,
   actingId,
+  canCancel,
 }: {
   booking: Booking;
   onConfirm: (b: Booking) => void;
   onCancel: (b: Booking) => void;
   onComplete: (b: Booking) => void;
   actingId: string | null;
+  canCancel: boolean;
 }) {
   const isActing = actingId === booking.id;
   const { t } = useLanguage();
@@ -136,7 +141,7 @@ function BookingRow({
                   <ClipboardCheck size={16} />
                 </button>
               )}
-              {(booking.status === 'pending' || booking.status === 'confirmed') && (
+              {canCancel && (booking.status === 'pending' || booking.status === 'confirmed') && (
                 <button onClick={() => onCancel(booking)} title={tb('actions.cancel')}
                   className="p-1.5 rounded-lg text-danger-500 hover:bg-danger-500/10 transition-all cursor-pointer">
                   <X size={16} />
@@ -156,6 +161,9 @@ export default function BookingsPage() {
   const tb = t('bookings');
   const tCommon = t('common');
   usePageTitle('bookings');
+  const { user } = useAuth();
+  // Trainers confirm / complete their own sessions but cannot cancel (backend enforces the same)
+  const canCancel = !hasRole(user, ROLES.TRAINER);
 
   const STATUS_OPTIONS = STATUS_OPTION_KEYS.map(({ value, key }) => ({
     value,
@@ -311,6 +319,7 @@ export default function BookingsPage() {
                       onCancel={setCancelTarget}
                       onComplete={handleComplete}
                       actingId={actingId}
+                      canCancel={canCancel}
                     />
                   ))
                 )}

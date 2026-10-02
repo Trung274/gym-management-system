@@ -10,13 +10,44 @@ const timesOverlap = (start1, end1, start2, end2) => {
   return start1 < end2 && end1 > start2;
 };
 
+// Roles that may see and act on every booking (still subject to route permissions)
+const FULL_ACCESS_ROLES = [ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF];
+
+const refId = (ref) => (ref?._id ?? ref)?.toString();
+
+// Trainer profile of the logged-in user (null for non-trainers or trainers without a profile)
+const getOwnTrainer = (user) =>
+  user.role?.name === ROLES.TRAINER ? Trainer.findOne({ user: user._id }) : null;
+
+/**
+ * How the current user relates to a booking:
+ *   'all'     — admin / manager / staff
+ *   'trainer' — the booking's trainer
+ *   'member'  — the member who booked it
+ *   null      — no access
+ */
+const getBookingAccess = async (user, booking) => {
+  if (FULL_ACCESS_ROLES.includes(user.role?.name)) return 'all';
+  if (user.role?.name === ROLES.TRAINER) {
+    const trainer = await getOwnTrainer(user);
+    return trainer && refId(booking.trainer) === trainer._id.toString() ? 'trainer' : null;
+  }
+  const member = await Member.findOne({ user: user._id });
+  return member && refId(booking.member) === member._id.toString() ? 'member' : null;
+};
+
 // @desc    Get all bookings
 // @route   GET /api/v1/bookings
-// @access  Private (Admin, Manager)
+// @access  Private (bookings:list) — trainers only get their own sessions
 exports.getBookings = asyncHandler(async (req, res, next) => {
   const filter = {};
   if (req.query.status) filter.status = req.query.status;
   if (req.query.trainerId) filter.trainer = req.query.trainerId;
+  if (req.user.role?.name === ROLES.TRAINER) {
+    const trainer = await getOwnTrainer(req.user);
+    if (!trainer) return res.status(200).json({ success: true, count: 0, data: [] });
+    filter.trainer = trainer._id;
+  }
   if (req.query.date) {
     const day = new Date(req.query.date);
     const nextDay = new Date(day);
@@ -54,21 +85,15 @@ exports.getMyBookings = asyncHandler(async (req, res, next) => {
 
 // @desc    Get booking by ID
 // @route   GET /api/v1/bookings/:id
-// @access  Private (Admin, Manager, or member who owns booking)
+// @access  Private (Admin, Manager, Staff, the booking's trainer, or the member who owns it)
 exports.getBookingById = asyncHandler(async (req, res, next) => {
   const booking = await Booking.findById(req.params.id);
   if (!booking) {
     return next(new ErrorResponse('Booking not found', 404));
   }
 
-  // Check if member is accessing their own booking
-  const isAdminOrManager = req.user.role?.name === ROLES.ADMIN || req.user.role?.name === ROLES.MANAGER;
-  if (!isAdminOrManager) {
-    const member = await Member.findOne({ user: req.user._id });
-    const isOwner = member && booking.member._id.toString() === member._id.toString();
-    if (!isOwner) {
-      return next(new ErrorResponse('Not authorized to view this booking', 403));
-    }
+  if (!(await getBookingAccess(req.user, booking))) {
+    return next(new ErrorResponse('Not authorized to view this booking', 403));
   }
 
   res.status(200).json({ success: true, data: booking });
@@ -137,10 +162,15 @@ exports.createBooking = asyncHandler(async (req, res, next) => {
 
 // @desc    Confirm booking
 // @route   PATCH /api/v1/bookings/:id/confirm
-// @access  Private (Admin, Manager)
+// @access  Private (bookings:manage) — trainers only for their own sessions
 exports.confirmBooking = asyncHandler(async (req, res, next) => {
   const booking = await Booking.findById(req.params.id);
   if (!booking) return next(new ErrorResponse('Booking not found', 404));
+
+  const access = await getBookingAccess(req.user, booking);
+  if (access !== 'all' && access !== 'trainer') {
+    return next(new ErrorResponse('Not authorized to confirm this booking', 403));
+  }
 
   if (booking.status !== 'pending') {
     return next(new ErrorResponse('Only pending bookings can be confirmed', 400));
@@ -154,7 +184,7 @@ exports.confirmBooking = asyncHandler(async (req, res, next) => {
 
 // @desc    Cancel booking
 // @route   PATCH /api/v1/bookings/:id/cancel
-// @access  Private (Admin, Manager, or member who owns pending booking)
+// @access  Private (Admin, Manager, Staff, or member who owns pending booking) — not trainers
 exports.cancelBooking = asyncHandler(async (req, res, next) => {
   const booking = await Booking.findById(req.params.id);
   if (!booking) return next(new ErrorResponse('Booking not found', 404));
@@ -163,19 +193,13 @@ exports.cancelBooking = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Cannot cancel a ${booking.status} booking`, 400));
   }
 
-  const isAdminOrManager = req.user.role?.name === ROLES.ADMIN || req.user.role?.name === ROLES.MANAGER;
-
-  if (!isAdminOrManager) {
-    // Member can only cancel their own pending bookings
-    const member = await Member.findOne({ user: req.user._id });
-    const isOwner = member && booking.member._id.toString() === member._id.toString();
-
-    if (!isOwner) {
-      return next(new ErrorResponse('Not authorized to cancel this booking', 403));
-    }
-    if (booking.status === 'confirmed') {
-      return next(new ErrorResponse('Cannot cancel a confirmed booking. Contact admin', 400));
-    }
+  const access = await getBookingAccess(req.user, booking);
+  if (access !== 'all' && access !== 'member') {
+    return next(new ErrorResponse('Not authorized to cancel this booking', 403));
+  }
+  // Members can only cancel their own pending bookings
+  if (access === 'member' && booking.status === 'confirmed') {
+    return next(new ErrorResponse('Cannot cancel a confirmed booking. Contact admin', 400));
   }
 
   booking.status = 'cancelled';
@@ -187,10 +211,15 @@ exports.cancelBooking = asyncHandler(async (req, res, next) => {
 
 // @desc    Complete booking
 // @route   PATCH /api/v1/bookings/:id/complete
-// @access  Private (Admin, Manager)
+// @access  Private (bookings:manage) — trainers only for their own sessions
 exports.completeBooking = asyncHandler(async (req, res, next) => {
   const booking = await Booking.findById(req.params.id);
   if (!booking) return next(new ErrorResponse('Booking not found', 404));
+
+  const access = await getBookingAccess(req.user, booking);
+  if (access !== 'all' && access !== 'trainer') {
+    return next(new ErrorResponse('Not authorized to complete this booking', 403));
+  }
 
   if (booking.status !== 'confirmed') {
     return next(new ErrorResponse('Only confirmed bookings can be completed', 400));
