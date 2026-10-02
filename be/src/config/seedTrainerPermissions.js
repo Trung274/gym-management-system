@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
 const Trainer = require('../models/Trainer.model');
-require('../models/User.model'); // needed by Trainer populate
+const User = require('../models/User.model');
 const { ROLES } = require('./roles');
 
 mongoose.connect(process.env.MONGODB_URI)
@@ -13,7 +13,10 @@ mongoose.connect(process.env.MONGODB_URI)
 const seedTrainerPermissions = async () => {
   try {
     console.log('🗑  Clearing trainer domain data...');
+    // Remove trainers together with their login accounts (no orphan users left behind)
+    const trainerUserIds = await Trainer.distinct('user');
     await Trainer.deleteMany({});
+    await User.deleteMany({ _id: { $in: trainerUserIds } });
     console.log('  ✓ Cleared Trainers');
 
     console.log('🌱 Seeding trainer permissions...');

@@ -4,7 +4,6 @@ const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
 require('../models/Trainer.model'); // required by Class pre-hook populate
 const Class = require('../models/Class.model');
-const Booking = require('../models/Booking.model');
 const { ROLES } = require('./roles');
 
 mongoose.connect(process.env.MONGODB_URI)
@@ -14,9 +13,8 @@ mongoose.connect(process.env.MONGODB_URI)
 const seedClassPermissions = async () => {
   try {
     console.log('🗑  Clearing class domain data...');
-    await Booking.deleteMany({});  // bookings reference classes — clear first
     await Class.deleteMany({});
-    console.log('  ✓ Cleared Classes + related Bookings');
+    console.log('  ✓ Cleared Classes');
 
     console.log('🌱 Seeding class permissions...');
 

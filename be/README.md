@@ -44,13 +44,13 @@ Khi deploy trên Render, `RENDER_EXTERNAL_HOSTNAME` (Render tự set) cũng đư
 |---|---|---|
 | 1 | `seed:roles` | Xóa Permission/Role/User → tạo permission cơ bản, role `admin` + `user`, tài khoản admin |
 | 2 | `seed:staff` | Permission `staff:*`, role `manager` |
-| 3 | `seed:members` | Xóa Member → permission hội viên, role `member` |
+| 3 | `seed:members` | Xóa Member **và tài khoản User của họ** → permission hội viên, role `member` |
 | 4 | `seed:plans` | Xóa SubscriptionPlan → permission gói tập + 3 gói mẫu |
-| 5 | `seed:trainers` | Xóa Trainer → permission HLV, role `trainer` |
+| 5 | `seed:trainers` | Xóa Trainer **và tài khoản User của họ** → permission HLV, role `trainer` |
 | 6 | `seed:bookings` | Xóa Booking → permission booking (member được `create`/`read`) |
 | 7 | `seed:gym` | Xóa GymInfo → permission + thông tin phòng gym mặc định |
 | 8 | `seed:equipment` | Xóa Equipment → permission + 5 thiết bị mẫu |
-| 9 | `seed:classes` | Xóa Booking + Class → permission + 3 lớp mẫu |
+| 9 | `seed:classes` | Xóa Class → permission + 3 lớp mẫu |
 | 10 | `seed:checkins` | Xóa CheckinLog → permission check-in |
 | 11 | `seed:dashboard` | Permission `dashboard:view` |
 | 12 | `seed:staff-role` | Role `staff` (lễ tân) — chạy cuối vì cần permission của mọi domain |

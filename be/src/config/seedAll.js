@@ -32,7 +32,7 @@ const seeds = [
   'seed:bookings',  // 6. xóa Bookings → booking permissions
   'seed:gym',       // 7. xóa GymInfo → gym permissions + default GymInfo
   'seed:equipment', // 8. xóa Equipment → equipment permissions + 5 sample items
-  'seed:classes',   // 9. xóa Bookings+Classes → class permissions + 3 sample classes
+  'seed:classes',   // 9. xóa Classes → class permissions + 3 sample classes
   'seed:checkins',  // 10. xóa CheckinLogs → checkin permissions
   'seed:dashboard', // 11. dashboard:view permission
   'seed:staff-role',  // 12. role staff (lễ tân) — cần permissions của mọi domain
