@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { getMyBookings, createBooking, cancelBooking } from '@/src/lib/bookingService';
 import { getTrainers } from '@/src/lib/trainerService';
 import { toast } from '@/src/utils/toast';
@@ -52,7 +53,10 @@ function BookingCard({ b, onCancel, cancelling }: { b: Booking; onCancel: () => 
   );
 }
 
-export default function PortalBookingsPage() {
+// Inner component that uses useSearchParams (must be wrapped in Suspense)
+function PortalBookingsContent() {
+  const router = useRouter();
+  const presetTrainerId = useSearchParams().get('trainerId');
   const { t } = useLanguage();
   const tp = t('portal');
   usePageTitle('portal', 'bookings.title');
@@ -81,6 +85,16 @@ export default function PortalBookingsPage() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  // Opened from "Book with this trainer" (/portal/bookings?trainerId=...) → open modal with trainer preselected
+  useEffect(() => {
+    if (!presetTrainerId || loading) return;
+    if (trainers.some(tr => tr.id === presetTrainerId)) {
+      setForm(f => ({ ...f, trainerId: presetTrainerId }));
+    }
+    setModalOpen(true);
+    router.replace('/portal/bookings', { scroll: false });
+  }, [presetTrainerId, loading, trainers, router]);
 
   const upcoming = bookings.filter(b => b.status === 'pending' || b.status === 'confirmed');
   const history  = bookings.filter(b => b.status === 'completed' || b.status === 'cancelled');
@@ -188,5 +202,14 @@ export default function PortalBookingsPage() {
         </div>
       )}
     </>
+  );
+}
+
+// Default export wraps content in Suspense (required for useSearchParams in Next.js App Router)
+export default function PortalBookingsPage() {
+  return (
+    <Suspense fallback={null}>
+      <PortalBookingsContent />
+    </Suspense>
   );
 }
