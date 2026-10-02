@@ -4,6 +4,7 @@ const Role = require('../models/Role.model');
 const SubscriptionPlan = require('../models/SubscriptionPlan.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
+const { ROLES } = require('../config/roles');
 
 // @desc    Get current member's own profile
 // @route   GET /api/v1/members/me
@@ -143,7 +144,7 @@ exports.createMember = asyncHandler(async (req, res, next) => {
   } = req.body;
 
   // Lookup member role
-  const memberRole = await Role.findOne({ name: 'member' });
+  const memberRole = await Role.findOne({ name: ROLES.MEMBER });
   if (!memberRole) {
     return next(new ErrorResponse('Role "member" not found. Run npm run seed:members first', 500));
   }

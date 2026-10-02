@@ -26,5 +26,6 @@ Chưa có test tự động ở cả hai phía.
   - Không đưa translator (`tp`, `ts`, `tCommon`...) vào deps của `useEffect`/`useCallback` → vòng lặp fetch vô hạn.
   - Ngày giờ format theo `lang === 'vi' ? 'vi-VN' : 'en-US'`, không hardcode.
   - Dùng semantic color token (`bg-surface-*`, `text-text-*`), icon từ `lucide-react`, `PageHeader`/`AddButton`/`StatsGrid` cho UI chung.
-- Backend: route mới dùng `protect` + `checkPermission(resource, action)`; permission mới cần script seed và đưa vào `seedAll.js` (xem [be/README.md](be/README.md#thêm-một-domain-mới)). Tên role bị giới hạn bởi enum trong `be/src/models/Role.model.js`.
+- Tên role luôn dùng constant `ROLES` — BE: `be/src/config/roles.js`, FE: `fe/src/lib/roles.ts` (hai file phải khớp nhau). Không viết chuỗi `'admin'`, `'member'`... trực tiếp.
+- Backend: route mới dùng `protect` + `checkPermission(resource, action)`; permission mới cần script seed và đưa vào `seedAll.js` (xem [be/README.md](be/README.md#thêm-một-domain-mới)). Thêm role mới: sửa `be/src/config/roles.js` (enum của `Role.model.js` lấy từ đây) và `fe/src/lib/roles.ts`.
 - Spec tính năng backend nằm trong `be/openspec/changes/archive/`.

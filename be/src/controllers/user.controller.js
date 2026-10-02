@@ -1,6 +1,7 @@
 const User = require('../models/User.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
+const { ROLES } = require('../config/roles');
 
 // @desc    Get all users
 // @route   GET /api/v1/users
@@ -37,7 +38,7 @@ exports.getUserById = asyncHandler(async (req, res, next) => {
   }
 
   // Users can only view their own profile unless they're admin
-  if (req.user.id !== req.params.id && req.user.role !== 'admin') {
+  if (req.user.id !== req.params.id && req.user.role?.name !== ROLES.ADMIN) {
     return next(new ErrorResponse('Not authorized to view this user', 403));
   }
 
@@ -52,7 +53,7 @@ exports.getUserById = asyncHandler(async (req, res, next) => {
 // @access  Private
 exports.updateUser = asyncHandler(async (req, res, next) => {
   // Users can only update their own profile unless they're admin
-  if (req.user.id !== req.params.id && req.user.role !== 'admin') {
+  if (req.user.id !== req.params.id && req.user.role?.name !== ROLES.ADMIN) {
     return next(new ErrorResponse('Not authorized to update this user', 403));
   }
 
@@ -63,7 +64,7 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
   };
 
   // Only admin can update role
-  if (req.user.role === 'admin' && req.body.role) {
+  if (req.user.role?.name === ROLES.ADMIN && req.body.role) {
     fieldsToUpdate.role = req.body.role;
   }
 

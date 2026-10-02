@@ -3,6 +3,7 @@ const Member = require('../models/Member.model');
 const Trainer = require('../models/Trainer.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
+const { ROLES } = require('../config/roles');
 
 // Helper: check if two time ranges overlap (all in HH:MM string)
 const timesOverlap = (start1, end1, start2, end2) => {
@@ -61,7 +62,7 @@ exports.getBookingById = asyncHandler(async (req, res, next) => {
   }
 
   // Check if member is accessing their own booking
-  const isAdminOrManager = req.user.role?.name === 'admin' || req.user.role?.name === 'manager';
+  const isAdminOrManager = req.user.role?.name === ROLES.ADMIN || req.user.role?.name === ROLES.MANAGER;
   if (!isAdminOrManager) {
     const member = await Member.findOne({ user: req.user._id });
     const isOwner = member && booking.member._id.toString() === member._id.toString();
@@ -162,7 +163,7 @@ exports.cancelBooking = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Cannot cancel a ${booking.status} booking`, 400));
   }
 
-  const isAdminOrManager = req.user.role?.name === 'admin' || req.user.role?.name === 'manager';
+  const isAdminOrManager = req.user.role?.name === ROLES.ADMIN || req.user.role?.name === ROLES.MANAGER;
 
   if (!isAdminOrManager) {
     // Member can only cancel their own pending bookings

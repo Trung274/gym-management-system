@@ -3,6 +3,7 @@ const Role = require('../models/Role.model');
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
+const { ROLES } = require('../config/roles');
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -36,7 +37,7 @@ exports.createUser = asyncHandler(async (req, res, next) => {
   }
 
   // Get role - mặc định là 'user' nếu không chỉ định
-  const role = await Role.findOne({ name: roleName || 'user' });
+  const role = await Role.findOne({ name: roleName || ROLES.USER });
   if (!role) {
     return next(new ErrorResponse(`Role '${roleName}' not found`, 404));
   }

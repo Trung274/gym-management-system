@@ -4,6 +4,7 @@ const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
 const Trainer = require('../models/Trainer.model');
 require('../models/User.model'); // needed by Trainer populate
+const { ROLES } = require('./roles');
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -38,7 +39,7 @@ const seedTrainerPermissions = async () => {
     }
 
     // Assign to admin and manager roles
-    for (const roleName of ['admin', 'manager']) {
+    for (const roleName of [ROLES.ADMIN, ROLES.MANAGER]) {
       const role = await Role.findOne({ name: roleName });
       if (role) {
         const existing = role.permissions.map(id => id.toString());
@@ -57,10 +58,10 @@ const seedTrainerPermissions = async () => {
     const profilePerms = await Permission.find({ resource: 'profile' });
     const profilePermIds = profilePerms.map(p => p._id);
 
-    let trainerRole = await Role.findOne({ name: 'trainer' });
+    let trainerRole = await Role.findOne({ name: ROLES.TRAINER });
     if (!trainerRole) {
       trainerRole = await Role.create({
-        name: 'trainer',
+        name: ROLES.TRAINER,
         description: 'Gym trainer — can view and update own profile',
         permissions: profilePermIds
       });

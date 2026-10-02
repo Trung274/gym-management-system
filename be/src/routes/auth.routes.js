@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
 const { protect, authorize, checkPermission } = require('../middleware/auth');
+const { ROLES } = require('../config/roles');
 
 /**
  * @swagger
@@ -52,7 +53,7 @@ const { protect, authorize, checkPermission } = require('../middleware/auth');
  */
 router.post('/create-user', 
   protect, 
-  authorize('admin'),
+  authorize(ROLES.ADMIN),
   checkPermission('users', 'create'),
   authController.createUser
 );

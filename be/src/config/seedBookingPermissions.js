@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
 const Booking = require('../models/Booking.model');
+const { ROLES } = require('./roles');
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -36,7 +37,7 @@ const seedBookingPermissions = async () => {
     }
 
     // Admin & Manager: all 4 permissions
-    for (const roleName of ['admin', 'manager']) {
+    for (const roleName of [ROLES.ADMIN, ROLES.MANAGER]) {
       const role = await Role.findOne({ name: roleName });
       if (role) {
         const existing = role.permissions.map(id => id.toString());
@@ -52,7 +53,7 @@ const seedBookingPermissions = async () => {
     }
 
     // Member role: only create + read
-    const memberRole = await Role.findOne({ name: 'member' });
+    const memberRole = await Role.findOne({ name: ROLES.MEMBER });
     if (memberRole) {
       const existing = memberRole.permissions.map(id => id.toString());
       const toAdd = [permMap['create'], permMap['read']].filter(id => !existing.includes(id.toString()));

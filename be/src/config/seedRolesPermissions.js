@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Role = require('../models/Role.model');
 const Permission = require('../models/Permission.model');
 const User = require('../models/User.model');
+const { ROLES } = require('./roles');
 
 // Kết nối database
 mongoose.connect(process.env.MONGODB_URI)
@@ -54,7 +55,7 @@ const seedData = async () => {
     // 2. Tạo Admin Role (full permissions)
     const adminPermissions = permissions.map(p => p._id);
     const adminRole = await Role.create({
-      name: 'admin',
+      name: ROLES.ADMIN,
       description: 'Administrator with full access',
       permissions: adminPermissions
     });
@@ -66,7 +67,7 @@ const seedData = async () => {
       .map(p => p._id);
 
     const userRole = await Role.create({
-      name: 'user',
+      name: ROLES.USER,
       description: 'Regular user with limited access',
       permissions: userPermissions
     });

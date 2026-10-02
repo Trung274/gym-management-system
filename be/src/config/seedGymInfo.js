@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
 const GymInfo = require('../models/GymInfo.model');
+const { ROLES } = require('./roles');
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -34,7 +35,7 @@ const seedGymInfo = async () => {
     }
 
     // 2. Assign ALL gym permissions to admin role
-    const adminRole = await Role.findOne({ name: 'admin' });
+    const adminRole = await Role.findOne({ name: ROLES.ADMIN });
     if (adminRole) {
       const existing = adminRole.permissions.map(id => id.toString());
       const toAdd = gymPermIds.filter(id => !existing.includes(id.toString()));
@@ -50,7 +51,7 @@ const seedGymInfo = async () => {
     }
 
     // 3. Assign only gym:read to manager role
-    const managerRole = await Role.findOne({ name: 'manager' });
+    const managerRole = await Role.findOne({ name: ROLES.MANAGER });
     if (managerRole) {
       const readPerm = await Permission.findOne({ resource: 'gym', action: 'read' });
       const existing = managerRole.permissions.map(id => id.toString());

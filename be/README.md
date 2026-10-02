@@ -61,7 +61,7 @@ Tài khoản mặc định: **`admin@example.com` / `Admin@123`** — đổi m�
 
 ## Phân quyền
 
-- **Role** (giới hạn bởi enum trong `Role.model.js`): `admin`, `manager`, `staff`, `trainer`, `member`, `user`. Muốn thêm role mới phải sửa enum.
+- **Role**: `admin`, `manager`, `staff`, `trainer`, `member`, `user` — định nghĩa trong [src/config/roles.js](src/config/roles.js) (`ROLES`), là nguồn của enum trong `Role.model.js`. Trong code luôn dùng `ROLES.ADMIN`... thay vì viết chuỗi. Thêm role mới: sửa file này và `fe/src/lib/roles.ts`.
 - **Permission** là cặp `resource:action`, gán vào role qua các script seed hoặc API `/roles`.
 - `admin` bỏ qua mọi kiểm tra permission.
 

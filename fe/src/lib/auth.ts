@@ -1,4 +1,5 @@
 import { User } from '@/src/types/auth.types';
+import { isAdmin } from '@/src/lib/roles';
 
 /**
  * Check if user has a specific permission
@@ -11,7 +12,7 @@ export const hasPermission = (
   if (!user || !user.role) return false;
 
   // Admin always has all permissions
-  if (user.role.name === 'admin') return true;
+  if (isAdmin(user.role.name)) return true;
 
   // Check if permission exists
   return user.role.permissions.some(
@@ -29,7 +30,7 @@ export const hasAnyPermission = (
   if (!user || !user.role) return false;
 
   // Admin always has all permissions
-  if (user.role.name === 'admin') return true;
+  if (isAdmin(user.role.name)) return true;
 
   // Check if any permission exists
   return permissions.some((perm) =>
@@ -50,7 +51,7 @@ export const hasAllPermissions = (
   if (!user || !user.role) return false;
 
   // Admin always has all permissions
-  if (user.role.name === 'admin') return true;
+  if (isAdmin(user.role.name)) return true;
 
   // Check if all permissions exist
   return permissions.every((perm) =>

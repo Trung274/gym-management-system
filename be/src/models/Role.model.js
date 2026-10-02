@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { ROLE_NAMES } = require('../config/roles');
 
 const roleSchema = new mongoose.Schema({
   name: {
@@ -7,7 +8,7 @@ const roleSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     lowercase: true,
-    enum: ['admin', 'user', 'manager', 'member', 'trainer', 'staff'],
+    enum: ROLE_NAMES,
 
   },
   description: {

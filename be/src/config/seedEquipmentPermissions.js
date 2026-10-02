@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
 const Equipment = require('../models/Equipment.model');
+const { ROLES } = require('./roles');
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -38,7 +39,7 @@ const seedEquipmentPermissions = async () => {
     }
 
     // Admin: all 6 permissions
-    const adminRole = await Role.findOne({ name: 'admin' });
+    const adminRole = await Role.findOne({ name: ROLES.ADMIN });
     if (adminRole) {
       const existing = adminRole.permissions.map(id => id.toString());
       const toAdd = Object.values(permMap).filter(id => !existing.includes(id.toString()));
@@ -52,7 +53,7 @@ const seedEquipmentPermissions = async () => {
     }
 
     // Manager: all except delete
-    const managerRole = await Role.findOne({ name: 'manager' });
+    const managerRole = await Role.findOne({ name: ROLES.MANAGER });
     if (managerRole) {
       const managerPerms = ['list', 'read', 'create', 'update', 'status'].map(a => permMap[a]);
       const existing = managerRole.permissions.map(id => id.toString());

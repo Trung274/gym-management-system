@@ -5,6 +5,7 @@ const Role = require('../models/Role.model');
 const Member = require('../models/Member.model');
 require('../models/User.model');           // needed by Member populate
 require('../models/SubscriptionPlan.model'); // needed by Member populate
+const { ROLES } = require('./roles');
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -44,7 +45,7 @@ const seedMemberPermissions = async () => {
     }
 
     // 2. Assign ALL member permissions to admin role
-    const adminRole = await Role.findOne({ name: 'admin' });
+    const adminRole = await Role.findOne({ name: ROLES.ADMIN });
     if (adminRole) {
       const existing = adminRole.permissions.map(id => id.toString());
       const toAdd = memberPermIds.filter(id => !existing.includes(id.toString()));
@@ -60,7 +61,7 @@ const seedMemberPermissions = async () => {
     }
 
     // 3. Assign ALL member permissions to manager role
-    const managerRole = await Role.findOne({ name: 'manager' });
+    const managerRole = await Role.findOne({ name: ROLES.MANAGER });
     if (managerRole) {
       const existing = managerRole.permissions.map(id => id.toString());
       const toAdd = memberPermIds.filter(id => !existing.includes(id.toString()));
@@ -77,10 +78,10 @@ const seedMemberPermissions = async () => {
     const profilePerms = await Permission.find({ resource: 'profile' });
     const profilePermIds = profilePerms.map(p => p._id);
 
-    let memberRole = await Role.findOne({ name: 'member' });
+    let memberRole = await Role.findOne({ name: ROLES.MEMBER });
     if (!memberRole) {
       memberRole = await Role.create({
-        name: 'member',
+        name: ROLES.MEMBER,
         description: 'Gym member — can view and update own profile',
         permissions: profilePermIds
       });

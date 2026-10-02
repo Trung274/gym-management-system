@@ -3,6 +3,7 @@ const User = require('../models/User.model');
 const Role = require('../models/Role.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
+const { ROLES } = require('../config/roles');
 
 // @desc    Get all active trainers (public)
 // @route   GET /api/v1/trainers
@@ -52,7 +53,7 @@ exports.createTrainer = asyncHandler(async (req, res, next) => {
     specializations, experienceYears, bio, certifications, hireDate
   } = req.body;
 
-  const trainerRole = await Role.findOne({ name: 'trainer' });
+  const trainerRole = await Role.findOne({ name: ROLES.TRAINER });
   if (!trainerRole) {
     return next(new ErrorResponse('Role "trainer" not found. Run npm run seed:trainers first', 500));
   }

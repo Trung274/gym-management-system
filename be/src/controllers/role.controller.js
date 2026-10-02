@@ -1,6 +1,7 @@
 const Role = require('../models/Role.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
+const { ROLES } = require('../config/roles');
 
 // @desc    Get all roles
 // @route   GET /api/v1/roles
@@ -92,7 +93,7 @@ exports.deleteRole = asyncHandler(async (req, res, next) => {
   }
 
   // Không cho xóa role mặc định
-  if (['admin', 'user'].includes(role.name)) {
+  if ([ROLES.ADMIN, ROLES.USER].includes(role.name)) {
     return next(new ErrorResponse('Cannot delete default system roles', 400));
   }
 

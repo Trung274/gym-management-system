@@ -2,6 +2,7 @@ const User = require('../models/User.model');
 const Role = require('../models/Role.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
+const { ROLES } = require('../config/roles');
 
 // @desc    Get all staff (paginated, filterable by role name and isActive)
 // @route   GET /api/v1/staff
@@ -26,7 +27,7 @@ exports.getStaff = asyncHandler(async (req, res, next) => {
     filter.role = role._id;
   } else {
     // Exclude 'member' role by default
-    const memberRole = await Role.findOne({ name: 'member' });
+    const memberRole = await Role.findOne({ name: ROLES.MEMBER });
     if (memberRole) {
       filter.role = { $ne: memberRole._id };
     }

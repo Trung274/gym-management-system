@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
 const CheckinLog = require('../models/CheckinLog.model');
+const { ROLES } = require('./roles');
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -34,7 +35,7 @@ const seedCheckinPermissions = async () => {
       permIds.push(doc._id);
     }
 
-    for (const roleName of ['admin', 'manager']) {
+    for (const roleName of [ROLES.ADMIN, ROLES.MANAGER]) {
       const role = await Role.findOne({ name: roleName });
       if (role) {
         const existing = role.permissions.map(id => id.toString());

@@ -662,20 +662,34 @@ export type EntityStatus = 'active' | 'inactive' | 'draft';
 
 ## Permission & RBAC
 
+### Role constants (`src/lib/roles.ts`)
+
+Tên role **không bao giờ** viết dạng chuỗi tay (`'admin'`, `'member'`...). Luôn dùng constant:
+
+```typescript
+import { ROLES, ADMIN_ROLES, isAdmin, type RoleName } from '@/src/lib/roles';
+
+ROLES.ADMIN                          // 'admin'
+isAdmin(user.role?.name)             // admin bypass
+ADMIN_ROLES.includes(user.role.name) // admin / manager / staff / trainer → khu quản trị
+```
+
+Danh sách role phải khớp với `be/src/config/roles.js` (nguồn của enum trong `Role.model.js`).
+
 ### Permission Helpers (`src/lib/auth.ts`)
 
 ```typescript
 // Kiểm tra một permission cụ thể
 export const hasPermission = (user: User | null, resource: string, action: string): boolean => {
   if (!user?.role) return false;
-  if (user.role.name === 'admin') return true; // Admin bypass
+  if (isAdmin(user.role.name)) return true; // Admin bypass
   return user.role.permissions.some(p => p.resource === resource && p.action === action);
 };
 
 // Kiểm tra có ít nhất một trong các permissions
 export const hasAnyPermission = (user: User | null, permissions: { resource: string; action: string }[]): boolean => {
   if (!user?.role) return false;
-  if (user.role.name === 'admin') return true;
+  if (isAdmin(user.role.name)) return true;
   return permissions.some(p => hasPermission(user, p.resource, p.action));
 };
 
@@ -715,10 +729,6 @@ interface Props {
   requiredAnyRoles?: string[];
 }
 ```
-
-> **⚠️ Lưu ý cho dự án sau:**  
-> Role name `'admin'` đang được hardcode ở nhiều chỗ trong `hasPermission`. Nên dùng
-> enum hoặc constant (`ROLES.ADMIN`) thay vì string literal để tránh typo và dễ refactor.
 
 ---
 
@@ -1061,7 +1071,6 @@ Một số icon thường dùng trong gym management:
 |---|---|
 | Token storage trùng lặp (cookie + zustand localStorage) | Chỉ lưu token vào cookie; persist chỉ user profile vào localStorage |
 | `window.location.href` trong Axios interceptor | Dùng event emitter / pub-sub để decouple redirect logic |
-| Hardcode `'admin'` string trong permission checks | Dùng `ROLES` enum/constant |
 | `protectedPrefixes` phải update thủ công | Đảo logic: whitelist `publicRoutes`, còn lại mặc định protected |
 | Stats re-fetch sau mỗi mutation | Chỉ fetch stats khi cần (lazy), hoặc dùng optimistic update |
 | Không có loading skeleton | Thêm Suspense boundary + skeleton components |

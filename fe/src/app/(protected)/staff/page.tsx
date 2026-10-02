@@ -12,6 +12,7 @@ import type {
   CreateStaffPayload,
   UpdateStaffPayload,
 } from '@/src/types/staff.types';
+import { ROLES } from '@/src/lib/roles';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
 
@@ -37,7 +38,7 @@ const AVATAR_COLORS = [
 const getAvatarColor = (id: string) =>
   AVATAR_COLORS[id.charCodeAt(id.length - 1) % AVATAR_COLORS.length];
 
-const EMPTY_CREATE_FORM = { name: '', email: '', password: '', roleName: 'staff' as RoleName };
+const EMPTY_CREATE_FORM = { name: '', email: '', password: '', roleName: ROLES.STAFF as RoleName };
 
 const EMPTY_EDIT_FORM = { name: '', email: '' };
 
@@ -171,10 +172,10 @@ function CreateStaffModal({
   const ts = t('staff');
 
   const STAFF_ROLES_LIST = [
-    { value: 'admin' as RoleName, label: ts('stats.admin') },
-    { value: 'manager' as RoleName, label: ts('stats.manager') },
-    { value: 'trainer' as RoleName, label: ts('stats.trainer') },
-    { value: 'staff' as RoleName, label: ts('stats.staff') },
+    { value: ROLES.ADMIN as RoleName,   label: ts('stats.admin') },
+    { value: ROLES.MANAGER as RoleName, label: ts('stats.manager') },
+    { value: ROLES.TRAINER as RoleName, label: ts('stats.trainer') },
+    { value: ROLES.STAFF as RoleName,   label: ts('stats.staff') },
   ];
 
   useEffect(() => {
@@ -380,15 +381,15 @@ function AssignRoleModal({
   onSave: (id: string, roleName: RoleName) => Promise<void>;
   isLoading: boolean;
 }) {
-  const [selectedRole, setSelectedRole] = useState<RoleName>('user');
+  const [selectedRole, setSelectedRole] = useState<RoleName>(ROLES.USER);
   const { t } = useLanguage();
   const ts = t('staff');
 
   const STAFF_ROLES_LIST = [
-    { value: 'admin' as RoleName, label: ts('stats.admin') },
-    { value: 'manager' as RoleName, label: ts('stats.manager') },
-    { value: 'trainer' as RoleName, label: ts('stats.trainer') },
-    { value: 'staff' as RoleName, label: ts('stats.staff') },
+    { value: ROLES.ADMIN as RoleName,   label: ts('stats.admin') },
+    { value: ROLES.MANAGER as RoleName, label: ts('stats.manager') },
+    { value: ROLES.TRAINER as RoleName, label: ts('stats.trainer') },
+    { value: ROLES.STAFF as RoleName,   label: ts('stats.staff') },
   ];
 
   useEffect(() => {
@@ -467,10 +468,10 @@ export default function StaffPage() {
   const stats = {
     total:   staff.length,
     active:  staff.filter((s) => s.isActive).length,
-    admin:   staff.filter((s) => s.role.name === 'admin').length,
-    manager: staff.filter((s) => s.role.name === 'manager').length,
-    trainer: staff.filter((s) => s.role.name === 'trainer').length,
-    staff:   staff.filter((s) => s.role.name === 'staff').length,
+    admin:   staff.filter((s) => s.role.name === ROLES.ADMIN).length,
+    manager: staff.filter((s) => s.role.name === ROLES.MANAGER).length,
+    trainer: staff.filter((s) => s.role.name === ROLES.TRAINER).length,
+    staff:   staff.filter((s) => s.role.name === ROLES.STAFF).length,
   };
 
 
@@ -572,10 +573,10 @@ export default function StaffPage() {
           <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
             {([
               { value: 'all',     label: tCommon('filters.all') },
-              { value: 'admin',   label: ts('roles.admin') },
-              { value: 'manager', label: ts('roles.manager') },
-              { value: 'staff',   label: ts('roles.staff') },
-              { value: 'trainer', label: ts('stats.hlv') },
+              { value: ROLES.ADMIN,   label: ts('roles.admin') },
+              { value: ROLES.MANAGER, label: ts('roles.manager') },
+              { value: ROLES.STAFF,   label: ts('roles.staff') },
+              { value: ROLES.TRAINER, label: ts('stats.hlv') },
             ] as { value: RoleName | 'all'; label: string }[]).map((f) => (
 
               <button key={f.value} onClick={() => setFilterRole(f.value)}

@@ -1,4 +1,5 @@
 const swaggerJsdoc = require('swagger-jsdoc');
+const { ROLES, ROLE_NAMES } = require('./roles');
 
 const options = {
   definition: {
@@ -59,8 +60,8 @@ const options = {
             },
             role: {
               type: 'string',
-              enum: ['user', 'admin'],
-              example: 'user'
+              enum: ROLE_NAMES,
+              example: ROLES.MEMBER
             },
             createdAt: {
               type: 'string',

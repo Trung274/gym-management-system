@@ -5,6 +5,7 @@ const Role = require('../models/Role.model');
 require('../models/Trainer.model'); // required by Class pre-hook populate
 const Class = require('../models/Class.model');
 const Booking = require('../models/Booking.model');
+const { ROLES } = require('./roles');
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -39,7 +40,7 @@ const seedClassPermissions = async () => {
       permIds.push(doc._id);
     }
 
-    for (const roleName of ['admin', 'manager']) {
+    for (const roleName of [ROLES.ADMIN, ROLES.MANAGER]) {
       const role = await Role.findOne({ name: roleName });
       if (role) {
         const existing = role.permissions.map(id => id.toString());

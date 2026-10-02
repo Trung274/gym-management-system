@@ -1,3 +1,5 @@
+import { ADMIN_ROLES, PORTAL_ROLES } from '@/src/lib/roles';
+
 // ─── Subscription plan embed ──────────────────────────────────────────────────
 export interface MemberPlanEmbed {
   _id:         string;
@@ -112,8 +114,7 @@ export const DAY_OF_WEEK_VI: Record<string, string> = {
   Sunday:    'Chủ Nhật',
 };
 
-export const PORTAL_ROLES = ['member', 'user'];
-export const ADMIN_ROLES  = ['admin', 'manager', 'staff', 'trainer'];
+export { PORTAL_ROLES, ADMIN_ROLES };
 
 /** Returns home path based on role name */
 export const getHomePath = (roleName: string): string =>

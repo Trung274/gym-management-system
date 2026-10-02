@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/user.controller');
 const { protect, authorize } = require('../middleware/auth');
+const { ROLES } = require('../config/roles');
 
 /**
  * @swagger
@@ -37,7 +38,7 @@ const { protect, authorize } = require('../middleware/auth');
  *       403:
  *         description: Forbidden
  */
-router.get('/', protect, authorize('admin'), userController.getAllUsers);
+router.get('/', protect, authorize(ROLES.ADMIN), userController.getAllUsers);
 
 /**
  * @swagger
@@ -113,6 +114,6 @@ router.put('/:id', protect, userController.updateUser);
  *       404:
  *         description: User not found
  */
-router.delete('/:id', protect, authorize('admin'), userController.deleteUser);
+router.delete('/:id', protect, authorize(ROLES.ADMIN), userController.deleteUser);
 
 module.exports = router;

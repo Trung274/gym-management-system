@@ -12,6 +12,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
+const { ROLES } = require('./roles');
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -71,10 +72,10 @@ const seedStaffRole = async () => {
     }
 
     // Upsert role staff
-    let staffRole = await Role.findOne({ name: 'staff' });
+    let staffRole = await Role.findOne({ name: ROLES.STAFF });
     if (!staffRole) {
       staffRole = await Role.create({
-        name: 'staff',
+        name: ROLES.STAFF,
         description: 'Nhân viên vận hành / lễ tân — check-in, quản lý hội viên, xem lịch tập',
         permissions: permIds,
       });

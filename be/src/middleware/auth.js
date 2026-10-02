@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
 const User = require('../models/User.model');
+const { ROLES } = require('../config/roles');
 
 // Protect routes - verify JWT token
 exports.protect = asyncHandler(async (req, res, next) => {
@@ -66,7 +67,7 @@ exports.checkPermission = (resource, action) => {
     }
 
     // Admin có tất cả quyền
-    if (req.user.role.name === 'admin') {
+    if (req.user.role.name === ROLES.ADMIN) {
       return next();
     }
 
@@ -91,7 +92,7 @@ exports.checkAnyPermission = (permissions) => {
       return next(new ErrorResponse('User not authenticated', 401));
     }
 
-    if (req.user.role.name === 'admin') {
+    if (req.user.role.name === ROLES.ADMIN) {
       return next();
     }
 
@@ -108,7 +109,7 @@ exports.checkAnyPermission = (permissions) => {
 // Middleware to prevent self-registration (chỉ admin tạo user)
 exports.restrictUserCreation = (req, res, next) => {
   // Nếu đã login và là admin -> OK
-  if (req.user && req.user.role.name === 'admin') {
+  if (req.user && req.user.role.name === ROLES.ADMIN) {
     return next();
   }
   

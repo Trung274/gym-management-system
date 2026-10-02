@@ -2,6 +2,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
+const { ROLES } = require('./roles');
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -36,7 +37,7 @@ const seedStaffPermissions = async () => {
     }
 
     // 2. Assign ALL staff permissions to admin role
-    const adminRole = await Role.findOne({ name: 'admin' });
+    const adminRole = await Role.findOne({ name: ROLES.ADMIN });
     if (adminRole) {
       const existing = adminRole.permissions.map(id => id.toString());
       const toAdd = staffPermIds.filter(id => !existing.includes(id.toString()));
@@ -52,10 +53,10 @@ const seedStaffPermissions = async () => {
     }
 
     // 3. Upsert manager role with staff CRUD permissions (list, read, create, update, deactivate)
-    let managerRole = await Role.findOne({ name: 'manager' });
+    let managerRole = await Role.findOne({ name: ROLES.MANAGER });
     if (!managerRole) {
       managerRole = await Role.create({
-        name: 'manager',
+        name: ROLES.MANAGER,
         description: 'Gym manager — can manage staff accounts',
         permissions: staffPermIds
       });

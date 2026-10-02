@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const roleController = require('../controllers/role.controller');
 const { protect, authorize, checkPermission } = require('../middleware/auth');
+const { ROLES } = require('../config/roles');
 
 /**
  * @swagger
@@ -12,7 +13,7 @@ const { protect, authorize, checkPermission } = require('../middleware/auth');
 
 // All routes require authentication and admin role
 router.use(protect);
-router.use(authorize('admin'));
+router.use(authorize(ROLES.ADMIN));
 
 /**
  * @swagger
