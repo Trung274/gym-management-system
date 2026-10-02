@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gym Management System — Frontend
 
-## Getting Started
+Web app cho trang quản trị phòng gym và portal hội viên. Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, Zustand, Axios.
 
-First, run the development server:
+## Cài đặt & chạy
+
+Cần backend đang chạy (xem [../be/README.md](../be/README.md)).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
+npm run build   # build production
+npm start       # chạy bản build
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+File `.env`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Không set thì mặc định dùng `http://localhost:5000/api/v1`.
 
-## Learn More
+## Hai khu vực
 
-To learn more about Next.js, take a look at the following resources:
+Sau khi đăng nhập ở `/login`, người dùng được chuyển theo role (`getHomePath` trong `src/types/member-portal.types.ts`):
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Khu vực | Route group | Role | Trang |
+|---|---|---|---|
+| Quản trị | `src/app/(protected)/` | admin, manager, staff, trainer | `/dashboard`, `/members`, `/plans`, `/trainers`, `/staff`, `/bookings`, `/group-classes`, `/equipment`, `/checkins`, `/gym-info` |
+| Portal hội viên | `src/app/(portal)/portal/` | member | `/portal`, `/portal/profile`, `/portal/checkins`, `/portal/bookings`, `/portal/classes`, `/portal/trainers`, `/portal/gym-info` |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+`src/middleware.ts` chặn các route trên khi chưa có cookie `access_token`. Mỗi layout tự đẩy người dùng sai role sang khu vực còn lại.
 
-## Deploy on Vercel
+## Cấu trúc
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/            # Route groups: (auth), (protected), (portal)
+├── components/     # layout/ (Sidebar, Header), ui/ (PageHeader, AddButton, StatsGrid...), providers/
+├── hooks/          # useAuth, usePageTitle
+├── i18n/           # Engine dịch
+├── messages/       # File dịch vi/ và en/, mỗi trang một namespace
+├── lib/            # axios.ts, *Service.ts (gọi API), *Helpers.ts (transform dữ liệu)
+├── stores/         # Zustand store theo domain
+├── types/          # Kiểu dữ liệu theo domain
+└── middleware.ts   # Bảo vệ route
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Đa ngôn ngữ
+
+Tiếng Việt (mặc định) và tiếng Anh, đổi ở Header; lựa chọn lưu trong `localStorage`. Mọi text giao diện lấy từ `src/messages/{vi,en}/<namespace>.json` qua `useLanguage().t('<namespace>')`. Hai file vi/en phải có cùng bộ key.
+
+## Quy tắc code
+
+Pattern store/service, theming (semantic token `surface-*`, `text-text-*`), component dùng chung, icon (`lucide-react`) và các quy tắc i18n — kể cả lỗi vòng lặp khi đưa translator vào deps của hook — được mô tả trong [AGENTS.md](AGENTS.md). Đọc trước khi thêm trang mới.

@@ -9,15 +9,15 @@ Mục đích: làm tài liệu tham khảo cho **dự án tương tự** về sa
 
 | Thành phần | Công nghệ |
 |---|---|
-| Framework | **Next.js 15** (App Router) với Turbopack |
+| Framework | **Next.js 16** (App Router) + **React 19** |
 | Language | **TypeScript** |
 | State Management | **Zustand v5** (devtools + persist middleware) |
 | HTTP Client | **Axios v1** (custom instance + interceptors) |
 | Token Storage | **js-cookie** (lưu cookie, không localStorage) |
 | Notification | **react-hot-toast** |
 | Styling | **Tailwind CSS v4** |
-| Icons | **@heroicons/react** |
-| Drag & Drop | **@dnd-kit** (nếu cần UI kéo thả) |
+| Icons | **lucide-react** (xem mục "Icons") |
+| i18n | Tự xây — `src/i18n` + `src/messages` (xem mục "Internationalization") |
 
 ---
 
@@ -31,21 +31,26 @@ src/
 │   ├── globals.css
 │   ├── (auth)/                 # Route group: không cần auth
 │   │   └── login/page.tsx
-│   └── (protected)/            # Route group: cần auth
-│       ├── layout.tsx          # Layout có Sidebar + Header
-│       ├── dashboard/
-│       ├── [entity]/           # Mỗi domain có folder riêng
-│       └── ...
+│   ├── (protected)/            # Route group: trang quản trị (admin/manager/staff/trainer)
+│   │   ├── layout.tsx          # Layout có Sidebar + Header; member → /portal
+│   │   ├── dashboard/
+│   │   ├── [entity]/           # Mỗi domain có folder riêng
+│   │   └── ...
+│   └── (portal)/               # Route group: portal hội viên (role member)
+│       ├── layout.tsx          # Navbar riêng; admin roles → /dashboard
+│       └── portal/             # /portal, /portal/profile, /portal/bookings, ...
 ├── components/
 │   ├── ProtectedComponent.tsx  # Wrapper kiểm tra permission/role
 │   ├── providers/
-│   │   └── AuthProvider.tsx    # Client component khởi tạo auth
+│   │   ├── LanguageProvider.tsx # Context i18n (lang, setLang, t)
+│   │   └── ThemeProvider.tsx    # Light/dark mode
 │   ├── layout/                 # Sidebar, Header
-│   ├── forms/                  # Các form components
-│   └── ui/                     # Shared UI components
+│   └── ui/                     # PageHeader, AddButton, StatsGrid, LoadingSpinner
 ├── hooks/
 │   ├── useAuth.ts              # Thin wrapper over authStore
-│   └── useSessionTimeout.ts    # Auto logout khi idle
+│   └── usePageTitle.ts         # document.title theo ngôn ngữ
+├── i18n/index.ts               # Engine dịch
+├── messages/{vi,en}/           # File dịch theo namespace
 ├── lib/
 │   ├── axios.ts                # Axios instance + interceptors
 │   ├── auth.ts                 # Permission/role helpers (pure functions)
@@ -1063,6 +1068,7 @@ Một số icon thường dùng trong gym management:
 | Không có error boundary | Thêm React Error Boundary để catch runtime errors |
 | `any` type ở nhiều chỗ (user data, API response) | Tạo generic `ApiResponse<T>` type, type rõ mọi chỗ |
 | Dùng palette tĩnh (`secondary-*`) cho layout shell | Dùng semantic tokens (`surface-*`, `text-text-*`) — xem mục "Theming & Màu sắc" |
+| Next.js 16 báo `middleware.ts` đã deprecated | Đổi tên sang `proxy.ts` theo convention mới của Next.js 16 |
 
 ---
 
@@ -1267,7 +1273,8 @@ usePageTitle(namespace: string, titleKey = 'title')
 ```
 
 **Quy tắc:**
-- Gọi ở đầu **mọi page component** trong `(protected)/`.
+- Gọi ở đầu **mọi page component** trong `(protected)/` và `(portal)/`.
+- Trang portal dùng chung namespace `portal`, truyền key tiêu đề riêng: `usePageTitle('portal', 'bookings.title')`.
 - Mỗi namespace JSON **phải có key `"title"`** ở root level.
 - Hook tự re-run mỗi render → title tự động cập nhật khi đổi ngôn ngữ.
 
