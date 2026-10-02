@@ -9,6 +9,8 @@ import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
 import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
+import { TableSkeleton } from '@/src/components/ui/Skeleton';
+import EmptyState from '@/src/components/ui/EmptyState';
 
 export default function PortalCheckinsPage() {
   const { t, lang } = useLanguage();
@@ -62,13 +64,9 @@ export default function PortalCheckinsPage() {
           </thead>
           <tbody>
             {loading
-              ? [...Array(6)].map((_, i) => (
-                <tr key={i} className="border-b border-surface-border animate-pulse">
-                  {[...Array(3)].map((_, j) => <td key={j} className="px-4 py-3"><div className="h-4 bg-surface-overlay rounded w-3/4" /></td>)}
-                </tr>
-              ))
+              ? <TableSkeleton rows={6} cols={3} />
               : logs.length === 0
-              ? <tr><td colSpan={3} className="px-4 py-12 text-center text-sm text-text-muted">{tp('checkins.empty')}</td></tr>
+              ? <tr><td colSpan={3}><EmptyState icon={<ScanLine size={40} />} title={tp('checkins.empty')} /></td></tr>
               : logs.map(l => (
                 <tr key={l.id} className="border-b border-surface-border last:border-0 hover:bg-surface-raised transition-colors">
                   <td className="px-4 py-3 text-sm text-text-primary">

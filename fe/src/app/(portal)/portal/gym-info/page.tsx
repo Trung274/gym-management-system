@@ -9,6 +9,7 @@ import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
 import { getApiMessage } from '@/src/lib/errors';
 import Alert from '@/src/components/ui/Alert';
+import { SkeletonList } from '@/src/components/ui/Skeleton';
 
 export default function PortalGymInfoPage() {
   const { t } = useLanguage();
@@ -27,9 +28,7 @@ export default function PortalGymInfoPage() {
   }, []);
 
   if (loading) return (
-    <div className="flex flex-col gap-4">
-      {[...Array(3)].map((_, i) => <div key={i} className="h-28 bg-surface-overlay rounded-2xl animate-pulse" />)}
-    </div>
+    <SkeletonList count={3} className="flex flex-col gap-4" itemClassName="h-28 rounded-2xl" />
   );
 
   if (error !== null) return <Alert>{error || tp('gymInfo.loadError')}</Alert>;

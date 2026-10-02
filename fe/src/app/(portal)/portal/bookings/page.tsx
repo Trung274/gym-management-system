@@ -6,7 +6,7 @@ import { getMyBookings, createBooking, cancelBooking } from '@/src/lib/bookingSe
 import { getTrainers } from '@/src/lib/trainerService';
 import { toast } from '@/src/utils/toast';
 import { CalendarDays, Clock } from 'lucide-react';
-import type { Booking, CreateBookingPayload, BookingStatus } from '@/src/types/booking.types';
+import type { Booking, CreateBookingPayload } from '@/src/types/booking.types';
 import type { Trainer } from '@/src/types/trainer.types';
 import PageHeader from '@/src/components/ui/PageHeader';
 import AddButton from '@/src/components/ui/AddButton';
@@ -16,13 +16,11 @@ import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
 import FormField, { inputClass } from '@/src/components/ui/FormField';
-
-const STATUS_STYLES: Record<BookingStatus, string> = {
-  pending:   'bg-warning-500/10 text-warning-500',
-  confirmed: 'bg-success-500/10 text-success-500',
-  completed: 'bg-surface-overlay text-text-muted',
-  cancelled: 'bg-danger-500/10 text-danger-500',
-};
+import Badge from '@/src/components/ui/Badge';
+import { BOOKING_STATUS_TONE } from '@/src/lib/statusTones';
+import SegmentedControl from '@/src/components/ui/SegmentedControl';
+import { SkeletonList } from '@/src/components/ui/Skeleton';
+import EmptyState from '@/src/components/ui/EmptyState';
 
 function BookingCard({ b, onCancel, cancelling }: { b: Booking; onCancel: () => void; cancelling: boolean }) {
   const { t, lang } = useLanguage();
@@ -38,9 +36,7 @@ function BookingCard({ b, onCancel, cancelling }: { b: Booking; onCancel: () => 
           <p className="font-semibold text-text-primary">{b.trainerName}</p>
           <p className="text-xs text-text-muted">{b.trainerEmail}</p>
         </div>
-        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold shrink-0 ${STATUS_STYLES[b.status]}`}>
-          {tp(`bookings.status.${b.status}`)}
-        </span>
+        <Badge tone={BOOKING_STATUS_TONE[b.status]}>{tp(`bookings.status.${b.status}`)}</Badge>
       </div>
       <div className="flex items-center gap-3 text-xs text-text-secondary">
         <span className="flex items-center gap-1"><CalendarDays size={11} /> {sessionDate}</span>
@@ -140,20 +136,16 @@ function PortalBookingsContent() {
         {error !== null && <Alert>{error || tp('bookings.loadError')}</Alert>}
 
         {/* Tabs */}
-        <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border w-fit">
-          {(['upcoming', 'history'] as const).map(key => (
-            <button key={key} onClick={() => setTab(key)}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer transition-all ${tab === key ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>
-              {tp(`bookings.tabs.${key}`)} {tab === key && <span className="ml-1 text-xs opacity-70">({(key === 'upcoming' ? upcoming : history).length})</span>}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl size="md" value={tab} onChange={setTab} className="w-fit" options={(['upcoming', 'history'] as const).map(key => ({
+          value: key,
+          label: <>{tp(`bookings.tabs.${key}`)} {tab === key && <span className="ml-1 text-xs opacity-70">({(key === 'upcoming' ? upcoming : history).length})</span>}</>,
+        }))} />
 
         {/* List */}
         {loading
-          ? <div className="grid sm:grid-cols-2 gap-3">{[...Array(4)].map((_, i) => <div key={i} className="h-28 bg-surface-overlay rounded-xl animate-pulse" />)}</div>
+          ? <SkeletonList count={4} className="grid sm:grid-cols-2 gap-3" itemClassName="h-28 rounded-xl" />
           : displayed.length === 0
-          ? <div className="text-center py-12 text-text-muted text-sm">{tp('bookings.empty')}</div>
+          ? <EmptyState icon={<CalendarDays size={40} />} title={tp('bookings.empty')} />
           : <div className="grid sm:grid-cols-2 gap-3">
               {displayed.map(b => <BookingCard key={b.id} b={b} onCancel={() => handleCancel(b.id)} cancelling={cancelId === b.id} />)}
             </div>

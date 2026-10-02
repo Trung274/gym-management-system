@@ -8,8 +8,8 @@ import StatsGrid from '@/src/components/ui/StatsGrid';
 import AddButton from '@/src/components/ui/AddButton';
 import PageHeader from '@/src/components/ui/PageHeader';
 import type {
-  Member, MemberStatus, Gender,
-  CreateMemberPayload, UpdateMemberPayload, RenewMembershipPayload,
+  Member, MemberStatus,
+  CreateMemberPayload, RenewMembershipPayload, MemberQueryParams,
 } from '@/src/types/member.types';
 import type { PlanType } from '@/src/types/plan.types';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
@@ -18,21 +18,15 @@ import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
 import FormField, { inputClass } from '@/src/components/ui/FormField';
+import { CheckCircle, Eye, EyeOff, LogIn, Pause, RefreshCw, Search } from 'lucide-react';
+import Spinner from '@/src/components/ui/Spinner';
+import Badge from '@/src/components/ui/Badge';
+import { MEMBER_STATUS_TONE } from '@/src/lib/statusTones';
+import SegmentedControl from '@/src/components/ui/SegmentedControl';
+import { TableSkeleton } from '@/src/components/ui/Skeleton';
+import EmptyState from '@/src/components/ui/EmptyState';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const STATUS_STYLES: Record<MemberStatus, string> = {
-  active:    'bg-success-500/15 text-success-500',
-  expired:   'bg-danger-500/15 text-danger-500',
-  suspended: 'bg-warning-500/15 text-warning-500',
-};
-
-const GENDER_OPTIONS: { value: Gender | ''; label: string }[] = [
-  { value: '', label: 'Không chọn' },
-  { value: 'male', label: 'Nam' },
-  { value: 'female', label: 'Nữ' },
-  { value: 'other', label: 'Khác' },
-];
-
 const AVATAR_COLORS = [
   'from-primary-400 to-primary-600',
   'from-violet-400 to-violet-600',
@@ -126,7 +120,7 @@ function CreateMemberModal({ open, onClose, onSave, isLoading, plans }: {
               <div className="relative">
                 <input type={showPwd ? 'text' : 'password'} value={form.password} onChange={(e) => set('password', e.target.value)} placeholder={tm('createModal.passwordHint')} className={`${inputCls('password')} pr-10`} />
                 <button type="button" onClick={() => setShowPwd(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d={showPwd ? "M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" : "M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"} /></svg>
+                  {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
               {errors.password && <p className="text-xs text-danger-500">{errors.password}</p>}
@@ -301,9 +295,7 @@ function MemberRow({ member, onCheckIn, onRenew, onToggleStatus, actingId }: {
       </td>
       {/* Status */}
       <td className="px-4 py-3">
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_STYLES[member.status]}`}>
-          {member.statusLabel}
-        </span>
+        <Badge tone={MEMBER_STATUS_TONE[member.status]}>{member.statusLabel}</Badge>
       </td>
       {/* Last check-in */}
       <td className="px-4 py-3">
@@ -313,28 +305,26 @@ function MemberRow({ member, onCheckIn, onRenew, onToggleStatus, actingId }: {
       <td className="px-4 py-3">
         <div className="flex items-center gap-1">
           {isActing ? (
-            <svg className="w-4 h-4 animate-spin text-primary-500" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            <Spinner className="text-primary-500" />
           ) : (
             <>
               {/* Check-in */}
               {member.status === 'active' && (
                 <button onClick={() => onCheckIn(member)} title={tm('actions.checkin')}
                   className="p-1.5 rounded-lg text-success-500 hover:bg-success-500/10 transition-all cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" /></svg>
+                  <LogIn size={16} />
                 </button>
               )}
               {/* Renew */}
               <button onClick={() => onRenew(member)} title={tm('actions.renew')}
                 className="p-1.5 rounded-lg text-primary-500 hover:bg-primary-500/10 transition-all cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+                <RefreshCw size={16} />
               </button>
               {/* Toggle suspend */}
               {member.status !== 'expired' && (
                 <button onClick={() => onToggleStatus(member)} title={member.status === 'active' ? tm('actions.suspend') : tm('actions.activate')}
                   className={`p-1.5 rounded-lg transition-all cursor-pointer ${member.status === 'active' ? 'text-warning-500 hover:bg-warning-500/10' : 'text-success-500 hover:bg-success-500/10'}`}>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d={member.status === 'active' ? "M15.75 5.25v13.5m-7.5-13.5v13.5" : "M5.636 5.636a9 9 0 1 0 12.728 12.728M5.636 5.636a9 9 0 0 1 12.728 12.728M5.636 5.636 12 12m6.364-6.364L12 12"} />
-                  </svg>
+                  {member.status === 'active' ? <Pause size={16} /> : <CheckCircle size={16} />}
                 </button>
               )}
             </>
@@ -353,7 +343,7 @@ export default function MembersPage() {
   usePageTitle('members');
 
   const {
-    members, pagination, isLoading, error, queryParams,
+    members, pagination, isLoading, error,
     fetchMembers, createMember, changeStatus, renewMembership, checkIn, clearError,
   } = useMemberStore();
   const { plans, fetchPlans } = usePlanStore();
@@ -369,14 +359,18 @@ export default function MembersPage() {
   // Fetch active plans for dropdowns
   useEffect(() => { fetchPlans({ all: false }).catch(() => {}); }, [fetchPlans]);
 
+  // The store merges params into the previous query, so cleared filters must be sent as undefined
+  const buildParams = (page: number): MemberQueryParams => ({
+    page,
+    status: filterStatus !== 'all' ? filterStatus : undefined,
+    planType: filterPlanType !== 'all' ? filterPlanType : undefined,
+    search: searchQ || undefined,
+  });
+
   // Fetch members on filter change (debounce search)
   useEffect(() => {
     const t = setTimeout(() => {
-      const params: any = { page: 1 };
-      if (filterStatus !== 'all') params.status = filterStatus;
-      if (filterPlanType !== 'all') params.planType = filterPlanType;
-      if (searchQ) params.search = searchQ;
-      fetchMembers(params).catch(() => {});
+      fetchMembers(buildParams(1)).catch(() => {});
     }, searchQ ? 350 : 0);
     return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -442,11 +436,7 @@ export default function MembersPage() {
   }, [changeStatus, tm]);
 
   const handlePageChange = (page: number) => {
-    const params: any = { page };
-    if (filterStatus !== 'all') params.status = filterStatus;
-    if (filterPlanType !== 'all') params.planType = filterPlanType;
-    if (searchQ) params.search = searchQ;
-    fetchMembers(params).catch(() => {});
+    fetchMembers(buildParams(page)).catch(() => {});
   };
 
   return (
@@ -476,36 +466,26 @@ export default function MembersPage() {
         <div className="flex flex-wrap items-center gap-2">
           {/* Search */}
           <div className="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
             <input type="text" value={searchQ} onChange={(e) => setSearchQ(e.target.value)}
               placeholder="Tìm tên, email..."
               className="pl-9 pr-4 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all w-52"
             />
           </div>
           {/* Status filter */}
-          <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
-            {([
-              { v: 'all',       l: tCommon('actions.viewAll') },
-              { v: 'active',    l: tCommon('status.active')   },
-              { v: 'expired',   l: tCommon('status.expired')  },
-              { v: 'suspended', l: tCommon('status.suspended')},
-            ]).map((f) => (
-              <button key={f.v} onClick={() => setFilterStatus(f.v as any)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterStatus === f.v ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'}`}>{f.l}</button>
-            ))}
-          </div>
+          <SegmentedControl<MemberStatus | 'all'> value={filterStatus} onChange={setFilterStatus} options={[
+            { value: 'all',       label: tCommon('actions.viewAll') },
+            { value: 'active',    label: tCommon('status.active') },
+            { value: 'expired',   label: tCommon('status.expired') },
+            { value: 'suspended', label: tCommon('status.suspended') },
+          ]} />
           {/* Plan type filter */}
-          <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
-            {([
-              { v: 'all',     l: tm('filters.allPlans') },
-              { v: 'basic',   l: tm('filters.basic')    },
-              { v: 'premium', l: tm('filters.premium')  },
-              { v: 'vip',     l: tm('filters.vip')      },
-            ]).map((f) => (
-              <button key={f.v} onClick={() => setFilterPlanType(f.v as any)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterPlanType === f.v ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'}`}>{f.l}</button>
-            ))}
-          </div>
+          <SegmentedControl<PlanType | 'all'> value={filterPlanType} onChange={setFilterPlanType} options={[
+            { value: 'all',     label: tm('filters.allPlans') },
+            { value: 'basic',   label: tm('filters.basic') },
+            { value: 'premium', label: tm('filters.premium') },
+            { value: 'vip',     label: tm('filters.vip') },
+          ]} />
           <span className="ml-auto text-xs text-text-muted">{pagination?.total ?? 0} {tm('count')}</span>
         </div>
 
@@ -522,19 +502,10 @@ export default function MembersPage() {
               </thead>
               <tbody>
                 {isLoading && members.length === 0
-                  ? [...Array(5)].map((_, i) => (
-                    <tr key={i} className="border-b border-surface-border animate-pulse">
-                      <td className="px-4 py-3"><div className="flex gap-3 items-center"><div className="w-9 h-9 rounded-xl bg-surface-overlay shrink-0"/><div className="flex flex-col gap-1.5"><div className="h-3.5 w-28 bg-surface-overlay rounded"/><div className="h-3 w-36 bg-surface-overlay rounded"/></div></div></td>
-                      {[...Array(5)].map((_, j) => <td key={j} className="px-4 py-3"><div className="h-4 bg-surface-overlay rounded w-3/4"/></td>)}
-                    </tr>
-                  ))
+                  ? <TableSkeleton rows={5} cols={6} />
                   : members.length === 0
                   ? (
-                    <tr><td colSpan={6} className="px-4 py-16 text-center">
-                      <p className="text-4xl mb-3">👥</p>
-                      <p className="text-sm font-semibold text-text-primary">{tm('empty.title')}</p>
-                      <p className="text-xs text-text-muted mt-1">{tm('empty.description')}</p>
-                    </td></tr>
+                    <tr><td colSpan={6}><EmptyState icon="👥" title={tm('empty.title')} description={tm('empty.description')} /></td></tr>
                   )
                   : members.map((m) => (
                     <MemberRow key={m.id} member={m}

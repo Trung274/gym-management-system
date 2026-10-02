@@ -13,6 +13,8 @@ import Alert from '@/src/components/ui/Alert';
 import Spinner from '@/src/components/ui/Spinner';
 import FormField, { inputClass } from '@/src/components/ui/FormField';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
+import { Ban, CheckCircle, CheckCircle2, Eye, Pencil, PieChart, XCircle } from 'lucide-react';
+import SegmentedControl from '@/src/components/ui/SegmentedControl';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const PLAN_TYPES: PlanType[] = ['basic', 'premium', 'vip'];
@@ -151,13 +153,9 @@ function PlanCard({
           {features.map((f, i) => (
             <div key={i} className={`flex items-center gap-3 text-xs font-medium ${f.active ? 'text-text-secondary' : 'text-text-muted/40'}`}>
               {f.active ? (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={`w-4 h-4 shrink-0 ${plan.type === 'vip' ? 'text-warning-500' : 'text-primary-500'}`}>
-                  <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clipRule="evenodd" />
-                </svg>
+                <CheckCircle2 size={16} className={`shrink-0 ${plan.type === 'vip' ? 'text-warning-500' : 'text-primary-500'}`} />
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 shrink-0 opacity-40">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
-                </svg>
+                <XCircle size={16} className="shrink-0 opacity-40" />
               )}
               <span className={!f.active ? 'line-through' : ''}>{f.label}</span>
             </div>
@@ -195,7 +193,7 @@ function PlanCard({
               onClick={() => onEdit(plan)}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-surface-overlay hover:bg-surface-border text-text-primary font-semibold text-xs rounded-xl transition-all cursor-pointer"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" /></svg>
+              <Pencil size={14} />
               {tCommon('actions.edit')}
             </button>
             <button
@@ -210,12 +208,7 @@ function PlanCard({
               {isToggling ? (
                 <Spinner />
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d={plan.isActive
-                    ? "M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
-                    : "M5.636 5.636a9 9 0 1 0 12.728 12.728M5.636 5.636a9 9 0 0 1 12.728 12.728M5.636 5.636 12 12m6.364-6.364L12 12"
-                  } />
-                </svg>
+                (plan.isActive ? <Ban size={14} /> : <CheckCircle size={14} />)
               )}
               {plan.isActive ? te('card.deactivate') : te('card.activate')}
             </button>
@@ -496,10 +489,7 @@ export default function PlansPage() {
               onClick={scrollToAnalytics}
               className="px-4 py-2.5 bg-surface-overlay hover:bg-surface-border text-text-primary font-bold text-xs rounded-xl transition-all flex items-center gap-2 active:scale-95 cursor-pointer border border-surface-border"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-primary-500">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
-              </svg>
+              <PieChart size={16} className="text-primary-500" />
               {te('revenueReport')}
             </button>
             <AddButton onClick={openCreate} label={te('addPlan')} />
@@ -524,21 +514,8 @@ export default function PlansPage() {
 
         {/* Filter bar */}
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
-            {filterOptions.map((opt) => (
-              <button
-                key={opt}
-                onClick={() => setFilterType(opt)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer
-                  ${filterType === opt
-                    ? 'bg-primary-500 text-white shadow'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'
-                  }`}
-              >
-                {opt === 'all' ? tCommon('filters.all') : te(`types.${opt}`)}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl<PlanType | 'all'> value={filterType} onChange={setFilterType}
+            options={filterOptions.map((opt) => ({ value: opt, label: opt === 'all' ? tCommon('filters.all') : te(`types.${opt}`) }))} />
 
           {/* Show inactive toggle */}
           <button
@@ -549,10 +526,7 @@ export default function PlansPage() {
                 : 'border-surface-border text-text-secondary hover:border-primary-500/50'
               }`}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3.5 h-3.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-            </svg>
+            <Eye size={14} />
             {te('filters.showInactive')}
           </button>
 

@@ -86,34 +86,6 @@ export interface GymInfoApiResponse {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-export const GENDER_LABELS: Record<string, string> = {
-  male:   'Nam',
-  female: 'Nữ',
-  other:  'Khác',
-};
-
-export const MEMBER_STATUS_LABELS: Record<string, string> = {
-  active:    'Đang hoạt động',
-  expired:   'Đã hết hạn',
-  suspended: 'Bị tạm dừng',
-};
-
-export const MEMBER_STATUS_COLORS: Record<string, string> = {
-  active:    'text-success-500 bg-success-500/10',
-  expired:   'text-warning-500 bg-warning-500/10',
-  suspended: 'text-danger-500  bg-danger-500/10',
-};
-
-export const DAY_OF_WEEK_VI: Record<string, string> = {
-  Monday:    'Thứ Hai',
-  Tuesday:   'Thứ Ba',
-  Wednesday: 'Thứ Tư',
-  Thursday:  'Thứ Năm',
-  Friday:    'Thứ Sáu',
-  Saturday:  'Thứ Bảy',
-  Sunday:    'Chủ Nhật',
-};
-
 export { PORTAL_ROLES, ADMIN_ROLES };
 
 /** Returns home path based on role name */

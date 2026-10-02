@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getTrainers, getTrainerById } from '@/src/lib/trainerService';
-import {  } from 'lucide-react';
+import { getTrainers } from '@/src/lib/trainerService';
+import { UserCheck } from 'lucide-react';
 import type { Trainer } from '@/src/types/trainer.types';
 import PageHeader from '@/src/components/ui/PageHeader';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
@@ -11,6 +11,8 @@ import { usePageTitle } from '@/src/hooks/usePageTitle';
 import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
 import Modal from '@/src/components/ui/Modal';
+import { SkeletonList } from '@/src/components/ui/Skeleton';
+import EmptyState from '@/src/components/ui/EmptyState';
 
 function useExperienceLabel() {
   const { t } = useLanguage();
@@ -125,9 +127,9 @@ export default function PortalTrainersPage() {
         {error !== null && <Alert>{error || tp('trainers.loadError')}</Alert>}
 
         {loading
-          ? <div className="grid sm:grid-cols-2 gap-3">{[...Array(6)].map((_, i) => <div key={i} className="h-32 bg-surface-overlay rounded-xl animate-pulse" />)}</div>
+          ? <SkeletonList count={6} className="grid sm:grid-cols-2 gap-3" itemClassName="h-32 rounded-xl" />
           : trainers.length === 0
-          ? <p className="text-center py-12 text-text-muted text-sm">{tp('trainers.empty')}</p>
+          ? <EmptyState icon={<UserCheck size={40} />} title={tp('trainers.empty')} />
           : <div className="grid sm:grid-cols-2 gap-3">
               {trainers.map(t => <TrainerCard key={t.id} t={t} onClick={() => setSelected(t)} />)}
             </div>

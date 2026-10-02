@@ -14,29 +14,9 @@ import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
 import { getApiMessage } from '@/src/lib/errors';
 import Alert from '@/src/components/ui/Alert';
+import Skeleton from '@/src/components/ui/Skeleton';
 
 // ─── Stat card ────────────────────────────────────────────────────────────────
-function StatCard({ icon: Icon, label, value, sub, accent = false, loading = false }: {
-  icon: React.ElementType; label: string; value: number | string;
-  sub?: string; accent?: boolean; loading?: boolean;
-}) {
-  return (
-    <div className={`bg-surface-base border rounded-xl px-5 py-4 flex flex-col gap-2 ${accent ? 'border-primary-500/40' : 'border-surface-border'}`}>
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">{label}</p>
-        <div className={`p-2 rounded-lg ${accent ? 'bg-primary-500/10' : 'bg-surface-overlay'}`}>
-          <Icon size={16} className={accent ? 'text-primary-500' : 'text-text-muted'} />
-        </div>
-      </div>
-      {loading
-        ? <div className="h-8 w-20 bg-surface-overlay rounded animate-pulse" />
-        : <p className="text-3xl font-bold text-text-primary">{value}</p>
-      }
-      {sub && !loading && <p className="text-xs text-text-muted">{sub}</p>}
-    </div>
-  );
-}
-
 // ─── Section header ───────────────────────────────────────────────────────────
 function SectionHeader({ icon: Icon, title }: { icon: React.ElementType; title: string }) {
   return (
@@ -135,7 +115,7 @@ export default function DashboardPage() {
           <MiniStat label={td('stats.membersActive')}       value={snapshot?.members.active       ?? 0} color="text-success-500" />
           <MiniStat label={td('stats.membersSuspended')}    value={snapshot?.members.suspended    ?? 0} color="text-danger-500"  />
           <MiniStat label={td('stats.membersNewThisMonth')} value={snapshot?.members.newThisMonth ?? 0} color="text-primary-500" />
-          {isLoading && <div className="mt-2 h-20 bg-surface-overlay rounded animate-pulse" />}
+          {isLoading && <Skeleton className="mt-2 h-20 rounded" />}
         </div>
 
         {/* Bookings detail */}
@@ -145,7 +125,7 @@ export default function DashboardPage() {
           <MiniStat label={td('stats.bookingsPending')}            value={snapshot?.bookings.pending            ?? 0} color="text-warning-500" />
           <MiniStat label={td('stats.bookingsConfirmed')}          value={snapshot?.bookings.confirmed          ?? 0} color="text-success-500" />
           <MiniStat label={td('stats.bookingsCompletedThisMonth')} value={snapshot?.bookings.completedThisMonth ?? 0} color="text-primary-500" />
-          {isLoading && <div className="mt-2 h-20 bg-surface-overlay rounded animate-pulse" />}
+          {isLoading && <Skeleton className="mt-2 h-20 rounded" />}
         </div>
 
         {/* Equipment detail */}
@@ -158,7 +138,7 @@ export default function DashboardPage() {
             <span>{td('stats.equipmentTotal')}</span>
             <span className="font-bold text-text-primary">{snapshot?.equipment.total ?? 0}</span>
           </div>
-          {isLoading && <div className="mt-2 h-20 bg-surface-overlay rounded animate-pulse" />}
+          {isLoading && <Skeleton className="mt-2 h-20 rounded" />}
         </div>
       </div>
 
@@ -169,7 +149,7 @@ export default function DashboardPage() {
         <div className="md:col-span-2 bg-surface-base border border-surface-border rounded-2xl p-5">
           <SectionHeader icon={Users2} title={td('sections.classes')} />
           {isLoading
-            ? <div className="h-32 bg-surface-overlay rounded animate-pulse" />
+            ? <Skeleton className="h-32 rounded" />
             : !snapshot?.classes.todaySchedule.length
               ? (
                 <div className="flex flex-col items-center justify-center py-8 text-text-muted">
@@ -206,14 +186,14 @@ export default function DashboardPage() {
             <SectionHeader icon={ClipboardList} title={td('sections.plans')} />
             <MiniStat label={td('stats.plansActive')} value={snapshot?.plans.active ?? 0} color="text-success-500" />
             <MiniStat label={td('stats.plansTotal')}  value={snapshot?.plans.total  ?? 0} />
-            {isLoading && <div className="mt-2 h-10 bg-surface-overlay rounded animate-pulse" />}
+            {isLoading && <Skeleton className="mt-2 h-10 rounded" />}
           </div>
 
           <div className="bg-surface-base border border-surface-border rounded-2xl p-5 flex-1">
             <SectionHeader icon={TrendingUp} title={td('sections.groupClasses')} />
             <MiniStat label={td('stats.classesActive')} value={snapshot?.classes.active ?? 0} color="text-success-500" />
             <MiniStat label={td('stats.classesTotal')}  value={snapshot?.classes.total  ?? 0} />
-            {isLoading && <div className="mt-2 h-10 bg-surface-overlay rounded animate-pulse" />}
+            {isLoading && <Skeleton className="mt-2 h-10 rounded" />}
           </div>
         </div>
       </div>

@@ -14,6 +14,7 @@ import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
 import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
+import { SkeletonList } from '@/src/components/ui/Skeleton';
 
 const fmtDate = (iso: string | undefined, locale: string) =>
   iso ? new Date(iso).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
@@ -127,7 +128,7 @@ export default function PortalHomePage() {
             </Link>
           </div>
           {loading ? (
-            <div className="flex flex-col gap-2">{[...Array(3)].map((_, i) => <div key={i} className="h-8 bg-surface-overlay rounded animate-pulse" />)}</div>
+            <SkeletonList count={3} className="flex flex-col gap-2" itemClassName="h-8 rounded" />
           ) : checkins.length === 0 ? (
             <p className="text-sm text-text-muted">{tp('home.recentCheckins.empty')}</p>
           ) : (
@@ -154,7 +155,7 @@ export default function PortalHomePage() {
             </Link>
           </div>
           {loading ? (
-            <div className="flex flex-col gap-2">{[...Array(2)].map((_, i) => <div key={i} className="h-10 bg-surface-overlay rounded animate-pulse" />)}</div>
+            <SkeletonList count={2} className="flex flex-col gap-2" itemClassName="h-10 rounded" />
           ) : bookings.length === 0 ? (
             <p className="text-sm text-text-muted">{tp('home.upcomingBookings.empty')}</p>
           ) : (

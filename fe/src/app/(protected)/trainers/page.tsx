@@ -15,6 +15,8 @@ import { getApiMessage } from '@/src/lib/errors';
 import Spinner from '@/src/components/ui/Spinner';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
 import FormField, { inputClass } from '@/src/components/ui/FormField';
+import { Ban, CheckCircle, Eye, EyeOff, Pencil, Search } from 'lucide-react';
+import SegmentedControl from '@/src/components/ui/SegmentedControl';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AVATAR_COLORS = [
@@ -131,7 +133,7 @@ function TrainerCard({ trainer, onEdit, onToggleStatus, actingId }: {
       <div className="flex gap-2 pt-1 border-t border-surface-border">
         <button onClick={() => onEdit(trainer)}
           className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-text-secondary bg-surface-overlay hover:bg-surface-border hover:text-text-primary transition-all cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>
+          <Pencil size={14} />
           {tCommon('actions.edit')}
         </button>
         <button onClick={() => onToggleStatus(trainer)} disabled={isActing}
@@ -139,7 +141,7 @@ function TrainerCard({ trainer, onEdit, onToggleStatus, actingId }: {
           {isActing ? (
             <Spinner />
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d={trainer.status === 'active' ? "M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" : "M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"} /></svg>
+            (trainer.status === 'active' ? <Ban size={14} /> : <CheckCircle size={14} />)
           )}
           {trainer.status === 'active' ? te('card.deactivate') : te('card.activate')}
         </button>
@@ -235,7 +237,7 @@ function TrainerModal({ open, editing, onClose, onSave, isLoading }: {
                 <div className="relative">
                   <input type={showPwd ? 'text' : 'password'} value={form.password ?? ''} onChange={(e) => setF('password', e.target.value)} placeholder={te('modal.passwordPlaceholder')} className={`${inputCls('password')} pr-10`} />
                   <button type="button" onClick={() => setShowPwd(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d={showPwd ? "M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" : "M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"} /></svg>
+                    {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
                 {errors.password && <p className="text-xs text-danger-500">{errors.password}</p>}
@@ -401,36 +403,25 @@ export default function TrainersPage() {
         {/* Filter bar */}
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
             <input type="text" value={searchQ} onChange={(e) => setSearchQ(e.target.value)} placeholder={te('searchPlaceholder')}
               className="pl-9 pr-4 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all w-48"
             />
           </div>
 
           {/* Status filter */}
-          <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
-            {([
-              { v: 'all', l: tCommon('filters.all') },
-              { v: 'active', l: te('filters.active') },
-              { v: 'inactive', l: te('filters.inactive') }
-            ]).map((f) => (
-              <button key={f.v} onClick={() => setFilterStatus(f.v as any)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterStatus === f.v ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'}`}>{f.l}</button>
-            ))}
-          </div>
+          <SegmentedControl<TrainerStatus | 'all'> value={filterStatus} onChange={setFilterStatus} options={[
+            { value: 'all',      label: tCommon('filters.all') },
+            { value: 'active',   label: te('filters.active') },
+            { value: 'inactive', label: te('filters.inactive') },
+          ]} />
 
           {/* Specialization filter */}
           {allSpecs.length > 0 && (
-            <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border flex-wrap">
-              <button onClick={() => setFilterSpec('')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${!filterSpec ? 'bg-violet-500 text-white shadow' : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'}`}>
-                {te('filters.allSpecializations')}
-              </button>
-              {allSpecs.slice(0, 5).map((s) => (
-                <button key={s} onClick={() => setFilterSpec(s === filterSpec ? '' : s)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterSpec === s ? 'bg-violet-500 text-white shadow' : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'}`}>{s}</button>
-              ))}
-            </div>
+            <SegmentedControl accent="violet" value={filterSpec} onChange={(s) => setFilterSpec(s === filterSpec ? '' : s)} options={[
+              { value: '', label: te('filters.allSpecializations') },
+              ...allSpecs.slice(0, 5).map((s) => ({ value: s, label: s })),
+            ]} />
           )}
 
           <span className="ml-auto text-xs text-text-muted">{filtered.length} {te('count')}</span>

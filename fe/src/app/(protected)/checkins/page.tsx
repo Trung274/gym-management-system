@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, ClipboardCheck, Search, Loader2 } from 'lucide-react';
+import { ClipboardCheck, Search, Loader2 } from 'lucide-react';
 import { useCheckinStore } from '@/src/stores/checkinStore';
 import StatsGrid from '@/src/components/ui/StatsGrid';
 import AddButton from '@/src/components/ui/AddButton';
@@ -16,6 +16,8 @@ import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
 import FormField, { inputClass } from '@/src/components/ui/FormField';
+import { TableSkeleton } from '@/src/components/ui/Skeleton';
+import EmptyState from '@/src/components/ui/EmptyState';
 
 // ─── Record modal ─────────────────────────────────────────────────────────────
 function RecordModal({ open, onClose, onSubmit, isLoading }: {
@@ -149,7 +151,6 @@ export default function CheckinPage() {
   const { logs, stats, isLoading, error, fetchLogs, fetchStats, recordCheckin, clearError } = useCheckinStore();
   const { t } = useLanguage();
   const tc = t('checkins');
-  const tCommon = t('common');
   usePageTitle('checkins');
 
   const [dateFrom,       setDateFrom]       = useState('');
@@ -256,22 +257,10 @@ export default function CheckinPage() {
               </thead>
               <tbody>
                 {isLoading && !logs.length
-                  ? [...Array(8)].map((_, i) => (
-                    <tr key={i} className="border-b border-surface-border animate-pulse">
-                      {[...Array(5)].map((_, j) => (
-                        <td key={j} className="px-4 py-3"><div className="h-4 bg-surface-overlay rounded w-3/4" /></td>
-                      ))}
-                    </tr>
-                  ))
+                  ? <TableSkeleton rows={8} cols={5} />
                   : logs.length === 0
                   ? (
-                    <tr>
-                      <td colSpan={5} className="px-4 py-16 text-center">
-                        <ClipboardCheck size={40} className="mx-auto text-text-muted mb-3 opacity-40" />
-                        <p className="text-sm font-semibold text-text-primary">{tc('empty.title')}</p>
-                        <p className="text-xs text-text-muted mt-1">{tc('empty.description')}</p>
-                      </td>
-                    </tr>
+                    <tr><td colSpan={5}><EmptyState icon={<ClipboardCheck size={40} />} title={tc('empty.title')} description={tc('empty.description')} /></td></tr>
                   )
                   : logs.map((log) => (
                     <tr key={log.id} className="border-b border-surface-border hover:bg-surface-raised transition-colors">

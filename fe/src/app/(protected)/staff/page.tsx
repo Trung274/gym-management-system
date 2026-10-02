@@ -18,20 +18,14 @@ import { usePageTitle } from '@/src/hooks/usePageTitle';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
 import FormField, { Input } from '@/src/components/ui/FormField';
 import Spinner from '@/src/components/ui/Spinner';
-import { Eye, EyeOff, Check } from 'lucide-react';
+import { Eye, EyeOff, Check, Ban, CheckCircle, Pencil, Search, Tag } from 'lucide-react';
 import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
+import Badge from '@/src/components/ui/Badge';
+import { ROLE_TONE } from '@/src/lib/statusTones';
+import SegmentedControl from '@/src/components/ui/SegmentedControl';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const ROLE_STYLES: Record<RoleName, string> = {
-  admin:   'bg-danger-500/15 text-danger-500',
-  manager: 'bg-primary-500/15 text-primary-500',
-  trainer: 'bg-violet-500/15 text-violet-500',
-  staff:   'bg-sky-500/15 text-sky-500',
-  user:    'bg-surface-overlay text-text-muted',
-  member:  'bg-surface-overlay text-text-muted',
-};
-
 
 const AVATAR_COLORS = [
   'from-primary-400 to-primary-600',
@@ -84,19 +78,16 @@ function StaffCard({
           <p className="font-semibold text-text-primary text-sm truncate">{member.name}</p>
           <p className="text-xs text-text-muted truncate">{member.email}</p>
         </div>
-        <span className={`
-          shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full
-          ${member.isActive ? 'bg-success-500/15 text-success-500' : 'bg-surface-overlay text-text-muted'}
-        `}>
+        <Badge tone={member.isActive ? 'success' : 'neutral'}>
           {member.isActive ? ts('card.active') : ts('card.inactive')}
-        </span>
+        </Badge>
       </div>
 
       {/* Role badge */}
       <div className="flex items-center gap-2">
-        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${ROLE_STYLES[member.role.name] ?? 'bg-surface-overlay text-text-muted'}`}>
+        <Badge tone={ROLE_TONE[member.role.name] ?? 'neutral'}>
           {ts(`roles.${member.role.name}`, member.roleLabel)}
-        </span>
+        </Badge>
         <span className="text-xs text-text-muted ml-auto">
           {new Date(member.createdAt).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US')}
         </span>
@@ -110,9 +101,7 @@ function StaffCard({
             text-text-secondary hover:text-text-primary hover:bg-surface-overlay
             transition-all cursor-pointer"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-            <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
-          </svg>
+          <Pencil size={16} />
           {ts('card.edit')}
         </button>
 
@@ -122,10 +111,7 @@ function StaffCard({
             text-text-secondary hover:text-primary-500 hover:bg-primary-500/10
             transition-all cursor-pointer"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
-          </svg>
+          <Tag size={16} />
           {ts('card.assignRole')}
         </button>
 
@@ -142,12 +128,7 @@ function StaffCard({
           {isActing ? (
             <Spinner />
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-              <path strokeLinecap="round" strokeLinejoin="round" d={member.isActive
-                ? "M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"
-                : "M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-              }/>
-            </svg>
+            (member.isActive ? <Ban size={16} /> : <CheckCircle size={16} />)
           )}
           {member.isActive ? ts('card.deactivate') : ts('card.activate')}
         </button>
@@ -473,9 +454,7 @@ export default function StaffPage() {
         <div className="flex flex-wrap items-center gap-2">
           {/* Search */}
           <div className="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none">
-              <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-            </svg>
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
             <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={ts('filters.searchPlaceholder')}
               className="pl-9 pr-4 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all w-52"
@@ -483,37 +462,20 @@ export default function StaffPage() {
           </div>
 
           {/* Role filter */}
-          <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
-            {([
-              { value: 'all',     label: tCommon('filters.all') },
-              { value: ROLES.ADMIN,   label: ts('roles.admin') },
-              { value: ROLES.MANAGER, label: ts('roles.manager') },
-              { value: ROLES.STAFF,   label: ts('roles.staff') },
-              { value: ROLES.TRAINER, label: ts('stats.hlv') },
-            ] as { value: RoleName | 'all'; label: string }[]).map((f) => (
-
-              <button key={f.value} onClick={() => setFilterRole(f.value)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer
-                  ${filterRole === f.value ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'}`}>
-                {f.label}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl<RoleName | 'all'> value={filterRole} onChange={setFilterRole} options={[
+            { value: 'all',         label: tCommon('filters.all') },
+            { value: ROLES.ADMIN,   label: ts('roles.admin') },
+            { value: ROLES.MANAGER, label: ts('roles.manager') },
+            { value: ROLES.STAFF,   label: ts('roles.staff') },
+            { value: ROLES.TRAINER, label: ts('stats.hlv') },
+          ]} />
 
           {/* Status filter */}
-          <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
-            {([
-              { value: 'all', label: tCommon('filters.all') },
-              { value: 'active', label: ts('card.active') },
-              { value: 'inactive', label: ts('card.inactive') }
-            ] as { value: 'all' | 'active' | 'inactive'; label: string }[]).map((f) => (
-              <button key={f.value} onClick={() => setFilterActive(f.value)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer
-                  ${filterActive === f.value ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'}`}>
-                {f.label}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl<'all' | 'active' | 'inactive'> value={filterActive} onChange={setFilterActive} options={[
+            { value: 'all',      label: tCommon('filters.all') },
+            { value: 'active',   label: ts('card.active') },
+            { value: 'inactive', label: ts('card.inactive') },
+          ]} />
 
           <span className="ml-auto text-xs text-text-muted">
             {ts('filters.count', '{{count}} nhân viên').replace('{{count}}', filtered.length.toString())}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, Pencil, X, ChevronDown, Search, Loader2 } from 'lucide-react';
+import { Plus, Pencil, X, Search, Loader2 } from 'lucide-react';
 import { useClassStore } from '@/src/stores/classStore';
 import StatsGrid from '@/src/components/ui/StatsGrid';
 import AddButton from '@/src/components/ui/AddButton';
@@ -19,14 +19,14 @@ import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
 import FormField, { inputClass } from '@/src/components/ui/FormField';
+import Spinner from '@/src/components/ui/Spinner';
+import StatusSelect from '@/src/components/ui/StatusSelect';
+import { CLASS_STATUS_TONE } from '@/src/lib/statusTones';
+import SegmentedControl from '@/src/components/ui/SegmentedControl';
+import { TableSkeleton } from '@/src/components/ui/Skeleton';
+import EmptyState from '@/src/components/ui/EmptyState';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const STATUS_STYLES: Record<ClassStatus, string> = {
-  active:    'bg-success-500/15 text-success-500',
-  cancelled: 'bg-danger-500/15 text-danger-500',
-  completed: 'bg-surface-overlay text-text-muted',
-};
-
 const CATEGORY_ICONS: Record<ClassCategory, string> = {
   yoga: '🧘', zumba: '💃', cycling: '🚴', hiit: '⚡',
   pilates: '🤸', boxing: '🥊', other: '🏋️',
@@ -59,37 +59,13 @@ const formatDateLang = (dateStr: string | undefined, lang: string) => {
 function StatusBadge({ gymClass, onChange, disabled }: {
   gymClass: GymClass; onChange: (s: ClassStatus) => void; disabled: boolean;
 }) {
-  const [open, setOpen] = useState(false);
   const { t } = useLanguage();
   const tCommon = t('common');
-
-  const statusLabels: Record<ClassStatus, string> = {
-    active: tCommon('status.active'),
-    cancelled: tCommon('status.cancelled'),
-    completed: tCommon('status.completed'),
-  };
+  const options = (Object.keys(CLASS_STATUS_TONE) as ClassStatus[]).map((s) => ({ value: s, label: tCommon(`status.${s}`) }));
 
   return (
-    <div className="relative">
-      <button onClick={() => !disabled && setOpen(o => !o)} disabled={disabled}
-        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold cursor-pointer transition-all ${STATUS_STYLES[gymClass.status]} ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-75'}`}>
-        {statusLabels[gymClass.status]}
-        {!disabled && <ChevronDown size={10} />}
-      </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 top-full mt-1 z-20 bg-surface-base border border-surface-border rounded-xl shadow-xl py-1 w-40">
-            {(['active', 'cancelled', 'completed'] as ClassStatus[]).map((s) => (
-              <button key={s} onClick={() => { onChange(s); setOpen(false); }}
-                className={`w-full text-left px-3 py-2 text-xs font-semibold hover:bg-surface-raised transition-all cursor-pointer ${gymClass.status === s ? 'text-primary-500' : 'text-text-secondary'}`}>
-                {statusLabels[s]}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
+    <StatusSelect value={gymClass.status} tone={CLASS_STATUS_TONE[gymClass.status]}
+      options={options} onChange={onChange} disabled={disabled} />
   );
 }
 
@@ -441,36 +417,22 @@ export default function GroupClassesPage() {
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
             <input type="text" value={searchQ} onChange={(e) => setSearchQ(e.target.value)} placeholder={tc('filters.searchPlaceholder')}
               className="pl-9 pr-4 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all w-52" />
           </div>
           {/* Category pills */}
-          <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border flex-wrap">
-            <button onClick={() => setFilterCategory('all')} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${filterCategory === 'all' ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>
-              {tCommon('filters.all')}
-            </button>
-            {(Object.keys(CATEGORY_ICONS) as ClassCategory[]).map((v) => (
-              <button key={v} onClick={() => setFilterCategory(v)} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${filterCategory === v ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>
-                {CATEGORY_ICONS[v]} {tc(`categories.${v}`)}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl<ClassCategory | 'all'> value={filterCategory} onChange={setFilterCategory} options={[
+            { value: 'all', label: tCommon('filters.all') },
+            ...(Object.keys(CATEGORY_ICONS) as ClassCategory[]).map((v) => ({ value: v, label: <>{CATEGORY_ICONS[v]} {tc(`categories.${v}`)}</> })),
+          ]} />
           {/* Status pills */}
-          <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border">
-            <button onClick={() => setFilterStatus('all')} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${filterStatus === 'all' ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>
-              {tCommon('filters.all')}
-            </button>
-            <button onClick={() => setFilterStatus('active')} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${filterStatus === 'active' ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>
-              {tCommon('status.active')}
-            </button>
-            <button onClick={() => setFilterStatus('cancelled')} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${filterStatus === 'cancelled' ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>
-              {tCommon('status.cancelled')}
-            </button>
-            <button onClick={() => setFilterStatus('completed')} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${filterStatus === 'completed' ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-overlay'}`}>
-              {tCommon('status.completed')}
-            </button>
-          </div>
+          <SegmentedControl<ClassStatus | 'all'> value={filterStatus} onChange={setFilterStatus} options={[
+            { value: 'all', label: tCommon('filters.all') },
+            { value: 'active', label: tCommon('status.active') },
+            { value: 'cancelled', label: tCommon('status.cancelled') },
+            { value: 'completed', label: tCommon('status.completed') },
+          ]} />
           <span className="ml-auto text-xs text-text-muted">
             {tc('filters.count').replace('{{count}}', String(filtered.length))}
           </span>
@@ -496,14 +458,9 @@ export default function GroupClassesPage() {
               </thead>
               <tbody>
                 {isLoading && !classes.length
-                  ? [...Array(5)].map((_, i) => (
-                    <tr key={i} className="border-b border-surface-border animate-pulse">
-                      <td className="px-4 py-3"><div className="flex gap-3 items-center"><div className="w-8 h-8 rounded bg-surface-overlay"/><div className="h-4 w-32 bg-surface-overlay rounded"/></div></td>
-                      {[...Array(5)].map((_, j) => <td key={j} className="px-4 py-3"><div className="h-4 bg-surface-overlay rounded w-3/4"/></td>)}
-                    </tr>
-                  ))
+                  ? <TableSkeleton rows={5} cols={6} />
                   : filtered.length === 0
-                  ? <tr><td colSpan={6} className="px-4 py-16 text-center"><p className="text-4xl mb-3">📅</p><p className="text-sm font-semibold text-text-primary">{tc('empty.title')}</p><p className="text-xs text-text-muted mt-1">{tc('empty.description')}</p></td></tr>
+                  ? <tr><td colSpan={6}><EmptyState icon="📅" title={tc('empty.title')} description={tc('empty.description')} /></td></tr>
                   : filtered.map((c) => (
                     <tr key={c.id} className="border-b border-surface-border hover:bg-surface-raised transition-colors group">
                       <td className="px-4 py-3">
@@ -531,7 +488,7 @@ export default function GroupClassesPage() {
                       </td>
                       <td className="px-4 py-3">
                         {actingId === c.id
-                          ? <svg className="w-4 h-4 animate-spin text-primary-500" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                          ? <Spinner className="text-primary-500" />
                           : <button onClick={() => { setEditing(c); setModalOpen(true); }} title={tCommon('actions.edit')}
                               className="p-1.5 rounded-lg text-text-muted hover:text-primary-500 hover:bg-primary-500/10 cursor-pointer transition-all">
                               <Pencil size={15} />

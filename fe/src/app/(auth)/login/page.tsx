@@ -6,6 +6,8 @@ import { toast } from '@/src/utils/toast';
 import { useAuth } from '@/src/hooks/useAuth';
 import LoadingSpinner from '@/src/components/ui/LoadingSpinner';
 import { getHomePath } from '@/src/types/member-portal.types';
+import { Dumbbell } from 'lucide-react';
+import Spinner from '@/src/components/ui/Spinner';
 
 // Inner component that uses useSearchParams (must be wrapped in Suspense)
 function LoginForm() {
@@ -68,10 +70,7 @@ function LoginForm() {
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary-500 mb-4 shadow-md">
               {/* Dumbbell icon */}
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7 text-white">
-                <path d="M6.5 6.5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v3.5H13V6.5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1V14h-3.5v3.5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-11Z" />
-                <path d="M4 9.5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1v-5H4ZM19 9.5h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-5Z" />
-              </svg>
+              <Dumbbell size={28} className="text-white" />
             </div>
             <h1 className="text-2xl font-bold text-text-primary">Gym Management</h1>
             <p className="text-sm text-text-muted mt-1">Đăng nhập vào hệ thống</p>
@@ -152,10 +151,7 @@ function LoginForm() {
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                  </svg>
+                  <Spinner />
                   Đang đăng nhập...
                 </span>
               ) : (

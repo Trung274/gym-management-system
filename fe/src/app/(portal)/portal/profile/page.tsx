@@ -3,9 +3,8 @@
 import { useEffect, useState } from 'react';
 import { getMemberProfile, updateMemberProfile } from '@/src/lib/memberMeService';
 import { toast } from '@/src/utils/toast';
-import { User, Phone, Calendar, MapPin, Pencil, X, Check } from 'lucide-react';
+import { User, Phone, Calendar, Pencil, X, Check } from 'lucide-react';
 import type { MemberProfile, UpdateMemberProfilePayload } from '@/src/types/member-portal.types';
-import { MEMBER_STATUS_COLORS } from '@/src/types/member-portal.types';
 import PageHeader from '@/src/components/ui/PageHeader';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
@@ -13,6 +12,9 @@ import { getApiMessage } from '@/src/lib/errors';
 import Spinner from '@/src/components/ui/Spinner';
 import Alert from '@/src/components/ui/Alert';
 import FormField, { inputClass } from '@/src/components/ui/FormField';
+import Badge from '@/src/components/ui/Badge';
+import { MEMBER_STATUS_TONE } from '@/src/lib/statusTones';
+import { SkeletonList } from '@/src/components/ui/Skeleton';
 
 const fmtDate = (iso: string | undefined, locale: string) =>
   iso ? new Date(iso).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
@@ -66,9 +68,7 @@ export default function PortalProfilePage() {
   const inp = inputClass();
 
   if (loading) return (
-    <div className="flex flex-col gap-4">
-      {[...Array(4)].map((_, i) => <div key={i} className="h-24 bg-surface-overlay rounded-2xl animate-pulse" />)}
-    </div>
+    <SkeletonList count={4} className="flex flex-col gap-4" itemClassName="h-24 rounded-2xl" />
   );
 
   if (error !== null) return <Alert>{error || tp('profile.toast.loadError')}</Alert>;
@@ -107,9 +107,11 @@ export default function PortalProfilePage() {
             <p className="font-bold text-text-primary">{profile?.user?.name}</p>
             <p className="text-sm text-text-muted">{profile?.user?.email}</p>
           </div>
-          <span className={`ml-auto px-2.5 py-1 rounded-full text-xs font-semibold ${MEMBER_STATUS_COLORS[profile?.status ?? ''] ?? ''}`}>
-            {profile?.status ? tp(`shared.memberStatus.${profile.status}`, profile.status) : ''}
-          </span>
+          {profile?.status && (
+            <Badge tone={MEMBER_STATUS_TONE[profile.status]} className="ml-auto">
+              {tp(`shared.memberStatus.${profile.status}`, profile.status)}
+            </Badge>
+          )}
         </div>
         <InfoRow label={tp('profile.fields.dateOfBirth')} value={fmtDate(profile?.dateOfBirth, locale)} />
         <InfoRow label={tp('profile.fields.gender')}      value={profile?.gender ? tp(`shared.gender.${profile.gender}`, profile.gender) : undefined} />

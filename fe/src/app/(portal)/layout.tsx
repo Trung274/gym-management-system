@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/src/hooks/useAuth';
 import { LogOut, Dumbbell, LayoutDashboard, User, ScanLine, CalendarDays, Users, MapPin } from 'lucide-react';
-import { getHomePath, ADMIN_ROLES } from '@/src/types/member-portal.types';
+import { ADMIN_ROLES } from '@/src/types/member-portal.types';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import LanguageSwitcher from '@/src/components/layout/LanguageSwitcher';
 import ThemeToggle from '@/src/components/layout/ThemeToggle';

@@ -1004,6 +1004,37 @@ return (
 ### 7. Alert
 `src/components/ui/Alert.tsx` — banner lỗi đỏ: `<Alert onDismiss={clearError}>{error}</Alert>`, hoặc `action={<button>Thử lại</button>}`.
 
+### 8. Badge & màu trạng thái (`Badge`, `src/lib/statusTones.ts`)
+```tsx
+<Badge tone={BOOKING_STATUS_TONE[booking.status]} dot>{label}</Badge>
+```
+*   `tone`: `success` | `warning` | `danger` | `primary` | `info` | `violet` | `neutral`. `dot` thêm chấm màu phía trước.
+*   Màu của từng trạng thái (booking, hội viên, lớp, thiết bị, role) **chỉ** được định nghĩa trong `lib/statusTones.ts` — dùng chung cho cả trang quản trị và portal. Không tạo map `STATUS_STYLES` riêng trong trang.
+*   Phần tử cần là `<button>` mà vẫn trông như badge: dùng `badgeClass(tone)`.
+
+### 9. StatusSelect
+`src/components/ui/StatusSelect.tsx` — badge bấm vào mở menu đổi trạng thái (sửa nhanh trong bảng):
+`<StatusSelect value={item.status} tone={EQUIPMENT_STATUS_TONE[item.status]} options={[{ value, label }]} onChange={...} disabled={isActing} />`
+
+### 10. SegmentedControl
+`src/components/ui/SegmentedControl.tsx` — nhóm nút chọn một (bộ lọc, tab):
+```tsx
+<SegmentedControl<MemberStatus | 'all'> value={filterStatus} onChange={setFilterStatus} options={[
+  { value: 'all', label: tCommon('filters.all') },
+  { value: 'active', label: tCommon('status.active') },
+]} />
+```
+*   `size="md"` cho tab, `accent="violet"` cho bộ lọc phụ, `highlight` trên option để đánh dấu (vd. hôm nay).
+*   Truyền generic khi `options` có cả `'all'` để không phải `as any`.
+
+### 11. EmptyState & Skeleton
+*   `<EmptyState icon={<Users size={40} />} title={...} description={...} />` — `icon` có thể là emoji string. Trong bảng: `<tr><td colSpan={n}><EmptyState ... /></td></tr>`.
+*   `Skeleton` (khối đơn, kích thước qua `className`), `SkeletonList count={n} className="grid ..." itemClassName="h-28 rounded-xl"`, `TableSkeleton rows={5} cols={6}` trong `<tbody>`.
+*   Skeleton có hình dạng riêng (thẻ nhân viên, thẻ gói tập...) vẫn viết tại trang, nhưng dùng `bg-surface-overlay animate-pulse`.
+
+### 12. ConfirmDialog
+`<ConfirmDialog title message confirmLabel cancelLabel onConfirm onClose loading />` — xác nhận hành động xóa/không thể hoàn tác (mặc định `variant="danger"`). Render có điều kiện.
+
 ### Xử lý lỗi API (`src/lib/errors.ts`)
 *   Trong component: `catch (e) { toast.error(getApiMessage(e) || tx('toast.error')); }` — không dùng `catch (e: any)` hay `e?.response?.data?.message`.
 *   Trong store: `extractErrorMessage(error)` (các `*Helpers.ts` re-export từ `lib/errors.ts`, không định nghĩa lại).

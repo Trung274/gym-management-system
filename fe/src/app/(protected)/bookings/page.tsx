@@ -12,15 +12,15 @@ import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
 import { inputClass } from '@/src/components/ui/FormField';
+import { Calendar, CheckCircle, ClipboardCheck, Search, X } from 'lucide-react';
+import Spinner from '@/src/components/ui/Spinner';
+import Badge from '@/src/components/ui/Badge';
+import { BOOKING_STATUS_TONE } from '@/src/lib/statusTones';
+import SegmentedControl from '@/src/components/ui/SegmentedControl';
+import { TableSkeleton } from '@/src/components/ui/Skeleton';
+import EmptyState from '@/src/components/ui/EmptyState';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const STATUS_STYLES: Record<BookingStatus, { badge: string; dot: string }> = {
-  pending:   { badge: 'bg-warning-500/15 text-warning-500',  dot: 'bg-warning-500' },
-  confirmed: { badge: 'bg-primary-500/15 text-primary-500',  dot: 'bg-primary-500' },
-  completed: { badge: 'bg-success-500/15 text-success-500',  dot: 'bg-success-500' },
-  cancelled: { badge: 'bg-surface-overlay text-text-muted',  dot: 'bg-text-muted' },
-};
-
 const STATUS_OPTION_KEYS: { value: BookingStatus | 'all'; key: string }[] = [
   { value: 'all',       key: 'common:actions.viewAll' },
   { value: 'pending',   key: 'status.pending' },
@@ -84,7 +84,6 @@ function BookingRow({
   onComplete: (b: Booking) => void;
   actingId: string | null;
 }) {
-  const style = STATUS_STYLES[booking.status];
   const isActing = actingId === booking.id;
 
   return (
@@ -106,10 +105,7 @@ function BookingRow({
       </td>
       {/* Status */}
       <td className="px-4 py-3">
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${style.badge}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
-          {booking.statusLabel}
-        </span>
+        <Badge tone={BOOKING_STATUS_TONE[booking.status]} dot>{booking.statusLabel}</Badge>
         {booking.cancellationReason && (
           <p className="text-xs text-text-muted mt-1 italic">"{booking.cancellationReason}"</p>
         )}
@@ -122,28 +118,25 @@ function BookingRow({
       <td className="px-4 py-3">
         <div className="flex items-center gap-1.5">
           {isActing ? (
-            <svg className="w-4 h-4 animate-spin text-primary-500" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-            </svg>
+            <Spinner className="text-primary-500" />
           ) : (
             <>
               {booking.status === 'pending' && (
                 <button onClick={() => onConfirm(booking)} title="Xác nhận"
                   className="p-1.5 rounded-lg text-primary-500 hover:bg-primary-500/10 transition-all cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                  <CheckCircle size={16} />
                 </button>
               )}
               {booking.status === 'confirmed' && (
                 <button onClick={() => onComplete(booking)} title="Hoàn thành"
                   className="p-1.5 rounded-lg text-success-500 hover:bg-success-500/10 transition-all cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75" /></svg>
+                  <ClipboardCheck size={16} />
                 </button>
               )}
               {(booking.status === 'pending' || booking.status === 'confirmed') && (
                 <button onClick={() => onCancel(booking)} title="Huỷ"
                   className="p-1.5 rounded-lg text-danger-500 hover:bg-danger-500/10 transition-all cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                  <X size={16} />
                 </button>
               )}
             </>
@@ -264,7 +257,7 @@ export default function BookingsPage() {
         <div className="flex flex-wrap items-center gap-2">
           {/* Search */}
           <div className="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
             <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder="Tìm hội viên, HLV..."
               className="pl-9 pr-4 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all w-52"
@@ -273,22 +266,15 @@ export default function BookingsPage() {
 
           {/* Date filter */}
           <div className="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
+            <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
             <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)}
               className="pl-9 pr-3 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
             />
           </div>
 
           {/* Status filter */}
-          <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border flex-wrap">
-            {STATUS_OPTIONS.map((opt) => (
-              <button key={opt.value} onClick={() => setFilterStatus(opt.value as BookingStatus | 'all')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer
-                  ${filterStatus === opt.value ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:text-text-primary hover:bg-surface-overlay'}`}>
-                {opt.label}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl value={filterStatus} onChange={setFilterStatus}
+            options={STATUS_OPTIONS.map((opt) => ({ value: opt.value as BookingStatus | 'all', label: opt.label }))} />
 
           {filterDate && (
             <button onClick={() => setFilterDate('')} className="text-xs text-text-muted hover:text-danger-500 transition-colors cursor-pointer">
@@ -312,21 +298,9 @@ export default function BookingsPage() {
               </thead>
               <tbody>
                 {isLoading && bookings.length === 0 ? (
-                  [...Array(5)].map((_, i) => (
-                    <tr key={i} className="border-b border-surface-border animate-pulse">
-                      {[...Array(6)].map((_, j) => (
-                        <td key={j} className="px-4 py-4"><div className="h-4 bg-surface-overlay rounded w-3/4" /></td>
-                      ))}
-                    </tr>
-                  ))
+                  <TableSkeleton rows={5} cols={6} />
                 ) : filtered.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-4 py-16 text-center">
-                      <p className="text-4xl mb-3">📅</p>
-                      <p className="text-sm font-semibold text-text-primary">Không có lịch đặt nào</p>
-                      <p className="text-xs text-text-muted mt-1">Thử thay đổi bộ lọc hoặc tìm kiếm khác.</p>
-                    </td>
-                  </tr>
+                  <tr><td colSpan={6}><EmptyState icon="📅" title="Không có lịch đặt nào" description="Thử thay đổi bộ lọc hoặc tìm kiếm khác." /></td></tr>
                 ) : (
                   filtered.map((booking) => (
                     <BookingRow key={booking.id} booking={booking}

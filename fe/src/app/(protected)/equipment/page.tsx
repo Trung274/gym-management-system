@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Pencil, Search, Trash2 } from 'lucide-react';
 import { useEquipmentStore } from '@/src/stores/equipmentStore';
 import { toast } from '@/src/utils/toast';
 import StatsGrid from '@/src/components/ui/StatsGrid';
@@ -17,20 +17,12 @@ import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
 import FormField, { inputClass } from '@/src/components/ui/FormField';
+import StatusSelect from '@/src/components/ui/StatusSelect';
+import ConfirmDialog from '@/src/components/ui/ConfirmDialog';
+import { EQUIPMENT_STATUS_TONE } from '@/src/lib/statusTones';
+import EmptyState from '@/src/components/ui/EmptyState';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const STATUS_STYLES: Record<EquipmentStatus, string> = {
-  operational: 'bg-success-500/15 text-success-500',
-  maintenance: 'bg-warning-500/15 text-warning-500',
-  out_of_order: 'bg-danger-500/15 text-danger-500',
-};
-
-const STATUS_OPTIONS: { value: EquipmentStatus; label: string }[] = [
-  { value: 'operational', label: 'Hoạt động tốt' },
-  { value: 'maintenance', label: 'Đang bảo trì' },
-  { value: 'out_of_order', label: 'Hỏng / Ngừng dùng' },
-];
-
 const CATEGORY_OPTIONS: { value: EquipmentCategory; label: string; icon: string }[] = [
   { value: 'cardio',       label: 'Cardio',      icon: '🏃' },
   { value: 'strength',     label: 'Sức mạnh',    icon: '💪' },
@@ -41,14 +33,6 @@ const CATEGORY_OPTIONS: { value: EquipmentCategory; label: string; icon: string 
 
 const CATEGORY_ICON: Record<EquipmentCategory, string> = {
   cardio: '🏃', strength: '💪', flexibility: '🧘', free_weights: '🏋️', other: '⚙️',
-};
-
-const CATEGORY_IMAGE: Record<EquipmentCategory, string> = {
-  cardio: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=150&auto=format&fit=crop&q=60',
-  strength: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=150&auto=format&fit=crop&q=60',
-  flexibility: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=150&auto=format&fit=crop&q=60',
-  free_weights: 'https://images.unsplash.com/photo-1638536532686-d610adfc8e5c?w=150&auto=format&fit=crop&q=60',
-  other: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=150&auto=format&fit=crop&q=60',
 };
 
 const EMPTY_CREATE: CreateEquipmentPayload = {
@@ -67,65 +51,11 @@ function StatusBadge({ equipment, onChange, disabled }: {
 }) {
   const { t } = useLanguage();
   const te = t('equipment');
-  const [open, setOpen] = useState(false);
-
-  const statusOptions = [
-    { value: 'operational' as EquipmentStatus, label: te('status.operational') },
-    { value: 'maintenance' as EquipmentStatus, label: te('status.maintenance') },
-    { value: 'out_of_order' as EquipmentStatus, label: te('status.out_of_order') },
-  ];
+  const options = (Object.keys(EQUIPMENT_STATUS_TONE) as EquipmentStatus[]).map((s) => ({ value: s, label: te(`status.${s}`) }));
 
   return (
-    <div className="relative">
-      <button onClick={() => !disabled && setOpen(o => !o)} disabled={disabled}
-        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold cursor-pointer transition-all ${STATUS_STYLES[equipment.status]} ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-80'}`}>
-        {te(`status.${equipment.status}`)}
-        {!disabled && <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3"><path fillRule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z" clipRule="evenodd" /></svg>}
-      </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 top-full mt-1 z-20 bg-surface-base border border-surface-border rounded-xl shadow-xl py-1 w-44">
-            {statusOptions.map((s) => (
-              <button key={s.value} onClick={() => { onChange(s.value); setOpen(false); }}
-                className={`w-full text-left px-3 py-2 text-xs font-semibold hover:bg-surface-raised transition-all cursor-pointer ${equipment.status === s.value ? 'text-primary-500' : 'text-text-secondary'}`}>
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-// ─── Confirm Delete Dialog ────────────────────────────────────────────────────
-function DeleteDialog({ open, equipment, onClose, onConfirm, isLoading }: {
-  open: boolean; equipment: Equipment | null; onClose: () => void;
-  onConfirm: () => void; isLoading: boolean;
-}) {
-  const { t } = useLanguage();
-  const te = t('equipment');
-  const tCommon = t('common');
-
-  if (!open || !equipment) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-sm bg-surface-base rounded-2xl shadow-2xl border border-surface-border p-6 flex flex-col gap-5">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-danger-500/10 flex items-center justify-center shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-danger-500"><path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-text-primary">{te('deleteModal.title')}</h3>
-            <p className="text-xs text-text-muted mt-0.5">{te('deleteModal.subtitle')}</p>
-          </div>
-        </div>
-        <p className="text-sm text-text-secondary">{te('deleteModal.confirm').replace('{{name}}', equipment.name)}</p>
-        <ModalFooter onCancel={onClose} cancelLabel={tCommon('actions.cancel')} submitLabel={tCommon('actions.delete')} loading={isLoading} variant="danger" onSubmit={onConfirm} />
-      </div>
-    </div>
+    <StatusSelect value={equipment.status} tone={EQUIPMENT_STATUS_TONE[equipment.status]}
+      options={options} onChange={onChange} disabled={disabled} />
   );
 }
 
@@ -317,11 +247,11 @@ function EquipmentRow({ item, onEdit, onDelete, onStatusChange, actingId }: {
           <>
             <button onClick={() => onEdit(item)} title={tCommon('actions.edit')}
               className="p-1.5 rounded-lg text-text-muted hover:text-primary-500 hover:bg-primary-500/10 transition-all cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>
+              <Pencil size={16} />
             </button>
             <button onClick={() => onDelete(item)} title={tCommon('actions.delete')}
               className="p-1.5 rounded-lg text-text-muted hover:text-danger-500 hover:bg-danger-500/10 transition-all cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
+              <Trash2 size={16} />
             </button>
           </>
         )}
@@ -451,7 +381,7 @@ export default function EquipmentPage() {
         <div className="flex flex-wrap items-center gap-2">
           {/* Search */}
           <div className="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
             <input type="text" value={searchQ} onChange={(e) => setSearchQ(e.target.value)} placeholder={te('searchPlaceholder')}
               className="pl-9 pr-4 py-2 rounded-xl border border-surface-border bg-surface-overlay text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all w-48"
             />
@@ -514,11 +444,8 @@ export default function EquipmentPage() {
               </div>
             ))
           ) : filtered.length === 0 ? (
-            <div className="px-6 py-16 text-center bg-surface-overlay rounded-xl border border-surface-border/50">
-              <p className="text-4xl mb-3">🏋️</p>
-              <p className="text-sm font-semibold text-text-primary">{te('empty.title')}</p>
-              <p className="text-xs text-text-muted mt-1">{te('empty.description')}</p>
-            </div>
+            <EmptyState icon="🏋️" title={te('empty.title')} description={te('empty.description')}
+              className="bg-surface-overlay rounded-xl border border-surface-border/50" />
           ) : (
             filtered.map((item) => (
               <EquipmentRow key={item.id} item={item}
@@ -531,7 +458,20 @@ export default function EquipmentPage() {
       </div>
 
       <EquipmentModal open={modalOpen} editing={editingItem} onClose={() => { setModalOpen(false); setEditingItem(null); }} onSave={handleSave} isLoading={saving} />
-      <DeleteDialog open={!!deleteTarget} equipment={deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={handleDelete} isLoading={deleting} />
+      {deleteTarget && (
+        <ConfirmDialog
+          title={te('deleteModal.title')}
+          message={<>
+            <p>{te('deleteModal.confirm').replace('{{name}}', deleteTarget.name)}</p>
+            <p className="text-xs text-text-muted mt-1">{te('deleteModal.subtitle')}</p>
+          </>}
+          confirmLabel={tCommon('actions.delete')}
+          cancelLabel={tCommon('actions.cancel')}
+          onConfirm={handleDelete}
+          onClose={() => setDeleteTarget(null)}
+          loading={deleting}
+        />
+      )}
     </>
   );
 }
