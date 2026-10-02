@@ -7,6 +7,8 @@ import { useAuth } from '@/src/hooks/useAuth';
 import { LogOut, Dumbbell, LayoutDashboard, User, ScanLine, CalendarDays, Users, MapPin } from 'lucide-react';
 import { getHomePath, ADMIN_ROLES } from '@/src/types/member-portal.types';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import LanguageSwitcher from '@/src/components/layout/LanguageSwitcher';
+import ThemeToggle from '@/src/components/layout/ThemeToggle';
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
@@ -77,8 +79,10 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
             })}
           </nav>
 
-          {/* User + logout */}
+          {/* Language + theme + user + logout */}
           <div className="flex items-center gap-2 shrink-0">
+            <LanguageSwitcher compact />
+            <ThemeToggle compact />
             <span className="text-xs text-text-muted hidden md:block max-w-[120px] truncate">{user?.name}</span>
             <button onClick={handleLogout} title={tp('layout.logout')}
               className="p-1.5 rounded-lg text-text-muted hover:text-danger-500 hover:bg-danger-500/10 cursor-pointer transition-all">

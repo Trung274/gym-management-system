@@ -3,31 +3,26 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/src/hooks/useAuth';
-import { useTheme } from '@/src/components/providers/ThemeProvider';
-import { Sun, Moon, ChevronDown, LogOut, Dumbbell, Globe } from 'lucide-react';
+import { ChevronDown, LogOut, Dumbbell } from 'lucide-react';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import LanguageSwitcher from './LanguageSwitcher';
+import ThemeToggle from './ThemeToggle';
 
 export default function Header() {
     const { user, logout, isLoading: authLoading } = useAuth();
-    const { theme, toggleTheme } = useTheme();
-    const { lang, setLang, t } = useLanguage();
+    const { t } = useLanguage();
     const tLayout = t('layout');
     const router = useRouter();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const langDropdownRef = useRef<HTMLDivElement>(null);
-    const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setIsDropdownOpen(false);
-            }
-            if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
-                setIsLangDropdownOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -65,59 +60,9 @@ export default function Header() {
                 {/* Right Section — Language + Theme + Profile */}
                 <div className="flex items-center gap-2 md:gap-3">
 
-                    {/* Language Dropdown */}
-                    <div className="relative" ref={langDropdownRef}>
-                        <button
-                            onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
-                            className="p-2 flex items-center gap-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all duration-200 cursor-pointer"
-                            title={tLayout('header.language')}
-                            aria-label={tLayout('header.language')}
-                        >
-                            <Globe size={20} />
-                            <span className="text-xs font-semibold uppercase hidden sm:block">{lang}</span>
-                        </button>
+                    <LanguageSwitcher />
 
-                        {isLangDropdownOpen && (
-                            <>
-                                <div className="fixed inset-0 z-40" onClick={() => setIsLangDropdownOpen(false)} />
-                                <div className="absolute right-0 mt-2 w-40 bg-surface-base border border-surface-border rounded-xl shadow-xl z-50 overflow-hidden">
-                                    <div className="px-4 py-2.5 border-b border-surface-border">
-                                        <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">
-                                            {tLayout('header.language')}
-                                        </p>
-                                    </div>
-                                    <div className="py-1.5">
-                                        <button
-                                            onClick={() => { setLang('vi'); setIsLangDropdownOpen(false); }}
-                                            className={`w-full flex items-center gap-2.5 px-4 py-2 text-sm transition-colors cursor-pointer hover:bg-surface-overlay ${lang === 'vi' ? 'text-primary-500 font-semibold' : 'text-text-primary font-medium'}`}
-                                        >
-                                            <img src="https://flagcdn.com/w20/vn.png" srcSet="https://flagcdn.com/w40/vn.png 2x" width="20" alt="Vietnamese flag" className="rounded-sm shadow-sm" />
-                                            <span>Tiếng Việt</span>
-                                            {lang === 'vi' && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-500" />}
-                                        </button>
-                                        <button
-                                            onClick={() => { setLang('en'); setIsLangDropdownOpen(false); }}
-                                            className={`w-full flex items-center gap-2.5 px-4 py-2 text-sm transition-colors cursor-pointer hover:bg-surface-overlay ${lang === 'en' ? 'text-primary-500 font-semibold' : 'text-text-primary font-medium'}`}
-                                        >
-                                            <img src="https://flagcdn.com/w20/gb.png" srcSet="https://flagcdn.com/w40/gb.png 2x" width="20" alt="UK flag" className="rounded-sm shadow-sm" />
-                                            <span>English</span>
-                                            {lang === 'en' && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-500" />}
-                                        </button>
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Dark / Light toggle */}
-                    <button
-                        onClick={toggleTheme}
-                        className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all duration-200"
-                        aria-label={theme === 'dark' ? tLayout('header.lightMode') : tLayout('header.darkMode')}
-                        title={theme === 'dark' ? tLayout('header.lightMode') : tLayout('header.darkMode')}
-                    >
-                        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                    </button>
+                    <ThemeToggle />
 
                     {/* Profile Dropdown */}
                     <div className="relative" ref={dropdownRef}>
