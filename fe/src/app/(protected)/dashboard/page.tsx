@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Users, UserCheck, CalendarDays, ScanLine,
   Users2, Wrench, ClipboardList, RefreshCw,
-  AlertCircle, TrendingUp, Clock,
+  TrendingUp, Clock,
 } from 'lucide-react';
 import { getDashboard } from '@/src/lib/dashboardService';
 import type { DashboardSnapshot } from '@/src/types/dashboard.types';
@@ -12,6 +12,8 @@ import PageHeader from '@/src/components/ui/PageHeader';
 import StatsGrid from '@/src/components/ui/StatsGrid';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
+import { getApiMessage } from '@/src/lib/errors';
+import Alert from '@/src/components/ui/Alert';
 
 // ─── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ icon: Icon, label, value, sub, accent = false, loading = false }: {
@@ -75,8 +77,8 @@ export default function DashboardPage() {
       const { snapshot: snap, generatedAt: ts } = await getDashboard();
       setSnapshot(snap);
       setGeneratedAt(ts);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to load dashboard data');
+    } catch (err) {
+      setError(getApiMessage(err) || 'Failed to load dashboard data');
     } finally {
       setIsLoading(false);
     }
@@ -108,11 +110,9 @@ export default function DashboardPage() {
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm">
-          <AlertCircle size={16} className="shrink-0" />
-          <span className="flex-1">{error}</span>
-          <button onClick={load} className="underline text-xs cursor-pointer">{tc('actions.retry')}</button>
-        </div>
+        <Alert action={<button onClick={load} className="underline text-xs cursor-pointer">{tc('actions.retry')}</button>}>
+          {error}
+        </Alert>
       )}
 
       {/* ── Top KPI row ── */}

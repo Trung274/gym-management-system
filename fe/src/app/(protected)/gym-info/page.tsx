@@ -2,8 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Building2, Save, RefreshCw, AlertCircle,
-  MapPin, Phone, Mail, Globe, Clock, ImageIcon, Tag,
+  Building2, Save, RefreshCw, MapPin, Phone, Mail, Globe, Clock, ImageIcon, Tag,
   ExternalLink,
 } from 'lucide-react';
 import { getGymInfo, updateGymInfo } from '@/src/lib/gymInfoService';
@@ -11,6 +10,9 @@ import PageHeader from '@/src/components/ui/PageHeader';
 import { toast } from '@/src/utils/toast';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
+import { getApiMessage } from '@/src/lib/errors';
+import Alert from '@/src/components/ui/Alert';
+import { inputClass } from '@/src/components/ui/FormField';
 
 // ─── Form state shape ────────────────────────────────────────────────────────
 interface GymInfoForm {
@@ -69,13 +71,9 @@ function Field({ label, hint, children }: {
   );
 }
 
-const inp = `w-full px-3 py-2.5 rounded-xl border border-surface-border bg-surface-raised
-  text-sm text-text-primary placeholder-text-muted outline-none
-  focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all`;
+const inp = inputClass();
 
-const textareaClass = `w-full px-3 py-2.5 rounded-xl border border-surface-border bg-surface-raised
-  text-sm text-text-primary placeholder-text-muted outline-none resize-none
-  focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all`;
+const textareaClass = `${inputClass()} resize-none`;
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function GymInfoPage() {
@@ -139,8 +137,8 @@ export default function GymInfoPage() {
         openingHours: oh,
         facebook: fb, instagram: ig, youtube: yt, tiktok: tt,
       });
-    } catch (err: any) {
-      setError(err?.response?.data?.message || tg('toast.loadError'));
+    } catch (err) {
+      setError(getApiMessage(err) || tg('toast.loadError'));
     } finally {
       setLoading(false);
     }
@@ -178,8 +176,8 @@ export default function GymInfoPage() {
         socialLinks:   socialParts.length ? socialParts.join(', ') : undefined,
       });
       toast.success(tg('toast.saveSuccess'));
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || tg('toast.saveError'));
+    } catch (err) {
+      toast.error(getApiMessage(err) || tg('toast.saveError'));
     } finally {
       setSaving(false);
     }
@@ -219,12 +217,7 @@ export default function GymInfoPage() {
       </div>
 
       {/* Error */}
-      {error && (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm">
-          <AlertCircle size={16} className="shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
+      {error && <Alert>{error}</Alert>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* ── Basic Info ── */}

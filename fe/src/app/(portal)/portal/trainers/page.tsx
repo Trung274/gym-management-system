@@ -3,11 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getTrainers, getTrainerById } from '@/src/lib/trainerService';
-import { AlertCircle, X } from 'lucide-react';
+import {  } from 'lucide-react';
 import type { Trainer } from '@/src/types/trainer.types';
 import PageHeader from '@/src/components/ui/PageHeader';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
+import Alert from '@/src/components/ui/Alert';
+import { getApiMessage } from '@/src/lib/errors';
+import Modal from '@/src/components/ui/Modal';
 
 function useExperienceLabel() {
   const { t } = useLanguage();
@@ -46,56 +49,49 @@ function TrainerModal({ trainer, onClose, onBook }: { trainer: Trainer; onClose:
   const tp = t('portal');
   const experienceLabel = useExperienceLabel();
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-surface-base border border-surface-border rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-surface-border">
-          <h2 className="font-bold text-text-primary">{tp('trainers.modal.title')}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:bg-surface-overlay cursor-pointer"><X size={15} /></button>
+    <Modal onClose={onClose} title={tp('trainers.modal.title')} scrollable>
+      <div className="p-5 flex flex-col gap-4">
+        {/* Avatar + name */}
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-primary-500/20 flex items-center justify-center">
+            <span className="text-2xl font-bold text-primary-500">{trainer.initials}</span>
+          </div>
+          <div>
+            <p className="text-lg font-bold text-text-primary">{trainer.name}</p>
+            <p className="text-sm text-text-muted">{experienceLabel(trainer.experienceYears)}</p>
+          </div>
         </div>
-        <div className="p-5 flex flex-col gap-4">
-          {/* Avatar + name */}
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-primary-500/20 flex items-center justify-center">
-              <span className="text-2xl font-bold text-primary-500">{trainer.initials}</span>
-            </div>
-            <div>
-              <p className="text-lg font-bold text-text-primary">{trainer.name}</p>
-              <p className="text-sm text-text-muted">{experienceLabel(trainer.experienceYears)}</p>
+        {/* Specializations */}
+        {trainer.specializations.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">{tp('trainers.modal.specializations')}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {trainer.specializations.map(s => <span key={s} className="px-2.5 py-1 rounded-full text-xs bg-primary-500/10 text-primary-500 font-medium">{s}</span>)}
             </div>
           </div>
-          {/* Specializations */}
-          {trainer.specializations.length > 0 && (
-            <div className="flex flex-col gap-1.5">
-              <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">{tp('trainers.modal.specializations')}</p>
-              <div className="flex flex-wrap gap-1.5">
-                {trainer.specializations.map(s => <span key={s} className="px-2.5 py-1 rounded-full text-xs bg-primary-500/10 text-primary-500 font-medium">{s}</span>)}
-              </div>
-            </div>
-          )}
-          {/* Bio */}
-          {trainer.bio && (
-            <div className="flex flex-col gap-1.5">
-              <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">{tp('trainers.modal.bio')}</p>
-              <p className="text-sm text-text-secondary leading-relaxed">{trainer.bio}</p>
-            </div>
-          )}
-          {/* Certifications */}
-          {trainer.certifications.length > 0 && (
-            <div className="flex flex-col gap-1.5">
-              <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">{tp('trainers.modal.certifications')}</p>
-              <ul className="flex flex-col gap-1">
-                {trainer.certifications.map(c => <li key={c} className="text-sm text-text-secondary flex items-center gap-1.5">🏅 {c}</li>)}
-              </ul>
-            </div>
-          )}
-          <button onClick={() => onBook(trainer.id)}
-            className="w-full py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold cursor-pointer transition-all mt-2">
-            {tp('trainers.modal.bookButton')}
-          </button>
-        </div>
+        )}
+        {/* Bio */}
+        {trainer.bio && (
+          <div className="flex flex-col gap-1.5">
+            <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">{tp('trainers.modal.bio')}</p>
+            <p className="text-sm text-text-secondary leading-relaxed">{trainer.bio}</p>
+          </div>
+        )}
+        {/* Certifications */}
+        {trainer.certifications.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">{tp('trainers.modal.certifications')}</p>
+            <ul className="flex flex-col gap-1">
+              {trainer.certifications.map(c => <li key={c} className="text-sm text-text-secondary flex items-center gap-1.5">🏅 {c}</li>)}
+            </ul>
+          </div>
+        )}
+        <button onClick={() => onBook(trainer.id)}
+          className="w-full py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold cursor-pointer transition-all mt-2">
+          {tp('trainers.modal.bookButton')}
+        </button>
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -113,7 +109,7 @@ export default function PortalTrainersPage() {
   useEffect(() => {
     getTrainers()
       .then(setTrainers)
-      .catch((e: any) => setError(e?.response?.data?.message ?? ''))
+      .catch((e) => setError(getApiMessage(e) ?? ''))
       .finally(() => setLoading(false));
   }, []);
 
@@ -126,7 +122,7 @@ export default function PortalTrainersPage() {
       <div className="flex flex-col gap-5">
         <PageHeader title={tp('trainers.title')} subtitle={tp('trainers.subtitle')} />
 
-        {error !== null && <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm"><AlertCircle size={15} /> {error || tp('trainers.loadError')}</div>}
+        {error !== null && <Alert>{error || tp('trainers.loadError')}</Alert>}
 
         {loading
           ? <div className="grid sm:grid-cols-2 gap-3">{[...Array(6)].map((_, i) => <div key={i} className="h-32 bg-surface-overlay rounded-xl animate-pulse" />)}</div>

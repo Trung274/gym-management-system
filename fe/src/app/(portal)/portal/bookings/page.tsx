@@ -5,13 +5,17 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { getMyBookings, createBooking, cancelBooking } from '@/src/lib/bookingService';
 import { getTrainers } from '@/src/lib/trainerService';
 import { toast } from '@/src/utils/toast';
-import { X, AlertCircle, CalendarDays, Clock } from 'lucide-react';
+import { CalendarDays, Clock } from 'lucide-react';
 import type { Booking, CreateBookingPayload, BookingStatus } from '@/src/types/booking.types';
 import type { Trainer } from '@/src/types/trainer.types';
 import PageHeader from '@/src/components/ui/PageHeader';
 import AddButton from '@/src/components/ui/AddButton';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
+import Alert from '@/src/components/ui/Alert';
+import { getApiMessage } from '@/src/lib/errors';
+import Modal, { ModalFooter } from '@/src/components/ui/Modal';
+import FormField, { inputClass } from '@/src/components/ui/FormField';
 
 const STATUS_STYLES: Record<BookingStatus, string> = {
   pending:   'bg-warning-500/10 text-warning-500',
@@ -80,7 +84,7 @@ function PortalBookingsContent() {
       const [b, t] = await Promise.all([getMyBookings(), getTrainers()]);
       setBookings(b);
       setTrainers(t.filter(tr => tr.status === 'active'));
-    } catch (e: any) { setError(e?.response?.data?.message ?? ''); }
+    } catch (e) { setError(getApiMessage(e) ?? ''); }
     finally { setLoading(false); }
   }, []);
 
@@ -109,7 +113,7 @@ function PortalBookingsContent() {
       setModalOpen(false);
       setForm({ trainerId: '', sessionDate: '', startTime: '07:00', endTime: '08:00', notes: '' });
       toast.success(tp('bookings.toast.bookSuccess'));
-    } catch (e: any) { toast.error(e?.response?.data?.message || tp('bookings.toast.bookError')); }
+    } catch (e) { toast.error(getApiMessage(e) || tp('bookings.toast.bookError')); }
     finally { setSaving(false); }
   };
 
@@ -119,11 +123,11 @@ function PortalBookingsContent() {
       await cancelBooking(id);
       setBookings(prev => prev.map(b => b.id === id ? { ...b, status: 'cancelled', statusLabel: tp('bookings.status.cancelled') } : b));
       toast.success(tp('bookings.toast.cancelSuccess'));
-    } catch (e: any) { toast.error(e?.response?.data?.message || tp('bookings.toast.cancelError')); }
+    } catch (e) { toast.error(getApiMessage(e) || tp('bookings.toast.cancelError')); }
     finally { setCancelId(null); }
   };
 
-  const inp = `w-full px-3 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all`;
+  const inp = inputClass();
 
   return (
     <>
@@ -133,7 +137,7 @@ function PortalBookingsContent() {
           <AddButton onClick={() => setModalOpen(true)} label={tp('bookings.addButton')} />
         </div>
 
-        {error !== null && <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm"><AlertCircle size={15} /> {error || tp('bookings.loadError')}</div>}
+        {error !== null && <Alert>{error || tp('bookings.loadError')}</Alert>}
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 bg-surface-raised rounded-xl border border-surface-border w-fit">
@@ -158,48 +162,31 @@ function PortalBookingsContent() {
 
       {/* Create modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setModalOpen(false)} />
-          <div className="relative w-full max-w-md bg-surface-base border border-surface-border rounded-2xl shadow-2xl">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-surface-border">
-              <h2 className="font-bold text-text-primary">{tp('bookings.modal.title')}</h2>
-              <button onClick={() => setModalOpen(false)} className="p-1.5 rounded-lg text-text-muted hover:bg-surface-overlay cursor-pointer"><X size={15} /></button>
+        <Modal onClose={() => setModalOpen(false)} title={tp('bookings.modal.title')}>
+          <form onSubmit={handleCreate} className="p-5 flex flex-col gap-3">
+            <FormField label={tp('bookings.modal.trainer')} required>
+              <select value={form.trainerId} onChange={e => setForm(f => ({ ...f, trainerId: e.target.value }))} required className={inp}>
+                <option value="">{tp('bookings.modal.trainerPlaceholder')}</option>
+                {trainers.map(t => <option key={t.id} value={t.id}>{t.name} {t.specializations.length ? `(${t.specializations.slice(0,2).join(', ')})` : ''}</option>)}
+              </select>
+            </FormField>
+            <FormField label={tp('bookings.modal.date')} required>
+              <input type="date" value={form.sessionDate} onChange={e => setForm(f => ({ ...f, sessionDate: e.target.value }))} required min={new Date().toISOString().slice(0,10)} className={inp} />
+            </FormField>
+            <div className="grid grid-cols-2 gap-2">
+              <FormField label={tp('bookings.modal.startTime')} required>
+                <input type="time" value={form.startTime} onChange={e => setForm(f => ({ ...f, startTime: e.target.value }))} required className={inp} />
+              </FormField>
+              <FormField label={tp('bookings.modal.endTime')} required>
+                <input type="time" value={form.endTime} onChange={e => setForm(f => ({ ...f, endTime: e.target.value }))} required className={inp} />
+              </FormField>
             </div>
-            <form onSubmit={handleCreate} className="p-5 flex flex-col gap-3">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{tp('bookings.modal.trainer')}</label>
-                <select value={form.trainerId} onChange={e => setForm(f => ({ ...f, trainerId: e.target.value }))} required className={inp}>
-                  <option value="">{tp('bookings.modal.trainerPlaceholder')}</option>
-                  {trainers.map(t => <option key={t.id} value={t.id}>{t.name} {t.specializations.length ? `(${t.specializations.slice(0,2).join(', ')})` : ''}</option>)}
-                </select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{tp('bookings.modal.date')}</label>
-                <input type="date" value={form.sessionDate} onChange={e => setForm(f => ({ ...f, sessionDate: e.target.value }))} required min={new Date().toISOString().slice(0,10)} className={inp} />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-text-secondary">{tp('bookings.modal.startTime')}</label>
-                  <input type="time" value={form.startTime} onChange={e => setForm(f => ({ ...f, startTime: e.target.value }))} required className={inp} />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-text-secondary">{tp('bookings.modal.endTime')}</label>
-                  <input type="time" value={form.endTime} onChange={e => setForm(f => ({ ...f, endTime: e.target.value }))} required className={inp} />
-                </div>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{tp('bookings.modal.notes')}</label>
-                <input type="text" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={tp('bookings.modal.notesPlaceholder')} className={inp} />
-              </div>
-              <div className="flex gap-2 pt-1">
-                <button type="button" onClick={() => setModalOpen(false)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-surface-border text-text-secondary hover:bg-surface-overlay cursor-pointer transition-all">{tp('bookings.modal.cancel')}</button>
-                <button type="submit" disabled={saving} className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-primary-500 hover:bg-primary-600 text-white disabled:opacity-50 cursor-pointer transition-all">
-                  {saving ? tp('bookings.modal.submitting') : tp('bookings.modal.submit')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            <FormField label={tp('bookings.modal.notes')}>
+              <input type="text" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={tp('bookings.modal.notesPlaceholder')} className={inp} />
+            </FormField>
+            <ModalFooter onCancel={() => setModalOpen(false)} cancelLabel={tp('bookings.modal.cancel')} submitLabel={saving ? tp('bookings.modal.submitting') : tp('bookings.modal.submit')} loading={saving} />
+          </form>
+        </Modal>
       )}
     </>
   );

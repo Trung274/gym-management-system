@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { getGymInfo } from '@/src/lib/gymInfoService';
-import { AlertCircle, MapPin, Phone, Mail, Globe, Clock } from 'lucide-react';
+import { MapPin, Phone, Mail, Globe, Clock } from 'lucide-react';
 import type { GymInfo, OpeningHour } from '@/src/types/member-portal.types';
 import PageHeader from '@/src/components/ui/PageHeader';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
+import { getApiMessage } from '@/src/lib/errors';
+import Alert from '@/src/components/ui/Alert';
 
 export default function PortalGymInfoPage() {
   const { t } = useLanguage();
@@ -20,7 +22,7 @@ export default function PortalGymInfoPage() {
   useEffect(() => {
     getGymInfo()
       .then(setInfo)
-      .catch((e: any) => setError(e?.response?.data?.message ?? ''))
+      .catch((e) => setError(getApiMessage(e) ?? ''))
       .finally(() => setLoading(false));
   }, []);
 
@@ -30,11 +32,7 @@ export default function PortalGymInfoPage() {
     </div>
   );
 
-  if (error !== null) return (
-    <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm">
-      <AlertCircle size={15} /> {error || tp('gymInfo.loadError')}
-    </div>
-  );
+  if (error !== null) return <Alert>{error || tp('gymInfo.loadError')}</Alert>;
 
   if (!info) return null;
 

@@ -14,6 +14,10 @@ import type {
 import type { PlanType } from '@/src/types/plan.types';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
+import Alert from '@/src/components/ui/Alert';
+import { getApiMessage } from '@/src/lib/errors';
+import Modal, { ModalFooter } from '@/src/components/ui/Modal';
+import FormField, { inputClass } from '@/src/components/ui/FormField';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUS_STYLES: Record<MemberStatus, string> = {
@@ -101,132 +105,105 @@ function CreateMemberModal({ open, onClose, onSave, isLoading, plans }: {
 
   if (!open) return null;
 
-  const inputCls = (field: string) => `w-full px-3 py-2 rounded-xl border text-sm text-text-primary bg-surface-raised placeholder-text-muted outline-none transition-all ${errors[field] ? 'border-danger-500 focus:ring-2 focus:ring-danger-500/30' : 'border-surface-border focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'}`;
+  const inputCls = (field: string) => inputClass(!!errors[field]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-2xl bg-surface-base rounded-2xl shadow-2xl border border-surface-border overflow-hidden max-h-[90vh] flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border shrink-0">
-          <h2 className="text-base font-bold text-text-primary">{tm('createModal.title')}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-          </button>
+    <Modal onClose={onClose} title={tm('createModal.title')} size="lg" scrollable>
+      {/* Body */}
+      <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 p-6 flex flex-col gap-5">
+        {/* Section: Tài khoản */}
+        <div>
+          <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{tm('createModal.sectionAccount')}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <FormField label={tm('createModal.name')} required error={errors.name}>
+              <input type="text" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Nguyễn Văn B" className={inputCls('name')} />
+            </FormField>
+            <FormField label={tm('createModal.loginEmail')} required error={errors.email}>
+              <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="member@gym.com" className={inputCls('email')} />
+            </FormField>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-text-secondary">{tm('createModal.password')} <span className="text-danger-500">*</span></label>
+              <div className="relative">
+                <input type={showPwd ? 'text' : 'password'} value={form.password} onChange={(e) => set('password', e.target.value)} placeholder={tm('createModal.passwordHint')} className={`${inputCls('password')} pr-10`} />
+                <button type="button" onClick={() => setShowPwd(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary cursor-pointer">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d={showPwd ? "M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" : "M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"} /></svg>
+                </button>
+              </div>
+              {errors.password && <p className="text-xs text-danger-500">{errors.password}</p>}
+            </div>
+            <FormField label={tm('createModal.contactEmail')}>
+              <input type="email" value={form.memberEmail} onChange={(e) => set('memberEmail', e.target.value)} placeholder={tm('createModal.contactEmailHint')} className={inputCls('memberEmail')} />
+            </FormField>
+          </div>
         </div>
-        {/* Body */}
-        <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 p-6 flex flex-col gap-5">
-          {/* Section: Tài khoản */}
-          <div>
-            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{tm('createModal.sectionAccount')}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.name')} <span className="text-danger-500">*</span></label>
-                <input type="text" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Nguyễn Văn B" className={inputCls('name')} />
-                {errors.name && <p className="text-xs text-danger-500">{errors.name}</p>}
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.loginEmail')} <span className="text-danger-500">*</span></label>
-                <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="member@gym.com" className={inputCls('email')} />
-                {errors.email && <p className="text-xs text-danger-500">{errors.email}</p>}
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.password')} <span className="text-danger-500">*</span></label>
-                <div className="relative">
-                  <input type={showPwd ? 'text' : 'password'} value={form.password} onChange={(e) => set('password', e.target.value)} placeholder={tm('createModal.passwordHint')} className={`${inputCls('password')} pr-10`} />
-                  <button type="button" onClick={() => setShowPwd(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d={showPwd ? "M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" : "M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"} /></svg>
-                  </button>
-                </div>
-                {errors.password && <p className="text-xs text-danger-500">{errors.password}</p>}
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.contactEmail')}</label>
-                <input type="email" value={form.memberEmail} onChange={(e) => set('memberEmail', e.target.value)} placeholder={tm('createModal.contactEmailHint')} className={inputCls('memberEmail')} />
-              </div>
+
+        {/* Section: Thông tin cá nhân */}
+        <div>
+          <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{tm('createModal.sectionPersonal')}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <FormField label={tm('createModal.phone')}>
+              <input type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="0912345678" className={inputCls('phone')} />
+            </FormField>
+            <FormField label={tm('createModal.idCard')}>
+              <input type="text" value={form.idCard} onChange={(e) => set('idCard', e.target.value)} placeholder="012345678901" className={inputCls('idCard')} />
+            </FormField>
+            <FormField label={tm('createModal.dateOfBirth')}>
+              <input type="date" value={form.dateOfBirth} onChange={(e) => set('dateOfBirth', e.target.value)} className={inputCls('dateOfBirth')} />
+            </FormField>
+            <FormField label={tm('createModal.gender')}>
+              <select value={form.gender ?? ''} onChange={(e) => set('gender', e.target.value || undefined)} className={inputCls('gender')}>
+                {genderOptions.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
+              </select>
+            </FormField>
+            <div className="flex flex-col gap-1.5 sm:col-span-2">
+              <label className="text-xs font-semibold text-text-secondary">{tm('createModal.address')}</label>
+              <input type="text" value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="123 Nguyễn Trãi, Hà Nội" className={inputCls('address')} />
             </div>
           </div>
+        </div>
 
-          {/* Section: Thông tin cá nhân */}
-          <div>
-            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{tm('createModal.sectionPersonal')}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.phone')}</label>
-                <input type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="0912345678" className={inputCls('phone')} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.idCard')}</label>
-                <input type="text" value={form.idCard} onChange={(e) => set('idCard', e.target.value)} placeholder="012345678901" className={inputCls('idCard')} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.dateOfBirth')}</label>
-                <input type="date" value={form.dateOfBirth} onChange={(e) => set('dateOfBirth', e.target.value)} className={inputCls('dateOfBirth')} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.gender')}</label>
-                <select value={form.gender ?? ''} onChange={(e) => set('gender', e.target.value || undefined)} className={inputCls('gender')}>
-                  {genderOptions.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
-                </select>
-              </div>
-              <div className="flex flex-col gap-1.5 sm:col-span-2">
-                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.address')}</label>
-                <input type="text" value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="123 Nguyễn Trãi, Hà Nội" className={inputCls('address')} />
-              </div>
-            </div>
-          </div>
-
-          {/* Section: Gói tập */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-bold text-text-muted uppercase tracking-wider">{tm('createModal.sectionPlan')}</p>
-              <button type="button" onClick={() => setUsePlan(v => !v)}
-                className="text-xs text-primary-500 hover:underline cursor-pointer">
-                {usePlan ? tm('createModal.useManualDate') : tm('createModal.useByPlan')}
-              </button>
-            </div>
-            {usePlan ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1.5 sm:col-span-2">
-                  <label className="text-xs font-semibold text-text-secondary">{tm('createModal.planSelect')} <span className="text-danger-500">*</span></label>
-                  <select value={form.planId} onChange={(e) => set('planId', e.target.value)} className={inputCls('planId')}>
-                    <option value="">-- {tm('createModal.planSelect')} --</option>
-                    {plans.map((p) => <option key={p.id} value={p.id}>{p.name} — {p.durationLabel} — {p.priceLabel}</option>)}
-                  </select>
-                  {errors.planId && <p className="text-xs text-danger-500">{errors.planId}</p>}
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-text-secondary">{tm('createModal.startDate')}</label>
-                  <input type="date" value={form.startDate} onChange={(e) => set('startDate', e.target.value)} className={inputCls('startDate')} />
-                  <p className="text-xs text-text-muted">{tm('createModal.startDateHint')}</p>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1.5 max-w-xs">
-                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.endDate')} <span className="text-danger-500">*</span></label>
-                <input type="date" value={form.endDate} onChange={(e) => set('endDate', e.target.value)} className={inputCls('endDate')} />
-                {errors.endDate && <p className="text-xs text-danger-500">{errors.endDate}</p>}
-              </div>
-            )}
-          </div>
-
-          {/* Notes */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">{tm('createModal.notes')}</label>
-            <textarea rows={2} value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder={tm('createModal.notesPlaceholder')} className={`${inputCls('notes')} resize-none`} />
-          </div>
-
-          {/* Footer */}
-          <div className="flex gap-3 pt-2 sticky bottom-0 bg-surface-base border-t border-surface-border -mx-6 px-6 py-4 -mb-6">
-            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">{tCommon('actions.cancel')}</button>
-            <button type="submit" disabled={isLoading} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2">
-              {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-              {tm('createModal.submit')}
+        {/* Section: Gói tập */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-bold text-text-muted uppercase tracking-wider">{tm('createModal.sectionPlan')}</p>
+            <button type="button" onClick={() => setUsePlan(v => !v)}
+              className="text-xs text-primary-500 hover:underline cursor-pointer">
+              {usePlan ? tm('createModal.useManualDate') : tm('createModal.useByPlan')}
             </button>
           </div>
-        </form>
-      </div>
-    </div>
+          {usePlan ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.planSelect')} <span className="text-danger-500">*</span></label>
+                <select value={form.planId} onChange={(e) => set('planId', e.target.value)} className={inputCls('planId')}>
+                  <option value="">-- {tm('createModal.planSelect')} --</option>
+                  {plans.map((p) => <option key={p.id} value={p.id}>{p.name} — {p.durationLabel} — {p.priceLabel}</option>)}
+                </select>
+                {errors.planId && <p className="text-xs text-danger-500">{errors.planId}</p>}
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-text-secondary">{tm('createModal.startDate')}</label>
+                <input type="date" value={form.startDate} onChange={(e) => set('startDate', e.target.value)} className={inputCls('startDate')} />
+                <p className="text-xs text-text-muted">{tm('createModal.startDateHint')}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1.5 max-w-xs">
+              <label className="text-xs font-semibold text-text-secondary">{tm('createModal.endDate')} <span className="text-danger-500">*</span></label>
+              <input type="date" value={form.endDate} onChange={(e) => set('endDate', e.target.value)} className={inputCls('endDate')} />
+              {errors.endDate && <p className="text-xs text-danger-500">{errors.endDate}</p>}
+            </div>
+          )}
+        </div>
+
+        {/* Notes */}
+        <FormField label={tm('createModal.notes')}>
+          <textarea rows={2} value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder={tm('createModal.notesPlaceholder')} className={`${inputCls('notes')} resize-none`} />
+        </FormField>
+
+        <ModalFooter onCancel={onClose} cancelLabel={tCommon('actions.cancel')} submitLabel={tm('createModal.submit')} loading={isLoading} sticky />
+      </form>
+    </Modal>
   );
 }
 
@@ -254,46 +231,31 @@ function RenewModal({ open, member, onClose, onSave, isLoading, plans }: {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-surface-base rounded-2xl shadow-2xl border border-surface-border overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border">
-          <h2 className="text-base font-bold text-text-primary">{tm('renewModal.title')}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-          </button>
+    <Modal onClose={onClose} title={tm('renewModal.title')}>
+      <div className="p-6 flex flex-col gap-4">
+        <div className="p-3 rounded-xl bg-surface-raised border border-surface-border">
+          <p className="font-semibold text-sm text-text-primary">{member.name}</p>
+          <p className="text-xs text-text-muted">{tm('renewModal.currentExpiry')}: {member.endDateLabel}</p>
+          <p className="text-xs text-text-muted">{tm('renewModal.currentPlan')}: {member.planName}</p>
         </div>
-        <div className="p-6 flex flex-col gap-4">
-          <div className="p-3 rounded-xl bg-surface-raised border border-surface-border">
-            <p className="font-semibold text-sm text-text-primary">{member.name}</p>
-            <p className="text-xs text-text-muted">{tm('renewModal.currentExpiry')}: {member.endDateLabel}</p>
-            <p className="text-xs text-text-muted">{tm('renewModal.currentPlan')}: {member.planName}</p>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => setUsePlan(true)} className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-all cursor-pointer ${usePlan ? 'border-primary-500 bg-primary-500/10 text-primary-500' : 'border-surface-border text-text-secondary hover:border-primary-500/50'}`}>{tm('renewModal.byPlan')}</button>
-            <button onClick={() => setUsePlan(false)} className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-all cursor-pointer ${!usePlan ? 'border-primary-500 bg-primary-500/10 text-primary-500' : 'border-surface-border text-text-secondary hover:border-primary-500/50'}`}>{tm('renewModal.manual')}</button>
-          </div>
-          {usePlan ? (
-            <select value={planId} onChange={(e) => setPlanId(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl border border-surface-border text-sm text-text-primary bg-surface-raised outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all">
-              <option value="">-- {tm('createModal.planSelect')} --</option>
-              {plans.map((p) => <option key={p.id} value={p.id}>{p.name} — {p.durationLabel} — {p.priceLabel}</option>)}
-            </select>
-          ) : (
-            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl border border-surface-border text-sm text-text-primary bg-surface-raised outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
-            />
-          )}
-          <div className="flex gap-3">
-            <button onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">{tCommon('actions.cancel')}</button>
-            <button onClick={handleConfirm} disabled={isLoading} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2">
-              {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-              {tm('renewModal.submit')}
-            </button>
-          </div>
+        <div className="flex gap-2">
+          <button onClick={() => setUsePlan(true)} className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-all cursor-pointer ${usePlan ? 'border-primary-500 bg-primary-500/10 text-primary-500' : 'border-surface-border text-text-secondary hover:border-primary-500/50'}`}>{tm('renewModal.byPlan')}</button>
+          <button onClick={() => setUsePlan(false)} className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-all cursor-pointer ${!usePlan ? 'border-primary-500 bg-primary-500/10 text-primary-500' : 'border-surface-border text-text-secondary hover:border-primary-500/50'}`}>{tm('renewModal.manual')}</button>
         </div>
+        {usePlan ? (
+          <select value={planId} onChange={(e) => setPlanId(e.target.value)}
+            className={inputClass()}>
+            <option value="">-- {tm('createModal.planSelect')} --</option>
+            {plans.map((p) => <option key={p.id} value={p.id}>{p.name} — {p.durationLabel} — {p.priceLabel}</option>)}
+          </select>
+        ) : (
+          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
+            className={inputClass()}
+          />
+        )}
+        <ModalFooter onCancel={onClose} cancelLabel={tCommon('actions.cancel')} submitLabel={tm('renewModal.submit')} loading={isLoading} onSubmit={handleConfirm} />
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -440,8 +402,8 @@ export default function MembersPage() {
       await createMember(payload);
       toast.success(tm('toast.addSuccess'));
       setCreateOpen(false);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || tm('toast.addError'));
+    } catch (err) {
+      toast.error(getApiMessage(err) || tm('toast.addError'));
     } finally { setSaving(false); }
   }, [createMember, tm]);
 
@@ -450,8 +412,8 @@ export default function MembersPage() {
     try {
       await checkIn(m.id);
       toast.success(tm('toast.checkinSuccess').replace('{{name}}', m.name));
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || tm('toast.checkinError'));
+    } catch (err) {
+      toast.error(getApiMessage(err) || tm('toast.checkinError'));
     } finally { setActingId(null); }
   }, [checkIn, tm]);
 
@@ -461,8 +423,8 @@ export default function MembersPage() {
       await renewMembership(id, payload);
       toast.success(tm('toast.renewSuccess'));
       setRenewMember(null);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || tm('toast.renewError'));
+    } catch (err) {
+      toast.error(getApiMessage(err) || tm('toast.renewError'));
     } finally { setSaving(false); }
   }, [renewMembership, tm]);
 
@@ -474,8 +436,8 @@ export default function MembersPage() {
       toast.success(newStatus === 'suspended'
         ? tm('toast.suspendSuccess').replace('{{name}}', m.name)
         : tm('toast.activateSuccess').replace('{{name}}', m.name));
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || tm('toast.statusError'));
+    } catch (err) {
+      toast.error(getApiMessage(err) || tm('toast.statusError'));
     } finally { setActingId(null); }
   }, [changeStatus, tm]);
 
@@ -497,13 +459,7 @@ export default function MembersPage() {
         </div>
 
         {/* Error */}
-        {error && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 shrink-0"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
-            <span className="flex-1">{error}</span>
-            <button onClick={clearError} className="hover:opacity-70 cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg></button>
-          </div>
-        )}
+        {error && <Alert onDismiss={clearError}>{error}</Alert>}
 
         {/* Stats */}
         <StatsGrid

@@ -61,10 +61,4 @@ export const transformEquipment = (api: EquipmentApiData): Equipment => ({
   isMaintenanceDue: isMaintenanceDue(api.nextMaintenanceDate),
 });
 
-export const extractErrorMessage = (error: unknown): string => {
-  if (error && typeof error === 'object') {
-    const e = error as any;
-    return e?.response?.data?.message || e?.response?.data?.error || e?.message || 'Đã xảy ra lỗi không xác định';
-  }
-  return 'Đã xảy ra lỗi không xác định';
-};
+export { extractErrorMessage } from './errors';

@@ -10,6 +10,11 @@ import type { Trainer, TrainerStatus, CreateTrainerPayload, UpdateTrainerPayload
 import type { Gender } from '@/src/types/member.types';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
+import Alert from '@/src/components/ui/Alert';
+import { getApiMessage } from '@/src/lib/errors';
+import Spinner from '@/src/components/ui/Spinner';
+import Modal, { ModalFooter } from '@/src/components/ui/Modal';
+import FormField, { inputClass } from '@/src/components/ui/FormField';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AVATAR_COLORS = [
@@ -132,7 +137,7 @@ function TrainerCard({ trainer, onEdit, onToggleStatus, actingId }: {
         <button onClick={() => onToggleStatus(trainer)} disabled={isActing}
           className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer disabled:opacity-50 ${trainer.status === 'active' ? 'bg-danger-500/10 text-danger-500 hover:bg-danger-500/20' : 'bg-success-500/10 text-success-500 hover:bg-success-500/20'}`}>
           {isActing ? (
-            <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            <Spinner />
           ) : (
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d={trainer.status === 'active' ? "M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" : "M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"} /></svg>
           )}
@@ -209,114 +214,88 @@ function TrainerModal({ open, editing, onClose, onSave, isLoading }: {
 
   if (!open) return null;
 
-  const inputCls = (f: string) => `w-full px-3 py-2 rounded-xl border text-sm text-text-primary bg-surface-raised placeholder-text-muted outline-none transition-all ${errors[f] ? 'border-danger-500 focus:ring-2 focus:ring-danger-500/30' : 'border-surface-border focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'}`;
+  const inputCls = (f: string) => inputClass(!!errors[f]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-2xl bg-surface-base rounded-2xl shadow-2xl border border-surface-border overflow-hidden max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border shrink-0">
-          <h2 className="text-base font-bold text-text-primary">{editing ? te('modal.editTitle') : te('modal.createTitle')}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
-        <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 p-6 flex flex-col gap-5">
-          {/* Tài khoản — chỉ khi tạo mới */}
-          {!editing && (
-            <div>
-              <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{te('modal.accountInfo')}</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-text-secondary">{te('modal.name')} <span className="text-danger-500">*</span></label>
-                  <input type="text" value={form.name ?? ''} onChange={(e) => setF('name', e.target.value)} placeholder={te('modal.namePlaceholder')} className={inputCls('name')} />
-                  {errors.name && <p className="text-xs text-danger-500">{errors.name}</p>}
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-text-secondary">{te('modal.loginEmail')} <span className="text-danger-500">*</span></label>
-                  <input type="email" value={form.email ?? ''} onChange={(e) => setF('email', e.target.value)} placeholder={te('modal.loginEmailPlaceholder')} className={inputCls('email')} />
-                  {errors.email && <p className="text-xs text-danger-500">{errors.email}</p>}
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-text-secondary">{te('modal.password')} <span className="text-danger-500">*</span></label>
-                  <div className="relative">
-                    <input type={showPwd ? 'text' : 'password'} value={form.password ?? ''} onChange={(e) => setF('password', e.target.value)} placeholder={te('modal.passwordPlaceholder')} className={`${inputCls('password')} pr-10`} />
-                    <button type="button" onClick={() => setShowPwd(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary cursor-pointer">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d={showPwd ? "M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" : "M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"} /></svg>
-                    </button>
-                  </div>
-                  {errors.password && <p className="text-xs text-danger-500">{errors.password}</p>}
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-text-secondary">{te('modal.hireDate')}</label>
-                  <input type="date" value={form.hireDate ?? ''} onChange={(e) => setF('hireDate', e.target.value)} className={inputCls('hireDate')} />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Thông tin cá nhân */}
+    <Modal onClose={onClose} title={editing ? te('modal.editTitle') : te('modal.createTitle')} size="lg" scrollable>
+      <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 p-6 flex flex-col gap-5">
+        {/* Tài khoản — chỉ khi tạo mới */}
+        {!editing && (
           <div>
-            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{te('modal.personalInfo')}</p>
+            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{te('modal.accountInfo')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <FormField label={te('modal.name')} required error={errors.name}>
+                <input type="text" value={form.name ?? ''} onChange={(e) => setF('name', e.target.value)} placeholder={te('modal.namePlaceholder')} className={inputCls('name')} />
+              </FormField>
+              <FormField label={te('modal.loginEmail')} required error={errors.email}>
+                <input type="email" value={form.email ?? ''} onChange={(e) => setF('email', e.target.value)} placeholder={te('modal.loginEmailPlaceholder')} className={inputCls('email')} />
+              </FormField>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.phone')}</label>
-                <input type="tel" value={form.phone ?? ''} onChange={(e) => setF('phone', e.target.value)} placeholder={te('modal.phonePlaceholder')} className={inputCls('phone')} />
+                <label className="text-xs font-semibold text-text-secondary">{te('modal.password')} <span className="text-danger-500">*</span></label>
+                <div className="relative">
+                  <input type={showPwd ? 'text' : 'password'} value={form.password ?? ''} onChange={(e) => setF('password', e.target.value)} placeholder={te('modal.passwordPlaceholder')} className={`${inputCls('password')} pr-10`} />
+                  <button type="button" onClick={() => setShowPwd(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d={showPwd ? "M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" : "M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"} /></svg>
+                  </button>
+                </div>
+                {errors.password && <p className="text-xs text-danger-500">{errors.password}</p>}
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.personalEmail')}</label>
-                <input type="email" value={form.trainerEmail ?? ''} onChange={(e) => setF('trainerEmail', e.target.value)} placeholder={te('modal.personalEmailPlaceholder')} className={inputCls('trainerEmail')} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.dateOfBirth')}</label>
-                <input type="date" value={form.dateOfBirth ?? ''} onChange={(e) => setF('dateOfBirth', e.target.value)} className={inputCls('dateOfBirth')} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.gender')}</label>
-                <select value={form.gender ?? ''} onChange={(e) => setF('gender', e.target.value || undefined)} className={inputCls('gender')}>
-                  {GENDER_OPTIONS.map((g) => <option key={g.value} value={g.value}>{te(`modal.${g.labelKey}`)}</option>)}
-                </select>
-              </div>
-              <div className="flex flex-col gap-1.5 sm:col-span-2">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.address')}</label>
-                <input type="text" value={form.address ?? ''} onChange={(e) => setF('address', e.target.value)} placeholder={te('modal.addressPlaceholder')} className={inputCls('address')} />
-              </div>
+              <FormField label={te('modal.hireDate')}>
+                <input type="date" value={form.hireDate ?? ''} onChange={(e) => setF('hireDate', e.target.value)} className={inputCls('hireDate')} />
+              </FormField>
             </div>
           </div>
+        )}
 
-          {/* Chuyên môn */}
-          <div>
-            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{te('modal.specializationSection')}</p>
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.experienceYears')}</label>
-                <input type="number" min="0" max="50" value={form.experienceYears ?? 0} onChange={(e) => setF('experienceYears', e.target.value)} className={`${inputCls('experienceYears')} max-w-[180px]`} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.specializations')}</label>
-                <TagInput value={form.specializations ?? []} onChange={(v) => setF('specializations', v)} placeholder="VD: Yoga, Strength, Cardio..." />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.certifications')}</label>
-                <TagInput value={form.certifications ?? []} onChange={(v) => setF('certifications', v)} placeholder="VD: ACE CPT, CrossFit L1..." />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.bio')}</label>
-                <textarea rows={3} value={form.bio ?? ''} onChange={(e) => setF('bio', e.target.value)} placeholder={te('modal.bioPlaceholder')} className={`${inputCls('bio')} resize-none`} />
-              </div>
+        {/* Thông tin cá nhân */}
+        <div>
+          <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{te('modal.personalInfo')}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <FormField label={te('modal.phone')}>
+              <input type="tel" value={form.phone ?? ''} onChange={(e) => setF('phone', e.target.value)} placeholder={te('modal.phonePlaceholder')} className={inputCls('phone')} />
+            </FormField>
+            <FormField label={te('modal.personalEmail')}>
+              <input type="email" value={form.trainerEmail ?? ''} onChange={(e) => setF('trainerEmail', e.target.value)} placeholder={te('modal.personalEmailPlaceholder')} className={inputCls('trainerEmail')} />
+            </FormField>
+            <FormField label={te('modal.dateOfBirth')}>
+              <input type="date" value={form.dateOfBirth ?? ''} onChange={(e) => setF('dateOfBirth', e.target.value)} className={inputCls('dateOfBirth')} />
+            </FormField>
+            <FormField label={te('modal.gender')}>
+              <select value={form.gender ?? ''} onChange={(e) => setF('gender', e.target.value || undefined)} className={inputCls('gender')}>
+                {GENDER_OPTIONS.map((g) => <option key={g.value} value={g.value}>{te(`modal.${g.labelKey}`)}</option>)}
+              </select>
+            </FormField>
+            <div className="flex flex-col gap-1.5 sm:col-span-2">
+              <label className="text-xs font-semibold text-text-secondary">{te('modal.address')}</label>
+              <input type="text" value={form.address ?? ''} onChange={(e) => setF('address', e.target.value)} placeholder={te('modal.addressPlaceholder')} className={inputCls('address')} />
             </div>
           </div>
+        </div>
 
-          <div className="flex gap-3 pt-2 sticky bottom-0 bg-surface-base border-t border-surface-border -mx-6 px-6 py-4 -mb-6">
-            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">{tCommon('actions.cancel')}</button>
-            <button type="submit" disabled={isLoading} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2">
-              {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-              {editing ? tCommon('actions.save') : te('addTrainer')}
-            </button>
+        {/* Chuyên môn */}
+        <div>
+          <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{te('modal.specializationSection')}</p>
+          <div className="flex flex-col gap-3">
+            <FormField label={te('modal.experienceYears')}>
+              <input type="number" min="0" max="50" value={form.experienceYears ?? 0} onChange={(e) => setF('experienceYears', e.target.value)} className={`${inputCls('experienceYears')} max-w-[180px]`} />
+            </FormField>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-text-secondary">{te('modal.specializations')}</label>
+              <TagInput value={form.specializations ?? []} onChange={(v) => setF('specializations', v)} placeholder="VD: Yoga, Strength, Cardio..." />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-text-secondary">{te('modal.certifications')}</label>
+              <TagInput value={form.certifications ?? []} onChange={(v) => setF('certifications', v)} placeholder="VD: ACE CPT, CrossFit L1..." />
+            </div>
+            <FormField label={te('modal.bio')}>
+              <textarea rows={3} value={form.bio ?? ''} onChange={(e) => setF('bio', e.target.value)} placeholder={te('modal.bioPlaceholder')} className={`${inputCls('bio')} resize-none`} />
+            </FormField>
           </div>
-        </form>
-      </div>
-    </div>
+        </div>
+
+        <ModalFooter onCancel={onClose} cancelLabel={tCommon('actions.cancel')} submitLabel={editing ? tCommon('actions.save') : te('addTrainer')} loading={isLoading} sticky />
+      </form>
+    </Modal>
   );
 }
 
@@ -370,8 +349,8 @@ export default function TrainersPage() {
       }
       setModalOpen(false);
       setEditingTrainer(null);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || te('toast.error'));
+    } catch (err) {
+      toast.error(getApiMessage(err) || te('toast.error'));
     } finally { setSaving(false); }
   }, [createTrainer, updateTrainer, te]);
 
@@ -385,8 +364,8 @@ export default function TrainersPage() {
           ? te('toast.deactivateSuccess').replace('{{name}}', t.name)
           : te('toast.activateSuccess').replace('{{name}}', t.name)
       );
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || te('toast.statusError'));
+    } catch (err) {
+      toast.error(getApiMessage(err) || te('toast.statusError'));
     } finally { setActingId(null); }
   }, [changeStatus, te]);
 
@@ -406,13 +385,7 @@ export default function TrainersPage() {
         </div>
 
         {/* Error */}
-        {error && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 shrink-0"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
-            <span className="flex-1">{error}</span>
-            <button onClick={clearError} className="hover:opacity-70 cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg></button>
-          </div>
-        )}
+        {error && <Alert onDismiss={clearError}>{error}</Alert>}
 
         {/* Stats */}
         <StatsGrid

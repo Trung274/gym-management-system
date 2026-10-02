@@ -2,11 +2,13 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { getClasses } from '@/src/lib/classService';
-import { AlertCircle, Users2 } from 'lucide-react';
+import { Users2 } from 'lucide-react';
 import type { GymClass, ClassCategory } from '@/src/types/class.types';
 import PageHeader from '@/src/components/ui/PageHeader';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
+import Alert from '@/src/components/ui/Alert';
+import { getApiMessage } from '@/src/lib/errors';
 
 const CATEGORY_ICONS: Record<ClassCategory, string> = {
   yoga: '🧘', zumba: '💃', cycling: '🚴', hiit: '⚡',
@@ -32,7 +34,7 @@ export default function PortalClassesPage() {
   useEffect(() => {
     getClasses({ all: false })
       .then(setClasses)
-      .catch((e: any) => setError(e?.response?.data?.message ?? ''))
+      .catch((e) => setError(getApiMessage(e) ?? ''))
       .finally(() => setLoading(false));
   }, []);
 
@@ -46,7 +48,7 @@ export default function PortalClassesPage() {
     <div className="flex flex-col gap-5">
       <PageHeader title={tp('classes.title')} subtitle={tp('classes.subtitle')} />
 
-      {error !== null && <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm"><AlertCircle size={15} /> {error || tp('classes.loadError')}</div>}
+      {error !== null && <Alert>{error || tp('classes.loadError')}</Alert>}
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2">

@@ -9,9 +9,11 @@ import { getMyBookings } from '@/src/lib/bookingService';
 import type { MemberProfile } from '@/src/types/member-portal.types';
 import type { CheckinLog } from '@/src/types/checkin.types';
 import type { Booking } from '@/src/types/booking.types';
-import { CalendarDays, ScanLine, Dumbbell, AlertCircle, ChevronRight, Clock } from 'lucide-react';
+import { CalendarDays, ScanLine, Dumbbell, ChevronRight, Clock } from 'lucide-react';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
+import Alert from '@/src/components/ui/Alert';
+import { getApiMessage } from '@/src/lib/errors';
 
 const fmtDate = (iso: string | undefined, locale: string) =>
   iso ? new Date(iso).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
@@ -48,8 +50,8 @@ export default function PortalHomePage() {
         setProfile(p);
         setCheckins(c.slice(0, 5));
         setBookings(b.filter(bk => bk.status === 'pending' || bk.status === 'confirmed').slice(0, 3));
-      } catch (e: any) {
-        setError(e?.response?.data?.message ?? '');
+      } catch (e) {
+        setError(getApiMessage(e) ?? '');
       } finally {
         setLoading(false);
       }
@@ -76,11 +78,7 @@ export default function PortalHomePage() {
         )}
       </div>
 
-      {error !== null && (
-        <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm">
-          <AlertCircle size={15} /> {error || tp('home.loadError')}
-        </div>
-      )}
+      {error !== null && <Alert>{error || tp('home.loadError')}</Alert>}
 
       {/* Subscription card */}
       {!loading && (

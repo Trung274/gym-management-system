@@ -962,6 +962,52 @@ Component `src/components/ui/PageHeader.tsx` được sử dụng làm tiêu đ�
     *   **Không** tự viết thẻ `h1` và `p` cho phần tiêu đề trang.
     *   **Phải** sử dụng `<PageHeader title="..." subtitle="..." />` để đảm bảo padding, margin, font chữ, và styling text thống nhất.
 
+### 4. Modal (`Modal`, `ModalFooter`)
+`src/components/ui/Modal.tsx` — lớp phủ + khung + header (tiêu đề, nút đóng). Body và form do trang tự viết.
+
+```tsx
+if (!open) return null;
+return (
+  <Modal onClose={onClose} title={tx('modal.createTitle')} size="lg" scrollable>
+    <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 p-6 flex flex-col gap-5">
+      {/* fields */}
+      <ModalFooter onCancel={onClose} cancelLabel={tCommon('actions.cancel')}
+        submitLabel={tx('modal.submit')} loading={isLoading} sticky />
+    </form>
+  </Modal>
+);
+```
+
+*   `size`: `sm` (xác nhận), `md` (form ngắn, mặc định), `lg` (form dài). Không thêm độ rộng khác.
+*   `scrollable`: form dài — panel giới hạn 90vh, form con phải có `overflow-y-auto flex-1`; dùng kèm `ModalFooter sticky`.
+*   `ModalFooter` không có `onSubmit` → nút xác nhận là `type="submit"` của form bao ngoài. Có `onSubmit` → gọi hàm (modal không có form). `variant="danger"` cho hành động xóa/hủy.
+*   **Không** tự viết `fixed inset-0 ...` hay cặp nút Hủy/Lưu.
+
+### 5. Form field (`FormField`, `Input`, `Select`, `Textarea`, `inputClass`)
+`src/components/ui/FormField.tsx` — label + dấu `*` + thông báo lỗi; class ô nhập dùng chung.
+
+```tsx
+<FormField label={tx('modal.name')} required error={errors.name}>
+  <Input value={form.name} onChange={...} invalid={!!errors.name} />
+</FormField>
+```
+
+*   Ô nhập native (`<input>`, `<select>`) dùng `className={inputClass(!!errors.x)}`; textarea thêm `resize-none` (hoặc dùng `<Textarea>`).
+*   **Không** tự định nghĩa chuỗi class ô nhập riêng ở từng trang.
+*   Không viết `*` vào text label trong file dịch — dùng prop `required`.
+
+### 6. Button & Spinner
+*   `Button` (`src/components/ui/Button.tsx`): `variant` = `primary` | `secondary` | `danger`, `loading` hiện spinner và disable nút. Mặc định `type="button"`.
+*   `Spinner`: icon `Loader2` xoay, dùng trong nút/khu vực nhỏ. Loading cả trang vẫn dùng `LoadingSpinner`.
+*   **Không** chép SVG spinner inline.
+
+### 7. Alert
+`src/components/ui/Alert.tsx` — banner lỗi đỏ: `<Alert onDismiss={clearError}>{error}</Alert>`, hoặc `action={<button>Thử lại</button>}`.
+
+### Xử lý lỗi API (`src/lib/errors.ts`)
+*   Trong component: `catch (e) { toast.error(getApiMessage(e) || tx('toast.error')); }` — không dùng `catch (e: any)` hay `e?.response?.data?.message`.
+*   Trong store: `extractErrorMessage(error)` (các `*Helpers.ts` re-export từ `lib/errors.ts`, không định nghĩa lại).
+
 ---
 
 ## Checklist khi thêm domain mới

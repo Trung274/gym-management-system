@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { getMyCheckins } from '@/src/lib/checkinService';
-import { ScanLine, AlertCircle } from 'lucide-react';
+import { ScanLine } from 'lucide-react';
 import type { CheckinLog } from '@/src/types/checkin.types';
 import PageHeader from '@/src/components/ui/PageHeader';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
+import Alert from '@/src/components/ui/Alert';
+import { getApiMessage } from '@/src/lib/errors';
 
 export default function PortalCheckinsPage() {
   const { t, lang } = useLanguage();
@@ -21,7 +23,7 @@ export default function PortalCheckinsPage() {
   useEffect(() => {
     getMyCheckins()
       .then(setLogs)
-      .catch((e: any) => setError(e?.response?.data?.message ?? ''))
+      .catch((e) => setError(getApiMessage(e) ?? ''))
       .finally(() => setLoading(false));
   }, []);
 
@@ -46,11 +48,7 @@ export default function PortalCheckinsPage() {
         </div>
       </div>
 
-      {error !== null && (
-        <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm">
-          <AlertCircle size={15} /> {error || tp('checkins.loadError')}
-        </div>
-      )}
+      {error !== null && <Alert>{error || tp('checkins.loadError')}</Alert>}
 
       {/* Table */}
       <div className="bg-surface-base border border-surface-border rounded-2xl overflow-hidden">

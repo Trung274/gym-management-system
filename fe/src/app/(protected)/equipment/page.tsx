@@ -13,6 +13,10 @@ import type {
 } from '@/src/types/equipment.types';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
+import Alert from '@/src/components/ui/Alert';
+import { getApiMessage } from '@/src/lib/errors';
+import Modal, { ModalFooter } from '@/src/components/ui/Modal';
+import FormField, { inputClass } from '@/src/components/ui/FormField';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUS_STYLES: Record<EquipmentStatus, string> = {
@@ -119,14 +123,7 @@ function DeleteDialog({ open, equipment, onClose, onConfirm, isLoading }: {
           </div>
         </div>
         <p className="text-sm text-text-secondary">{te('deleteModal.confirm').replace('{{name}}', equipment.name)}</p>
-        <div className="flex gap-3">
-          <button onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">{tCommon('actions.cancel')}</button>
-          <button onClick={onConfirm} disabled={isLoading}
-            className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-danger-500 hover:bg-danger-600 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2">
-            {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-            {tCommon('actions.delete')}
-          </button>
-        </div>
+        <ModalFooter onCancel={onClose} cancelLabel={tCommon('actions.cancel')} submitLabel={tCommon('actions.delete')} loading={isLoading} variant="danger" onSubmit={onConfirm} />
       </div>
     </div>
   );
@@ -200,104 +197,72 @@ function EquipmentModal({ open, editing, onClose, onSave, isLoading }: {
 
   if (!open) return null;
 
-  const inputCls = (field: string) =>
-    `w-full px-3 py-2 rounded-xl border text-sm text-text-primary bg-surface-raised placeholder-text-muted outline-none transition-all
-    ${errors[field] ? 'border-danger-500 focus:ring-2 focus:ring-danger-500/30' : 'border-surface-border focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'}`;
+  const inputCls = (field: string) => inputClass(!!errors[field]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-2xl bg-surface-base rounded-2xl shadow-2xl border border-surface-border overflow-hidden max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border shrink-0">
-          <h2 className="text-base font-bold text-text-primary">
-            {editing ? te('modal.editTitle') : te('modal.createTitle')}
-          </h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-          </button>
+    <Modal onClose={onClose} title={editing ? te('modal.editTitle') : te('modal.createTitle')} size="lg" scrollable>
+      <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 p-6 flex flex-col gap-5">
+        {/* Thông tin cơ bản */}
+        <div>
+          <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{te('modal.basicInfo')}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5 sm:col-span-2">
+              <label className="text-xs font-semibold text-text-secondary">{te('modal.name')} <span className="text-danger-500">*</span></label>
+              <input type="text" value={form.name} onChange={(e) => setF('name', e.target.value)} placeholder="VD: Máy chạy bộ NordicTrack" className={inputCls('name')} />
+              {errors.name && <p className="text-xs text-danger-500">{errors.name}</p>}
+            </div>
+            <FormField label={te('modal.category')} required>
+              <select value={form.category} onChange={(e) => setF('category', e.target.value)} className={inputCls('category')}>
+                {CATEGORY_OPTIONS.map((c) => (
+                  <option key={c.value} value={c.value}>{c.icon} {te(`categories.${c.value}`)}</option>
+                ))}
+              </select>
+            </FormField>
+            <FormField label={te('modal.quantity')} error={errors.quantity}>
+              <input type="number" min="1" value={form.quantity} onChange={(e) => setF('quantity', e.target.value)} className={inputCls('quantity')} />
+            </FormField>
+            <FormField label={te('modal.brand')}>
+              <input type="text" value={form.brand} onChange={(e) => setF('brand', e.target.value)} placeholder="NordicTrack, Life Fitness..." className={inputCls('brand')} />
+            </FormField>
+            <FormField label={te('modal.model')}>
+              <input type="text" value={form.model} onChange={(e) => setF('model', e.target.value)} placeholder="Commercial 1750" className={inputCls('model')} />
+            </FormField>
+            <FormField label={te('modal.serialNumber')}>
+              <input type="text" value={form.serialNumber} onChange={(e) => setF('serialNumber', e.target.value)} placeholder="SN-12345678" className={inputCls('serialNumber')} />
+            </FormField>
+            <FormField label={te('modal.location')}>
+              <input type="text" value={form.location} onChange={(e) => setF('location', e.target.value)} placeholder="Zone Cardio, Tầng 1..." className={inputCls('location')} />
+            </FormField>
+          </div>
         </div>
-        <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 p-6 flex flex-col gap-5">
-          {/* Thông tin cơ bản */}
-          <div>
-            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{te('modal.basicInfo')}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5 sm:col-span-2">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.name')} <span className="text-danger-500">*</span></label>
-                <input type="text" value={form.name} onChange={(e) => setF('name', e.target.value)} placeholder="VD: Máy chạy bộ NordicTrack" className={inputCls('name')} />
-                {errors.name && <p className="text-xs text-danger-500">{errors.name}</p>}
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.category')} <span className="text-danger-500">*</span></label>
-                <select value={form.category} onChange={(e) => setF('category', e.target.value)} className={inputCls('category')}>
-                  {CATEGORY_OPTIONS.map((c) => (
-                    <option key={c.value} value={c.value}>{c.icon} {te(`categories.${c.value}`)}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.quantity')}</label>
-                <input type="number" min="1" value={form.quantity} onChange={(e) => setF('quantity', e.target.value)} className={inputCls('quantity')} />
-                {errors.quantity && <p className="text-xs text-danger-500">{errors.quantity}</p>}
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.brand')}</label>
-                <input type="text" value={form.brand} onChange={(e) => setF('brand', e.target.value)} placeholder="NordicTrack, Life Fitness..." className={inputCls('brand')} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.model')}</label>
-                <input type="text" value={form.model} onChange={(e) => setF('model', e.target.value)} placeholder="Commercial 1750" className={inputCls('model')} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.serialNumber')}</label>
-                <input type="text" value={form.serialNumber} onChange={(e) => setF('serialNumber', e.target.value)} placeholder="SN-12345678" className={inputCls('serialNumber')} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.location')}</label>
-                <input type="text" value={form.location} onChange={(e) => setF('location', e.target.value)} placeholder="Zone Cardio, Tầng 1..." className={inputCls('location')} />
-              </div>
-            </div>
-          </div>
 
-          {/* Mua sắm & bảo trì */}
-          <div>
-            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{te('modal.maintenanceInfo')}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.purchaseDate')}</label>
-                <input type="date" value={form.purchaseDate} onChange={(e) => setF('purchaseDate', e.target.value)} className={inputCls('purchaseDate')} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.purchasePrice')}</label>
-                <input type="number" min="0" value={form.purchasePrice} onChange={(e) => setF('purchasePrice', e.target.value)} placeholder="50000000" className={inputCls('purchasePrice')} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.supplier')}</label>
-                <input type="text" value={form.supplier} onChange={(e) => setF('supplier', e.target.value)} placeholder="Công ty ABC" className={inputCls('supplier')} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">{te('modal.nextMaintenanceDate')}</label>
-                <input type="date" value={form.nextMaintenanceDate} onChange={(e) => setF('nextMaintenanceDate', e.target.value)} className={inputCls('nextMaintenanceDate')} />
-              </div>
-            </div>
+        {/* Mua sắm & bảo trì */}
+        <div>
+          <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{te('modal.maintenanceInfo')}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <FormField label={te('modal.purchaseDate')}>
+              <input type="date" value={form.purchaseDate} onChange={(e) => setF('purchaseDate', e.target.value)} className={inputCls('purchaseDate')} />
+            </FormField>
+            <FormField label={te('modal.purchasePrice')}>
+              <input type="number" min="0" value={form.purchasePrice} onChange={(e) => setF('purchasePrice', e.target.value)} placeholder="50000000" className={inputCls('purchasePrice')} />
+            </FormField>
+            <FormField label={te('modal.supplier')}>
+              <input type="text" value={form.supplier} onChange={(e) => setF('supplier', e.target.value)} placeholder="Công ty ABC" className={inputCls('supplier')} />
+            </FormField>
+            <FormField label={te('modal.nextMaintenanceDate')}>
+              <input type="date" value={form.nextMaintenanceDate} onChange={(e) => setF('nextMaintenanceDate', e.target.value)} className={inputCls('nextMaintenanceDate')} />
+            </FormField>
           </div>
+        </div>
 
-          {/* Ghi chú */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">{te('modal.notes')}</label>
-            <textarea rows={2} value={form.notes} onChange={(e) => setF('notes', e.target.value)} placeholder={te('modal.notesPlaceholder')} className={`${inputCls('notes')} resize-none`} />
-          </div>
+        {/* Ghi chú */}
+        <FormField label={te('modal.notes')}>
+          <textarea rows={2} value={form.notes} onChange={(e) => setF('notes', e.target.value)} placeholder={te('modal.notesPlaceholder')} className={`${inputCls('notes')} resize-none`} />
+        </FormField>
 
-          <div className="flex gap-3 pt-2 sticky bottom-0 bg-surface-base border-t border-surface-border -mx-6 px-6 py-4 -mb-6">
-            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">{tCommon('actions.cancel')}</button>
-            <button type="submit" disabled={isLoading}
-              className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2">
-              {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-              {editing ? te('modal.submitEdit') : te('modal.submitCreate')}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <ModalFooter onCancel={onClose} cancelLabel={tCommon('actions.cancel')} submitLabel={editing ? te('modal.submitEdit') : te('modal.submitCreate')} loading={isLoading} sticky />
+      </form>
+    </Modal>
   );
 }
 
@@ -419,8 +384,8 @@ export default function EquipmentPage() {
       }
       setModalOpen(false);
       setEditingItem(null);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || te('toast.error'));
+    } catch (err) {
+      toast.error(getApiMessage(err) || te('toast.error'));
     } finally { setSaving(false); }
   }, [createEquipment, updateEquipment, te]);
 
@@ -429,8 +394,8 @@ export default function EquipmentPage() {
     try {
       await changeStatus(id, { status });
       toast.success(status === 'maintenance' ? te('toast.statusMaintenanceSuccess') : te('toast.statusSuccess'));
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || te('toast.statusError'));
+    } catch (err) {
+      toast.error(getApiMessage(err) || te('toast.statusError'));
     } finally { setActingId(null); }
   }, [changeStatus, te]);
 
@@ -441,8 +406,8 @@ export default function EquipmentPage() {
       await deleteEquipment(deleteTarget.id);
       toast.success(te('toast.deleteSuccess').replace('{{name}}', deleteTarget.name));
       setDeleteTarget(null);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || te('toast.deleteError'));
+    } catch (err) {
+      toast.error(getApiMessage(err) || te('toast.deleteError'));
     } finally { setDeleting(false); }
   }, [deleteEquipment, deleteTarget, te]);
 
@@ -469,15 +434,7 @@ export default function EquipmentPage() {
         </div>
 
         {/* Error */}
-        {error && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 shrink-0"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
-            <span className="flex-1">{error}</span>
-            <button onClick={clearError} className="hover:opacity-70 cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-            </button>
-          </div>
-        )}
+        {error && <Alert onDismiss={clearError}>{error}</Alert>}
 
         {/* Stats KPIs */}
         <StatsGrid

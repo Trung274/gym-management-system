@@ -63,14 +63,7 @@ export const transformClass = (api: ClassApiData): GymClass => ({
   endDateLabel:   formatDate(api.endDate),
 });
 
-// ─── Error helper ─────────────────────────────────────────────────────────────
-export const extractErrorMessage = (error: unknown): string => {
-  if (error && typeof error === 'object') {
-    const e = error as any;
-    return e?.response?.data?.message || e?.response?.data?.error || e?.message || 'Đã xảy ra lỗi không xác định';
-  }
-  return 'Đã xảy ra lỗi không xác định';
-};
+export { extractErrorMessage } from './errors';
 
 // ─── Day label exports (for UI) ───────────────────────────────────────────────
 export { DAY_LABELS, STATUS_LABELS, CATEGORY_LABELS };

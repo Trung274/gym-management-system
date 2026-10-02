@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, X, AlertCircle, ClipboardCheck, Search, Loader2 } from 'lucide-react';
+import { Plus, ClipboardCheck, Search, Loader2 } from 'lucide-react';
 import { useCheckinStore } from '@/src/stores/checkinStore';
 import StatsGrid from '@/src/components/ui/StatsGrid';
 import AddButton from '@/src/components/ui/AddButton';
@@ -12,6 +12,10 @@ import PageHeader from '@/src/components/ui/PageHeader';
 import type { Member } from '@/src/types/member.types';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
+import Alert from '@/src/components/ui/Alert';
+import { getApiMessage } from '@/src/lib/errors';
+import Modal, { ModalFooter } from '@/src/components/ui/Modal';
+import FormField, { inputClass } from '@/src/components/ui/FormField';
 
 // ─── Record modal ─────────────────────────────────────────────────────────────
 function RecordModal({ open, onClose, onSubmit, isLoading }: {
@@ -67,96 +71,76 @@ function RecordModal({ open, onClose, onSubmit, isLoading }: {
     focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-surface-base border border-surface-border rounded-2xl shadow-2xl">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-surface-border">
-          <h2 className="text-base font-bold text-text-primary">{tc('modal.title')}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay cursor-pointer transition-all">
-            <X size={16} />
-          </button>
-        </div>
-        <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5 relative">
-            <label className="text-xs font-semibold text-text-secondary">
-              {tc('modal.memberLabel')} <span className="text-danger-500">*</span>
-            </label>
+    <Modal onClose={onClose} title={tc('modal.title')}>
+      <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5 relative">
+          <label className="text-xs font-semibold text-text-secondary">
+            {tc('modal.memberLabel')} <span className="text-danger-500">*</span>
+          </label>
 
-            {selectedMember ? (
-              <div className="flex items-center justify-between p-3 rounded-xl border border-primary-500/30 bg-primary-500/5">
-                <div className="flex flex-col">
-                  <p className="text-sm font-semibold text-text-primary">{selectedMember.name}</p>
-                  <p className="text-xs text-text-muted">{selectedMember.phone || selectedMember.email}</p>
-                  <span className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded-full mt-1 w-max ${
-                    selectedMember.status === 'active'    ? 'bg-success-500/15 text-success-500' :
-                    selectedMember.status === 'suspended' ? 'bg-danger-500/15 text-danger-500'   : 'bg-warning-500/15 text-warning-500'
-                  }`}>
-                    {selectedMember.status === 'active'    ? tc('modal.statusActive')    :
-                     selectedMember.status === 'suspended' ? tc('modal.statusSuspended') : tc('modal.statusExpired')}
-                  </span>
-                </div>
-                <button type="button" onClick={() => setSelectedMember(null)}
-                  className="text-xs text-danger-500 hover:underline hover:text-danger-600 font-semibold cursor-pointer">
-                  {tc('modal.change')}
-                </button>
+          {selectedMember ? (
+            <div className="flex items-center justify-between p-3 rounded-xl border border-primary-500/30 bg-primary-500/5">
+              <div className="flex flex-col">
+                <p className="text-sm font-semibold text-text-primary">{selectedMember.name}</p>
+                <p className="text-xs text-text-muted">{selectedMember.phone || selectedMember.email}</p>
+                <span className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded-full mt-1 w-max ${
+                  selectedMember.status === 'active'    ? 'bg-success-500/15 text-success-500' :
+                  selectedMember.status === 'suspended' ? 'bg-danger-500/15 text-danger-500'   : 'bg-warning-500/15 text-warning-500'
+                }`}>
+                  {selectedMember.status === 'active'    ? tc('modal.statusActive')    :
+                   selectedMember.status === 'suspended' ? tc('modal.statusSuspended') : tc('modal.statusExpired')}
+                </span>
               </div>
-            ) : (
-              <div className="relative">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-                <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-                  placeholder={tc('modal.searchPlaceholder')} className={inp} autoFocus />
-                {searching && (
-                  <Loader2 size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted animate-spin" />
-                )}
-                {showDropdown && searchResults.length > 0 && (
-                  <div className="absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto z-10 bg-surface-base border border-surface-border rounded-xl shadow-xl">
-                    {searchResults.map((m) => (
-                      <div key={m.id} onClick={() => { setSelectedMember(m); setSearchTerm(''); setShowDropdown(false); }}
-                        className="flex flex-col px-4 py-2.5 hover:bg-surface-raised cursor-pointer border-b border-surface-border last:border-0 transition-colors">
-                        <div className="flex justify-between items-center">
-                          <p className="text-sm font-semibold text-text-primary">{m.name}</p>
-                          <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
-                            m.status === 'active' ? 'bg-success-500/10 text-success-500' : 'bg-warning-500/10 text-warning-500'
-                          }`}>
-                            {m.status === 'active' ? tc('modal.statusActive') : tc('modal.statusExpired')}
-                          </span>
-                        </div>
-                        <p className="text-xs text-text-muted mt-0.5">{m.phone || '—'} • {m.email}</p>
+              <button type="button" onClick={() => setSelectedMember(null)}
+                className="text-xs text-danger-500 hover:underline hover:text-danger-600 font-semibold cursor-pointer">
+                {tc('modal.change')}
+              </button>
+            </div>
+          ) : (
+            <div className="relative">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+              <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+                placeholder={tc('modal.searchPlaceholder')} className={inp} autoFocus />
+              {searching && (
+                <Loader2 size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted animate-spin" />
+              )}
+              {showDropdown && searchResults.length > 0 && (
+                <div className="absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto z-10 bg-surface-base border border-surface-border rounded-xl shadow-xl">
+                  {searchResults.map((m) => (
+                    <div key={m.id} onClick={() => { setSelectedMember(m); setSearchTerm(''); setShowDropdown(false); }}
+                      className="flex flex-col px-4 py-2.5 hover:bg-surface-raised cursor-pointer border-b border-surface-border last:border-0 transition-colors">
+                      <div className="flex justify-between items-center">
+                        <p className="text-sm font-semibold text-text-primary">{m.name}</p>
+                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
+                          m.status === 'active' ? 'bg-success-500/10 text-success-500' : 'bg-warning-500/10 text-warning-500'
+                        }`}>
+                          {m.status === 'active' ? tc('modal.statusActive') : tc('modal.statusExpired')}
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                )}
-                {showDropdown && searchResults.length === 0 && !searching && (
-                  <div className="absolute left-0 right-0 mt-1 p-3 z-10 bg-surface-base border border-surface-border rounded-xl shadow-xl text-center text-xs text-text-muted">
-                    {tc('modal.notFound')}
-                  </div>
-                )}
-              </div>
-            )}
-            {err && <p className="text-xs text-danger-500 mt-1">{err}</p>}
-          </div>
+                      <p className="text-xs text-text-muted mt-0.5">{m.phone || '—'} • {m.email}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {showDropdown && searchResults.length === 0 && !searching && (
+                <div className="absolute left-0 right-0 mt-1 p-3 z-10 bg-surface-base border border-surface-border rounded-xl shadow-xl text-center text-xs text-text-muted">
+                  {tc('modal.notFound')}
+                </div>
+              )}
+            </div>
+          )}
+          {err && <p className="text-xs text-danger-500 mt-1">{err}</p>}
+        </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">{tc('modal.noteLabel')}</label>
-            <input type="text" value={note} onChange={e => setNote(e.target.value)}
-              placeholder={tc('modal.notePlaceholder')}
-              className="w-full px-3 py-2.5 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all" />
-          </div>
+        <FormField label={tc('modal.noteLabel')}>
+          <input type="text" value={note} onChange={e => setNote(e.target.value)}
+            placeholder={tc('modal.notePlaceholder')}
+            className={inputClass()} />
+        </FormField>
 
-          <div className="flex gap-3 pt-1">
-            <button type="button" onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay cursor-pointer transition-all">
-              {tCommon('actions.cancel')}
-            </button>
-            <button type="submit" disabled={isLoading}
-              className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 cursor-pointer transition-all flex items-center justify-center gap-2">
-              {isLoading && <Loader2 size={16} className="animate-spin" />}
-              {tc('modal.submit')}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <ModalFooter onCancel={onClose} cancelLabel={tCommon('actions.cancel')} submitLabel={tc('modal.submit')} loading={isLoading} />
+      </form>
+    </Modal>
   );
 }
 
@@ -197,8 +181,8 @@ export default function CheckinPage() {
       toast.success(tc('toast.success').replace('{{name}}', log.memberName));
       setModalOpen(false);
       fetchStats();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || tc('toast.error'));
+    } catch (err) {
+      toast.error(getApiMessage(err) || tc('toast.error'));
     } finally { setSaving(false); }
   }, [recordCheckin, fetchStats, tc]);
 
@@ -217,13 +201,7 @@ export default function CheckinPage() {
         </div>
 
         {/* Error */}
-        {error && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm">
-            <AlertCircle size={16} className="shrink-0" />
-            <span className="flex-1">{error}</span>
-            <button onClick={clearError} className="hover:opacity-70 cursor-pointer"><X size={14} /></button>
-          </div>
-        )}
+        {error && <Alert onDismiss={clearError}>{error}</Alert>}
 
         {/* Stats */}
         <StatsGrid

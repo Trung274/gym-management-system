@@ -3,12 +3,16 @@
 import { useEffect, useState } from 'react';
 import { getMemberProfile, updateMemberProfile } from '@/src/lib/memberMeService';
 import { toast } from '@/src/utils/toast';
-import { User, Phone, Calendar, MapPin, AlertCircle, Pencil, X, Check } from 'lucide-react';
+import { User, Phone, Calendar, MapPin, Pencil, X, Check } from 'lucide-react';
 import type { MemberProfile, UpdateMemberProfilePayload } from '@/src/types/member-portal.types';
 import { MEMBER_STATUS_COLORS } from '@/src/types/member-portal.types';
 import PageHeader from '@/src/components/ui/PageHeader';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
+import { getApiMessage } from '@/src/lib/errors';
+import Spinner from '@/src/components/ui/Spinner';
+import Alert from '@/src/components/ui/Alert';
+import FormField, { inputClass } from '@/src/components/ui/FormField';
 
 const fmtDate = (iso: string | undefined, locale: string) =>
   iso ? new Date(iso).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
@@ -40,8 +44,8 @@ export default function PortalProfilePage() {
       const p = await getMemberProfile();
       setProfile(p);
       setForm({ phone: p.phone ?? '', emergencyContact: p.emergencyContact ?? '', notes: p.notes ?? '' });
-    } catch (e: any) {
-      setError(e?.response?.data?.message ?? '');
+    } catch (e) {
+      setError(getApiMessage(e) ?? '');
     } finally { setLoading(false); }
   };
 
@@ -54,12 +58,12 @@ export default function PortalProfilePage() {
       setProfile(updated);
       setEditing(false);
       toast.success(tp('profile.toast.updateSuccess'));
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || tp('profile.toast.updateError'));
+    } catch (e) {
+      toast.error(getApiMessage(e) || tp('profile.toast.updateError'));
     } finally { setSaving(false); }
   };
 
-  const inp = `w-full px-3 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all`;
+  const inp = inputClass();
 
   if (loading) return (
     <div className="flex flex-col gap-4">
@@ -67,11 +71,7 @@ export default function PortalProfilePage() {
     </div>
   );
 
-  if (error !== null) return (
-    <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm">
-      <AlertCircle size={15} /> {error || tp('profile.toast.loadError')}
-    </div>
-  );
+  if (error !== null) return <Alert>{error || tp('profile.toast.loadError')}</Alert>;
 
   return (
     <div className="flex flex-col gap-5">
@@ -86,7 +86,7 @@ export default function PortalProfilePage() {
                 <X size={13} /> {tp('profile.cancelButton')}
               </button>
               <button onClick={handleSave} disabled={saving} className="flex items-center gap-1 px-3 py-2 rounded-xl bg-primary-500 hover:bg-primary-600 text-sm font-semibold text-white disabled:opacity-50 cursor-pointer transition-all">
-                {saving ? <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> : <Check size={13} />}
+                {saving ? <Spinner /> : <Check size={13} />}
                 {saving ? tp('profile.saving') : tp('profile.saveButton')}
               </button>
             </div>
@@ -125,18 +125,15 @@ export default function PortalProfilePage() {
         </div>
         {editing ? (
           <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">{tp('profile.fields.phone')}</label>
+            <FormField label={tp('profile.fields.phone')}>
               <input type="tel" value={form.phone ?? ''} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="0912345678" className={inp} />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">{tp('profile.fields.emergencyContact')}</label>
+            </FormField>
+            <FormField label={tp('profile.fields.emergencyContact')}>
               <input type="text" value={form.emergencyContact ?? ''} onChange={e => setForm(f => ({ ...f, emergencyContact: e.target.value }))} placeholder={tp('profile.placeholders.emergencyContact')} className={inp} />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">{tp('profile.fields.notes')}</label>
+            </FormField>
+            <FormField label={tp('profile.fields.notes')}>
               <textarea rows={3} value={form.notes ?? ''} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={tp('profile.placeholders.notes')} className={`${inp} resize-none`} />
-            </div>
+            </FormField>
           </div>
         ) : (
           <>

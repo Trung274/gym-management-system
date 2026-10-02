@@ -15,6 +15,12 @@ import type {
 import { ROLES } from '@/src/lib/roles';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
+import Modal, { ModalFooter } from '@/src/components/ui/Modal';
+import FormField, { Input } from '@/src/components/ui/FormField';
+import Spinner from '@/src/components/ui/Spinner';
+import { Eye, EyeOff, Check } from 'lucide-react';
+import Alert from '@/src/components/ui/Alert';
+import { getApiMessage } from '@/src/lib/errors';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const ROLE_STYLES: Record<RoleName, string> = {
@@ -134,10 +140,7 @@ function StaffCard({
             }`}
         >
           {isActing ? (
-            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-            </svg>
+            <Spinner />
           ) : (
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
               <path strokeLinecap="round" strokeLinejoin="round" d={member.isActive
@@ -203,87 +206,46 @@ function CreateStaffModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-surface-base rounded-2xl shadow-2xl border border-surface-border overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border">
-          <h2 className="text-base font-bold text-text-primary">{ts('modal.createTitle')}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
+    <Modal onClose={onClose} title={ts('modal.createTitle')}>
+      <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
+        <FormField label={ts('modal.name')} required error={errors.name}>
+          <Input type="text" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+            placeholder="Nguyễn Văn A" invalid={!!errors.name} />
+        </FormField>
 
-        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
-          {/* Name */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">{ts('modal.name')} <span className="text-danger-500">*</span></label>
-            <input type="text" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              placeholder="Nguyễn Văn A"
-              className={`w-full px-3 py-2.5 rounded-xl border text-sm text-text-primary bg-surface-raised placeholder-text-muted outline-none transition-all
-                ${errors.name ? 'border-danger-500 focus:ring-2 focus:ring-danger-500/30' : 'border-surface-border focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'}`}
-            />
-            {errors.name && <p className="text-xs text-danger-500">{errors.name}</p>}
-          </div>
+        <FormField label={ts('modal.email')} required error={errors.email}>
+          <Input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+            placeholder="staff@gym.com" invalid={!!errors.email} />
+        </FormField>
 
-          {/* Email */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">{ts('modal.email')} <span className="text-danger-500">*</span></label>
-            <input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-              placeholder="staff@gym.com"
-              className={`w-full px-3 py-2.5 rounded-xl border text-sm text-text-primary bg-surface-raised placeholder-text-muted outline-none transition-all
-                ${errors.email ? 'border-danger-500 focus:ring-2 focus:ring-danger-500/30' : 'border-surface-border focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'}`}
-            />
-            {errors.email && <p className="text-xs text-danger-500">{errors.email}</p>}
-          </div>
-
-          {/* Password */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">{ts('modal.password')} <span className="text-danger-500">*</span></label>
-            <div className="relative">
-              <input type={showPwd ? 'text' : 'password'} value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-                placeholder={ts('modal.passwordHint')}
-                className={`w-full px-3 pr-10 py-2.5 rounded-xl border text-sm text-text-primary bg-surface-raised placeholder-text-muted outline-none transition-all
-                  ${errors.password ? 'border-danger-500 focus:ring-2 focus:ring-danger-500/30' : 'border-surface-border focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'}`}
-              />
-              <button type="button" onClick={() => setShowPwd((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                  <path strokeLinecap="round" strokeLinejoin="round" d={showPwd
-                    ? "M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
-                    : "M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                  }/>
-                </svg>
-              </button>
-            </div>
-            {errors.password && <p className="text-xs text-danger-500">{errors.password}</p>}
-          </div>
-
-          {/* Role */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">{ts('modal.role')} <span className="text-danger-500">*</span></label>
-            <div className="grid grid-cols-2 gap-2">
-              {STAFF_ROLES_LIST.map((r) => (
-                <button key={r.value} type="button" onClick={() => setForm((f) => ({ ...f, roleName: r.value }))}
-                  className={`py-2.5 rounded-xl text-sm font-semibold border transition-all cursor-pointer
-                    ${form.roleName === r.value
-                      ? 'border-primary-500 bg-primary-500/10 text-primary-500'
-                      : 'border-surface-border bg-surface-raised text-text-secondary hover:border-primary-500/50'}`}>
-                  {r.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">{ts('modal.cancel')}</button>
-            <button type="submit" disabled={isLoading} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2">
-              {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-              {ts('modal.add')}
+        <FormField label={ts('modal.password')} required error={errors.password}>
+          <div className="relative">
+            <Input type={showPwd ? 'text' : 'password'} value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+              placeholder={ts('modal.passwordHint')} invalid={!!errors.password} className="pr-10" />
+            <button type="button" onClick={() => setShowPwd((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors cursor-pointer">
+              {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
-        </form>
-      </div>
-    </div>
+        </FormField>
+
+        <FormField label={ts('modal.role')} required>
+          <div className="grid grid-cols-2 gap-2">
+            {STAFF_ROLES_LIST.map((r) => (
+              <button key={r.value} type="button" onClick={() => setForm((f) => ({ ...f, roleName: r.value }))}
+                className={`py-2.5 rounded-xl text-sm font-semibold border transition-all cursor-pointer
+                  ${form.roleName === r.value
+                    ? 'border-primary-500 bg-primary-500/10 text-primary-500'
+                    : 'border-surface-border bg-surface-raised text-text-secondary hover:border-primary-500/50'}`}>
+                {r.label}
+              </button>
+            ))}
+          </div>
+        </FormField>
+
+        <ModalFooter onCancel={onClose} cancelLabel={ts('modal.cancel')} submitLabel={ts('modal.add')} loading={isLoading} />
+      </form>
+    </Modal>
   );
 }
 
@@ -328,42 +290,17 @@ function EditStaffModal({
   if (!open || !member) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-surface-base rounded-2xl shadow-2xl border border-surface-border overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border">
-          <h2 className="text-base font-bold text-text-primary">{ts('modal.editTitle')}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
-        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">{ts('modal.name')} <span className="text-danger-500">*</span></label>
-            <input type="text" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              className={`w-full px-3 py-2.5 rounded-xl border text-sm text-text-primary bg-surface-raised outline-none transition-all
-                ${errors.name ? 'border-danger-500 focus:ring-2 focus:ring-danger-500/30' : 'border-surface-border focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'}`}
-            />
-            {errors.name && <p className="text-xs text-danger-500">{errors.name}</p>}
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-text-secondary">{ts('modal.email')} <span className="text-danger-500">*</span></label>
-            <input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-              className={`w-full px-3 py-2.5 rounded-xl border text-sm text-text-primary bg-surface-raised outline-none transition-all
-                ${errors.email ? 'border-danger-500 focus:ring-2 focus:ring-danger-500/30' : 'border-surface-border focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'}`}
-            />
-            {errors.email && <p className="text-xs text-danger-500">{errors.email}</p>}
-          </div>
-          <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">{ts('modal.cancel')}</button>
-            <button type="submit" disabled={isLoading} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2">
-              {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-              {ts('modal.save')}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Modal onClose={onClose} title={ts('modal.editTitle')}>
+      <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
+        <FormField label={ts('modal.name')} required error={errors.name}>
+          <Input type="text" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} invalid={!!errors.name} />
+        </FormField>
+        <FormField label={ts('modal.email')} required error={errors.email}>
+          <Input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} invalid={!!errors.email} />
+        </FormField>
+        <ModalFooter onCancel={onClose} cancelLabel={ts('modal.cancel')} submitLabel={ts('modal.save')} loading={isLoading} />
+      </form>
+    </Modal>
   );
 }
 
@@ -399,41 +336,25 @@ function AssignRoleModal({
   if (!open || !member) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-sm bg-surface-base rounded-2xl shadow-2xl border border-surface-border overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border">
-          <h2 className="text-base font-bold text-text-primary">{ts('modal.assignTitle')}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-all cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
-        <div className="p-6 flex flex-col gap-4">
-          <p className="text-sm text-text-secondary">{ts('modal.assignDesc')}<span className="font-semibold text-text-primary">{member.name}</span></p>
-          <div className="flex flex-col gap-2">
-            {STAFF_ROLES_LIST.map((r) => (
-              <button key={r.value} type="button" onClick={() => setSelectedRole(r.value)}
-                className={`flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-semibold transition-all cursor-pointer
-                  ${selectedRole === r.value
-                    ? 'border-primary-500 bg-primary-500/10 text-primary-500'
-                    : 'border-surface-border text-text-secondary hover:border-primary-500/50 hover:bg-surface-overlay'}`}>
-                {r.label}
-                {selectedRole === r.value && (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-                )}
-              </button>
-            ))}
-          </div>
-          <div className="flex gap-3">
-            <button onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay transition-all cursor-pointer">{ts('modal.cancel')}</button>
-            <button onClick={() => onSave(member.id, selectedRole)} disabled={isLoading} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2">
-              {isLoading && <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-              {ts('modal.confirm')}
+    <Modal onClose={onClose} title={ts('modal.assignTitle')} size="sm">
+      <div className="p-6 flex flex-col gap-4">
+        <p className="text-sm text-text-secondary">{ts('modal.assignDesc')}<span className="font-semibold text-text-primary">{member.name}</span></p>
+        <div className="flex flex-col gap-2">
+          {STAFF_ROLES_LIST.map((r) => (
+            <button key={r.value} type="button" onClick={() => setSelectedRole(r.value)}
+              className={`flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-semibold transition-all cursor-pointer
+                ${selectedRole === r.value
+                  ? 'border-primary-500 bg-primary-500/10 text-primary-500'
+                  : 'border-surface-border text-text-secondary hover:border-primary-500/50 hover:bg-surface-overlay'}`}>
+              {r.label}
+              {selectedRole === r.value && <Check size={16} strokeWidth={2.5} />}
             </button>
-          </div>
+          ))}
         </div>
+        <ModalFooter onCancel={onClose} cancelLabel={ts('modal.cancel')} submitLabel={ts('modal.confirm')}
+          loading={isLoading} onSubmit={() => onSave(member.id, selectedRole)} />
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -515,8 +436,8 @@ export default function StaffPage() {
         await activateStaff(member.id);
         toast.success(ts('toast.activateSuccess'));
       }
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || ts('toast.error'));
+    } catch (err) {
+      toast.error(getApiMessage(err) || ts('toast.error'));
     } finally { setActingId(null); }
   }, [deactivateStaff, activateStaff, ts]);
 
@@ -533,15 +454,7 @@ export default function StaffPage() {
         </div>
 
         {/* Error banner */}
-        {error && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-500 text-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 shrink-0"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
-            <span className="flex-1">{error}</span>
-            <button onClick={clearError} className="hover:opacity-70 cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-            </button>
-          </div>
-        )}
+        {error && <Alert onDismiss={clearError}>{error}</Alert>}
 
         {/* Stats */}
         <StatsGrid
