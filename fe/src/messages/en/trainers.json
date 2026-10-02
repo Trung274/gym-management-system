@@ -61,7 +61,9 @@
     "genderNone": "Not selected",
     "genderMale": "Male",
     "genderFemale": "Female",
-    "genderOther": "Other"
+    "genderOther": "Other",
+    "specializationsPlaceholder": "e.g. Yoga, Strength, Cardio...",
+    "certificationsPlaceholder": "e.g. ACE CPT, CrossFit L1..."
   },
   "toast": {
     "addSuccess": "Trainer added successfully!",

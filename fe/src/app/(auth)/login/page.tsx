@@ -8,12 +8,24 @@ import LoadingSpinner from '@/src/components/ui/LoadingSpinner';
 import { getHomePath } from '@/src/types/member-portal.types';
 import { Dumbbell } from 'lucide-react';
 import Spinner from '@/src/components/ui/Spinner';
+import Alert from '@/src/components/ui/Alert';
+import LanguageSwitcher from '@/src/components/layout/LanguageSwitcher';
+import ThemeToggle from '@/src/components/layout/ThemeToggle';
+import { useLanguage } from '@/src/components/providers/LanguageProvider';
+import { usePageTitle } from '@/src/hooks/usePageTitle';
+
+/** `?from=` set by middleware — only same-origin paths, never back to /login */
+const safeReturnPath = (from: string | null): string | null =>
+  from && from.startsWith('/') && !from.startsWith('//') && !from.startsWith('/login') ? from : null;
 
 // Inner component that uses useSearchParams (must be wrapped in Suspense)
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login, error, clearError, isLoading, isAuthenticated, checkAuth, user } = useAuth();
+  const { t } = useLanguage();
+  const ta = t('auth');
+  usePageTitle('auth');
 
   useEffect(() => {
     checkAuth();
@@ -21,8 +33,8 @@ function LoginForm() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated && user) {
-      const home = getHomePath(user.role?.name ?? '');
-      router.push(home);
+      // The target area's layout redirects again if the path belongs to the other role
+      router.push(safeReturnPath(searchParams.get('from')) ?? getHomePath(user.role?.name ?? ''));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isLoading]);
@@ -41,28 +53,26 @@ function LoginForm() {
     }
   }, [email, password, clearError]);
 
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-    }
-  }, [error]);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await login({ email, password, rememberMe });
-      toast.success('Đăng nhập thành công!');
+      toast.success(ta('success'));
     } catch (error) {
       console.error('Login failed:', error);
     }
   };
 
   if (isAuthenticated) {
-    return <LoadingSpinner fullScreen message="Đang chuyển hướng..." />;
+    return <LoadingSpinner fullScreen message={ta('redirecting')} />;
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-surface-raised px-4">
+      <div className="fixed top-4 right-4 flex items-center gap-1">
+        <LanguageSwitcher compact />
+        <ThemeToggle compact />
+      </div>
       <div className="w-full max-w-md">
         {/* Card */}
         <div className="bg-surface-base border border-surface-border rounded-2xl shadow-lg p-8">
@@ -72,23 +82,19 @@ function LoginForm() {
               {/* Dumbbell icon */}
               <Dumbbell size={28} className="text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-text-primary">Gym Management</h1>
-            <p className="text-sm text-text-muted mt-1">Đăng nhập vào hệ thống</p>
+            <h1 className="text-2xl font-bold text-text-primary">{ta('brand')}</h1>
+            <p className="text-sm text-text-muted mt-1">{ta('subtitle')}</p>
           </div>
 
           {/* Error message */}
-          {error && (
-            <div className="mb-4 px-4 py-3 rounded-lg bg-danger-500/10 border border-danger-500/20 text-danger-600 text-sm">
-              {error}
-            </div>
-          )}
+          {error && <Alert className="mb-4">{error}</Alert>}
 
           {/* Form */}
           <form onSubmit={handleLogin} className="space-y-5">
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-1.5">
-                Email
+                {ta('email')}
               </label>
               <input
                 type="email"
@@ -106,7 +112,7 @@ function LoginForm() {
             {/* Password */}
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-1.5">
-                Mật khẩu
+                {ta('password')}
               </label>
               <input
                 type="password"
@@ -135,7 +141,7 @@ function LoginForm() {
                 htmlFor="rememberMe"
                 className="text-sm text-text-secondary cursor-pointer select-none"
               >
-                Ghi nhớ đăng nhập
+                {ta('rememberMe')}
               </label>
             </div>
 
@@ -152,10 +158,10 @@ function LoginForm() {
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
                   <Spinner />
-                  Đang đăng nhập...
+                  {ta('submitting')}
                 </span>
               ) : (
-                'Đăng nhập'
+                ta('submit')
               )}
             </button>
           </form>
@@ -167,8 +173,9 @@ function LoginForm() {
 
 // Default export wraps LoginForm in Suspense (required for useSearchParams in Next.js App Router)
 export default function LoginPage() {
+  const { t } = useLanguage();
   return (
-    <Suspense fallback={<LoadingSpinner fullScreen message="Đang tải..." />}>
+    <Suspense fallback={<LoadingSpinner fullScreen message={t('auth')('loading')} />}>
       <LoginForm />
     </Suspense>
   );

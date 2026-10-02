@@ -60,7 +60,10 @@
     "notes": "Notes",
     "notesPlaceholder": "Special notes about this equipment...",
     "submitCreate": "Add equipment",
-    "submitEdit": "Save changes"
+    "submitEdit": "Save changes",
+    "namePlaceholder": "e.g. NordicTrack treadmill",
+    "locationPlaceholder": "Cardio zone, Floor 1...",
+    "supplierPlaceholder": "ABC Company"
   },
   "toast": {
     "addSuccess": "Equipment added successfully!",

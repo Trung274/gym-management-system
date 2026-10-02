@@ -1,29 +1,13 @@
-import type { BookingApiData, Booking, BookingStatus } from '@/src/types/booking.types';
-
-// ─── Status labels ─────────────────────────────────────────────────────────────
-const STATUS_LABELS: Record<BookingStatus, string> = {
-  pending:   'Chờ xác nhận',
-  confirmed: 'Đã xác nhận',
-  completed: 'Hoàn thành',
-  cancelled: 'Đã huỷ',
-};
-
-// ─── Date formatter (vi-VN) ─────────────────────────────────────────────────────
-export const formatSessionDate = (dateStr: string): string =>
-  new Date(dateStr).toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+import type { BookingApiData, Booking } from '@/src/types/booking.types';
 
 // ─── Transform API data → Frontend model ─────────────────────────────────────
 export const transformBooking = (api: BookingApiData): Booking => ({
   id: api._id,
   memberId: api.member?._id ?? '',
-  memberName: api.member?.user?.name ?? 'Không rõ',
+  memberName: api.member?.user?.name ?? '—',
   memberEmail: api.member?.user?.email ?? '',
   trainerId: api.trainer?._id ?? '',
-  trainerName: api.trainer?.user?.name ?? 'Không rõ',
+  trainerName: api.trainer?.user?.name ?? '—',
   trainerEmail: api.trainer?.user?.email ?? '',
   sessionDate: api.sessionDate,
   startTime: api.startTime,
@@ -34,8 +18,6 @@ export const transformBooking = (api: BookingApiData): Booking => ({
   createdAt: api.createdAt,
   updatedAt: api.updatedAt,
   // Computed
-  statusLabel: STATUS_LABELS[api.status] ?? api.status,
-  sessionDateLabel: formatSessionDate(api.sessionDate),
   timeRangeLabel: `${api.startTime} – ${api.endTime}`,
 });
 

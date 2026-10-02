@@ -22,12 +22,6 @@ export interface Equipment {
   createdAt: string;
   updatedAt: string;
   // Computed
-  statusLabel: string;
-  categoryLabel: string;
-  purchaseDateLabel: string;
-  lastMaintenanceDateLabel: string;
-  nextMaintenanceDateLabel: string;
-  purchasePriceLabel: string;
   isMaintenanceDue: boolean;       // nextMaintenanceDate < 7 ngày nữa
 }
 

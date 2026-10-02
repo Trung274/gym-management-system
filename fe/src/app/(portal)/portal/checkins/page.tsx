@@ -11,11 +11,12 @@ import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
 import { TableSkeleton } from '@/src/components/ui/Skeleton';
 import EmptyState from '@/src/components/ui/EmptyState';
+import { useFormat } from '@/src/hooks/useFormat';
 
 export default function PortalCheckinsPage() {
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   const tp = t('portal');
-  const locale = lang === 'vi' ? 'vi-VN' : 'en-US';
+  const fmt = useFormat();
   usePageTitle('portal', 'checkins.title');
 
   const [logs,    setLogs]    = useState<CheckinLog[]>([]);
@@ -70,10 +71,10 @@ export default function PortalCheckinsPage() {
               : logs.map(l => (
                 <tr key={l.id} className="border-b border-surface-border last:border-0 hover:bg-surface-raised transition-colors">
                   <td className="px-4 py-3 text-sm text-text-primary">
-                    {new Date(l.checkinAt).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    {fmt.date(l.checkinAt)}
                   </td>
                   <td className="px-4 py-3 text-sm font-semibold text-text-primary">
-                    {new Date(l.checkinAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: false })}
+                    {fmt.time(l.checkinAt)}
                   </td>
                   <td className="px-4 py-3 text-sm text-text-secondary">{l.note ?? '—'}</td>
                 </tr>

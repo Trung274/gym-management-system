@@ -50,5 +50,18 @@
   },
   "filters": {
     "all": "All"
+  },
+  "duration": {
+    "day": "{{n}} day",
+    "days": "{{n}} days",
+    "month": "{{n}} month",
+    "months": "{{n}} months",
+    "year": "{{n}} year",
+    "years": "{{n}} years"
+  },
+  "gender": {
+    "male": "Male",
+    "female": "Female",
+    "other": "Other"
   }
 }

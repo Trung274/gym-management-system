@@ -10,7 +10,9 @@
     "member": "Member",
     "trainer": "Trainer",
     "date": "Date / Time",
-    "notes": "Notes"
+    "notes": "Notes",
+    "status": "Status",
+    "actions": "Actions"
   },
   "status": {
     "pending": "Pending",
@@ -34,17 +36,37 @@
     "cancel": "Cancel booking",
     "cancelling": "Cancelling..."
   },
-  "status": {
-    "pending": "Pending",
-    "confirmed": "Confirmed",
-    "completed": "Completed",
-    "cancelled": "Cancelled"
-  },
   "toast": {
     "bookSuccess": "Booking created!",
     "bookError": "Booking failed",
     "cancelSuccess": "Booking cancelled!",
     "cancelError": "Cancel failed",
-    "loadError": "Failed to load data"
+    "loadError": "Failed to load data",
+    "confirmSuccess": "Booking confirmed",
+    "completeSuccess": "Marked as completed",
+    "actionError": "Action failed"
+  },
+  "filters": {
+    "searchPlaceholder": "Search member, trainer...",
+    "clearDate": "Clear date",
+    "count": "{{count}} bookings"
+  },
+  "empty": {
+    "title": "No bookings",
+    "description": "Try changing the filters or search."
+  },
+  "actions": {
+    "confirm": "Confirm",
+    "complete": "Complete",
+    "cancel": "Cancel"
+  },
+  "cancelModal": {
+    "title": "Cancel booking",
+    "trainer": "Trainer:",
+    "reason": "Cancellation reason",
+    "optional": "(optional)",
+    "reasonPlaceholder": "Enter a reason...",
+    "back": "Back",
+    "submit": "Cancel booking"
   }
 }

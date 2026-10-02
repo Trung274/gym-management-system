@@ -1,23 +1,5 @@
-import type { StaffApiData, StaffMember, RoleName } from '@/src/types/staff.types';
-
-// ─── Role labels ──────────────────────────────────────────────────────────────
-const ROLE_LABELS: Record<RoleName, string> = {
-  admin:   'Quản trị viên',
-  manager: 'Quản lý',
-  trainer: 'Huấn luyện viên',
-  staff:   'Nhân viên',
-  user:    'Người dùng',
-  member:  'Hội viên',
-};
-
-
-// ─── Initials from full name ───────────────────────────────────────────────────
-export const getInitials = (name: string): string => {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-  // Lấy chữ đầu của từ đầu và từ cuối
-  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-};
+import type { StaffApiData, StaffMember } from '@/src/types/staff.types';
+import { getInitials } from './format';
 
 // ─── Transform API data → Frontend model ─────────────────────────────────────
 export const transformStaff = (api: StaffApiData): StaffMember => ({
@@ -33,7 +15,6 @@ export const transformStaff = (api: StaffApiData): StaffMember => ({
   createdAt: api.createdAt,
   updatedAt: api.updatedAt,
   // Computed fields
-  roleLabel: ROLE_LABELS[api.role.name] ?? api.role.name,
   initials: getInitials(api.name),
 });
 

@@ -50,5 +50,18 @@
   },
   "filters": {
     "all": "Tất cả"
+  },
+  "duration": {
+    "day": "{{n}} ngày",
+    "days": "{{n}} ngày",
+    "month": "{{n}} tháng",
+    "months": "{{n}} tháng",
+    "year": "{{n}} năm",
+    "years": "{{n}} năm"
+  },
+  "gender": {
+    "male": "Nam",
+    "female": "Nữ",
+    "other": "Khác"
   }
 }

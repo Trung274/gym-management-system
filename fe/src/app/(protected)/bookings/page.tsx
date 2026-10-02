@@ -11,7 +11,7 @@ import { usePageTitle } from '@/src/hooks/usePageTitle';
 import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
-import { inputClass } from '@/src/components/ui/FormField';
+import FormField, { Textarea, inputClass } from '@/src/components/ui/FormField';
 import { Calendar, CheckCircle, ClipboardCheck, Search, X } from 'lucide-react';
 import Spinner from '@/src/components/ui/Spinner';
 import Badge from '@/src/components/ui/Badge';
@@ -19,6 +19,7 @@ import { BOOKING_STATUS_TONE } from '@/src/lib/statusTones';
 import SegmentedControl from '@/src/components/ui/SegmentedControl';
 import { TableSkeleton } from '@/src/components/ui/Skeleton';
 import EmptyState from '@/src/components/ui/EmptyState';
+import { useFormat } from '@/src/hooks/useFormat';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUS_OPTION_KEYS: { value: BookingStatus | 'all'; key: string }[] = [
@@ -44,27 +45,26 @@ function CancelModal({
   isLoading: boolean;
 }) {
   const [reason, setReason] = useState('');
+  const { t } = useLanguage();
+  const tb = t('bookings');
+  const fmt = useFormat();
 
   useEffect(() => { if (open) setReason(''); }, [open]);
 
   if (!open || !booking) return null;
 
   return (
-    <Modal onClose={onClose} title="Huỷ lịch đặt">
+    <Modal onClose={onClose} title={tb('cancelModal.title')}>
       <div className="p-6 flex flex-col gap-4">
         <div className="p-3 rounded-xl bg-surface-raised border border-surface-border text-sm">
           <p className="font-semibold text-text-primary">{booking.memberName}</p>
-          <p className="text-text-muted">{booking.sessionDateLabel} · {booking.timeRangeLabel}</p>
-          <p className="text-text-muted">HLV: {booking.trainerName}</p>
+          <p className="text-text-muted">{fmt.date(booking.sessionDate)} · {booking.timeRangeLabel}</p>
+          <p className="text-text-muted">{tb('cancelModal.trainer')} {booking.trainerName}</p>
         </div>
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-text-secondary">Lý do huỷ <span className="text-text-muted font-normal">(tuỳ chọn)</span></label>
-          <textarea rows={3} value={reason} onChange={(e) => setReason(e.target.value)}
-            placeholder="Nhập lý do huỷ lịch..."
-            className={`${inputClass()} resize-none`}
-          />
-        </div>
-        <ModalFooter onCancel={onClose} cancelLabel="Huỷ bỏ" submitLabel="Xác nhận huỷ" loading={isLoading} variant="danger" onSubmit={() => onConfirm(booking.id, reason)} />
+        <FormField label={<>{tb('cancelModal.reason')} <span className="text-text-muted font-normal">{tb('cancelModal.optional')}</span></>}>
+          <Textarea rows={3} value={reason} onChange={(e) => setReason(e.target.value)} placeholder={tb('cancelModal.reasonPlaceholder')} />
+        </FormField>
+        <ModalFooter onCancel={onClose} cancelLabel={tb('cancelModal.back')} submitLabel={tb('cancelModal.submit')} loading={isLoading} variant="danger" onSubmit={() => onConfirm(booking.id, reason)} />
       </div>
     </Modal>
   );
@@ -85,6 +85,9 @@ function BookingRow({
   actingId: string | null;
 }) {
   const isActing = actingId === booking.id;
+  const { t } = useLanguage();
+  const tb = t('bookings');
+  const fmt = useFormat();
 
   return (
     <tr className="border-b border-surface-border hover:bg-surface-raised transition-colors">
@@ -100,12 +103,12 @@ function BookingRow({
       </td>
       {/* Date + Time */}
       <td className="px-4 py-3">
-        <p className="text-sm text-text-primary">{booking.sessionDateLabel}</p>
+        <p className="text-sm text-text-primary">{fmt.date(booking.sessionDate)}</p>
         <p className="text-xs text-text-muted">{booking.timeRangeLabel}</p>
       </td>
       {/* Status */}
       <td className="px-4 py-3">
-        <Badge tone={BOOKING_STATUS_TONE[booking.status]} dot>{booking.statusLabel}</Badge>
+        <Badge tone={BOOKING_STATUS_TONE[booking.status]} dot>{tb(`status.${booking.status}`)}</Badge>
         {booking.cancellationReason && (
           <p className="text-xs text-text-muted mt-1 italic">"{booking.cancellationReason}"</p>
         )}
@@ -122,19 +125,19 @@ function BookingRow({
           ) : (
             <>
               {booking.status === 'pending' && (
-                <button onClick={() => onConfirm(booking)} title="Xác nhận"
+                <button onClick={() => onConfirm(booking)} title={tb('actions.confirm')}
                   className="p-1.5 rounded-lg text-primary-500 hover:bg-primary-500/10 transition-all cursor-pointer">
                   <CheckCircle size={16} />
                 </button>
               )}
               {booking.status === 'confirmed' && (
-                <button onClick={() => onComplete(booking)} title="Hoàn thành"
+                <button onClick={() => onComplete(booking)} title={tb('actions.complete')}
                   className="p-1.5 rounded-lg text-success-500 hover:bg-success-500/10 transition-all cursor-pointer">
                   <ClipboardCheck size={16} />
                 </button>
               )}
               {(booking.status === 'pending' || booking.status === 'confirmed') && (
-                <button onClick={() => onCancel(booking)} title="Huỷ"
+                <button onClick={() => onCancel(booking)} title={tb('actions.cancel')}
                   className="p-1.5 rounded-lg text-danger-500 hover:bg-danger-500/10 transition-all cursor-pointer">
                   <X size={16} />
                 </button>
@@ -201,9 +204,9 @@ export default function BookingsPage() {
     setActingId(b.id);
     try {
       await confirmBooking(b.id);
-      toast.success(tb('toast.bookSuccess'));
+      toast.success(tb('toast.confirmSuccess'));
     } catch (err) {
-      toast.error(getApiMessage(err) || tb('toast.bookError'));
+      toast.error(getApiMessage(err) || tb('toast.actionError'));
     } finally { setActingId(null); }
   }, [confirmBooking, tb]);
 
@@ -222,9 +225,9 @@ export default function BookingsPage() {
     setActingId(b.id);
     try {
       await completeBooking(b.id);
-      toast.success(tb('toast.bookSuccess'));
+      toast.success(tb('toast.completeSuccess'));
     } catch (err) {
-      toast.error(getApiMessage(err) || tb('toast.bookError'));
+      toast.error(getApiMessage(err) || tb('toast.actionError'));
     } finally { setActingId(null); }
   }, [completeBooking, tb]);
 
@@ -256,11 +259,11 @@ export default function BookingsPage() {
         {/* Filter bar */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Search */}
-          <div className="relative">
+          <div className="relative w-52">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
             <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
-              placeholder="Tìm hội viên, HLV..."
-              className="pl-9 pr-4 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all w-52"
+              placeholder={tb('filters.searchPlaceholder')}
+              className={`${inputClass()} pl-9`}
             />
           </div>
 
@@ -268,7 +271,7 @@ export default function BookingsPage() {
           <div className="relative">
             <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
             <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)}
-              className="pl-9 pr-3 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+              className={`${inputClass()} pl-9`}
             />
           </div>
 
@@ -278,11 +281,11 @@ export default function BookingsPage() {
 
           {filterDate && (
             <button onClick={() => setFilterDate('')} className="text-xs text-text-muted hover:text-danger-500 transition-colors cursor-pointer">
-              Xoá ngày
+              {tb('filters.clearDate')}
             </button>
           )}
 
-          <span className="ml-auto text-xs text-text-muted">{filtered.length} lịch đặt</span>
+          <span className="ml-auto text-xs text-text-muted">{tb('filters.count').replace('{{count}}', String(filtered.length))}</span>
         </div>
 
         {/* Table */}
@@ -291,7 +294,7 @@ export default function BookingsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-surface-border bg-surface-raised">
-                  {[tb('table.member'), tb('table.trainer'), tb('table.date'), tCommon('status.active'), tb('table.notes'), tCommon('actions.details')].map((h) => (
+                  {[tb('table.member'), tb('table.trainer'), tb('table.date'), tb('table.status'), tb('table.notes'), tb('table.actions')].map((h) => (
                     <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
@@ -300,7 +303,7 @@ export default function BookingsPage() {
                 {isLoading && bookings.length === 0 ? (
                   <TableSkeleton rows={5} cols={6} />
                 ) : filtered.length === 0 ? (
-                  <tr><td colSpan={6}><EmptyState icon="📅" title="Không có lịch đặt nào" description="Thử thay đổi bộ lọc hoặc tìm kiếm khác." /></td></tr>
+                  <tr><td colSpan={6}><EmptyState icon="📅" title={tb('empty.title')} description={tb('empty.description')} /></td></tr>
                 ) : (
                   filtered.map((booking) => (
                     <BookingRow key={booking.id} booking={booking}

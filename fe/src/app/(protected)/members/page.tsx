@@ -25,6 +25,7 @@ import { MEMBER_STATUS_TONE } from '@/src/lib/statusTones';
 import SegmentedControl from '@/src/components/ui/SegmentedControl';
 import { TableSkeleton } from '@/src/components/ui/Skeleton';
 import EmptyState from '@/src/components/ui/EmptyState';
+import { useFormat } from '@/src/hooks/useFormat';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AVATAR_COLORS = [
@@ -110,7 +111,7 @@ function CreateMemberModal({ open, onClose, onSave, isLoading, plans }: {
           <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">{tm('createModal.sectionAccount')}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormField label={tm('createModal.name')} required error={errors.name}>
-              <input type="text" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Nguyễn Văn B" className={inputCls('name')} />
+              <input type="text" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder={tm('createModal.namePlaceholder')} className={inputCls('name')} />
             </FormField>
             <FormField label={tm('createModal.loginEmail')} required error={errors.email}>
               <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="member@gym.com" className={inputCls('email')} />
@@ -151,7 +152,7 @@ function CreateMemberModal({ open, onClose, onSave, isLoading, plans }: {
             </FormField>
             <div className="flex flex-col gap-1.5 sm:col-span-2">
               <label className="text-xs font-semibold text-text-secondary">{tm('createModal.address')}</label>
-              <input type="text" value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="123 Nguyễn Trãi, Hà Nội" className={inputCls('address')} />
+              <input type="text" value={form.address} onChange={(e) => set('address', e.target.value)} placeholder={tm('createModal.addressPlaceholder')} className={inputCls('address')} />
             </div>
           </div>
         </div>
@@ -210,6 +211,7 @@ function RenewModal({ open, member, onClose, onSave, isLoading, plans }: {
   const { t } = useLanguage();
   const tm = t('members');
   const tCommon = t('common');
+  const fmt = useFormat();
 
   const [usePlan, setUsePlan] = useState(true);
   const [planId, setPlanId] = useState('');
@@ -229,7 +231,7 @@ function RenewModal({ open, member, onClose, onSave, isLoading, plans }: {
       <div className="p-6 flex flex-col gap-4">
         <div className="p-3 rounded-xl bg-surface-raised border border-surface-border">
           <p className="font-semibold text-sm text-text-primary">{member.name}</p>
-          <p className="text-xs text-text-muted">{tm('renewModal.currentExpiry')}: {member.endDateLabel}</p>
+          <p className="text-xs text-text-muted">{tm('renewModal.currentExpiry')}: {fmt.date(member.endDate)}</p>
           <p className="text-xs text-text-muted">{tm('renewModal.currentPlan')}: {member.planName}</p>
         </div>
         <div className="flex gap-2">
@@ -263,6 +265,8 @@ function MemberRow({ member, onCheckIn, onRenew, onToggleStatus, actingId }: {
 }) {
   const { t } = useLanguage();
   const tm = t('members');
+  const tCommon = t('common');
+  const fmt = useFormat();
 
   const isActing = actingId === member.id;
   const daysClass = member.daysRemaining <= 0 ? 'text-danger-500' : member.daysRemaining <= 7 ? 'text-warning-500' : 'text-text-muted';
@@ -284,22 +288,22 @@ function MemberRow({ member, onCheckIn, onRenew, onToggleStatus, actingId }: {
       {/* Contact */}
       <td className="px-4 py-3">
         <p className="text-sm text-text-primary">{member.phone ?? '—'}</p>
-        <p className="text-xs text-text-muted">{member.genderLabel}</p>
+        <p className="text-xs text-text-muted">{member.gender ? tCommon(`gender.${member.gender}`) : '—'}</p>
       </td>
       {/* Plan */}
       <td className="px-4 py-3">
         <p className="text-sm text-text-primary">{member.planName}</p>
         <p className={`text-xs ${daysClass}`}>
-          {member.daysRemaining > 0 ? tm('daysRemaining').replace('{{days}}', String(member.daysRemaining)) : tm('expired')} · {tm('expiry')}: {member.endDateLabel}
+          {member.daysRemaining > 0 ? tm('daysRemaining').replace('{{days}}', String(member.daysRemaining)) : tm('expired')} · {tm('expiry')}: {fmt.date(member.endDate)}
         </p>
       </td>
       {/* Status */}
       <td className="px-4 py-3">
-        <Badge tone={MEMBER_STATUS_TONE[member.status]}>{member.statusLabel}</Badge>
+        <Badge tone={MEMBER_STATUS_TONE[member.status]}>{tCommon(`status.${member.status}`)}</Badge>
       </td>
       {/* Last check-in */}
       <td className="px-4 py-3">
-        <p className="text-xs text-text-muted">{member.lastCheckInLabel}</p>
+        <p className="text-xs text-text-muted">{fmt.date(member.lastCheckIn)}</p>
       </td>
       {/* Actions */}
       <td className="px-4 py-3">
@@ -340,6 +344,7 @@ export default function MembersPage() {
   const { t } = useLanguage();
   const tm = t('members');
   const tCommon = t('common');
+  const fmt = useFormat();
   usePageTitle('members');
 
   const {
@@ -381,7 +386,7 @@ export default function MembersPage() {
   // Active plan list for dropdowns (only active)
   const activePlans = plans
     .filter((p) => p.isActive)
-    .map((p) => ({ id: p.id, name: p.name, durationLabel: p.durationLabel, priceLabel: p.priceLabel }));
+    .map((p) => ({ id: p.id, name: p.name, durationLabel: fmt.duration(p.durationDays), priceLabel: fmt.currency(p.price) }));
 
   const stats = {
     total: pagination?.total ?? 0,
@@ -468,7 +473,7 @@ export default function MembersPage() {
           <div className="relative">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
             <input type="text" value={searchQ} onChange={(e) => setSearchQ(e.target.value)}
-              placeholder="Tìm tên, email..."
+              placeholder={tm('searchPlaceholder')}
               className="pl-9 pr-4 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all w-52"
             />
           </div>

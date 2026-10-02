@@ -35,12 +35,7 @@ export interface GymClass {
   createdAt:   string;
   updatedAt:   string;
   // Computed
-  statusLabel:   string;
-  categoryLabel: string;
   trainerName:   string;
-  scheduleLabel: string;   // "T2, T4, T6 · 06:30 – 07:30"
-  startDateLabel: string;
-  endDateLabel:   string;
 }
 
 // ─── API Raw Response ─────────────────────────────────────────────────────────

@@ -1,30 +1,10 @@
-import type { TrainerApiData, Trainer, TrainerStatus } from '@/src/types/trainer.types';
-import type { Gender } from '@/src/types/member.types';
-
-const STATUS_LABELS: Record<TrainerStatus, string> = {
-  active:   'Đang làm việc',
-  inactive: 'Nghỉ việc',
-};
-
-const GENDER_LABELS: Record<Gender, string> = {
-  male: 'Nam', female: 'Nữ', other: 'Khác',
-};
-
-export const formatDate = (dateStr?: string): string => {
-  if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-};
-
-export const getInitials = (name: string): string => {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-};
+import type { TrainerApiData, Trainer } from '@/src/types/trainer.types';
+import { getInitials } from './format';
 
 export const transformTrainer = (api: TrainerApiData): Trainer => ({
   id: api._id,
   userId: api.user?._id ?? '',
-  name: api.user?.name ?? 'Không rõ',
+  name: api.user?.name ?? '—',
   loginEmail: api.user?.email ?? '',
   userIsActive: api.user?.isActive ?? false,
   phone: api.phone,
@@ -42,12 +22,7 @@ export const transformTrainer = (api: TrainerApiData): Trainer => ({
   createdAt: api.createdAt,
   updatedAt: api.updatedAt,
   // Computed
-  statusLabel: STATUS_LABELS[api.status] ?? api.status,
-  genderLabel: api.gender ? (GENDER_LABELS[api.gender] ?? api.gender) : '—',
-  experienceLabel: api.experienceYears ? `${api.experienceYears} năm` : 'Chưa có',
-  specializationsLabel: api.specializations?.length ? api.specializations.join(', ') : 'Chưa cập nhật',
   initials: getInitials(api.user?.name ?? 'T'),
-  hireDateLabel: formatDate(api.hireDate),
 });
 
 export { extractErrorMessage } from './errors';

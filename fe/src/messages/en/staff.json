@@ -51,7 +51,8 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "save": "Save changes",
-    "add": "Add Staff"
+    "add": "Add Staff",
+    "namePlaceholder": "Jane Doe"
   },
   "validation": {
     "nameRequired": "Name is required",

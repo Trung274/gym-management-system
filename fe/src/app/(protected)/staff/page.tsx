@@ -24,6 +24,7 @@ import { getApiMessage } from '@/src/lib/errors';
 import Badge from '@/src/components/ui/Badge';
 import { ROLE_TONE } from '@/src/lib/statusTones';
 import SegmentedControl from '@/src/components/ui/SegmentedControl';
+import { useFormat } from '@/src/hooks/useFormat';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -57,8 +58,9 @@ function StaffCard({
   actingId: string | null;
 }) {
   const isActing = actingId === member.id;
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   const ts = t('staff');
+  const fmt = useFormat();
 
   return (
     <div className={`
@@ -86,10 +88,10 @@ function StaffCard({
       {/* Role badge */}
       <div className="flex items-center gap-2">
         <Badge tone={ROLE_TONE[member.role.name] ?? 'neutral'}>
-          {ts(`roles.${member.role.name}`, member.roleLabel)}
+          {ts(`roles.${member.role.name}`, member.role.name)}
         </Badge>
         <span className="text-xs text-text-muted ml-auto">
-          {new Date(member.createdAt).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US')}
+          {fmt.date(member.createdAt)}
         </span>
       </div>
 
@@ -191,7 +193,7 @@ function CreateStaffModal({
       <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
         <FormField label={ts('modal.name')} required error={errors.name}>
           <Input type="text" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            placeholder="Nguyễn Văn A" invalid={!!errors.name} />
+            placeholder={ts('modal.namePlaceholder')} invalid={!!errors.name} />
         </FormField>
 
         <FormField label={ts('modal.email')} required error={errors.email}>
@@ -478,7 +480,7 @@ export default function StaffPage() {
           ]} />
 
           <span className="ml-auto text-xs text-text-muted">
-            {ts('filters.count', '{{count}} nhân viên').replace('{{count}}', filtered.length.toString())}
+            {ts('filters.count').replace('{{count}}', filtered.length.toString())}
           </span>
         </div>
 

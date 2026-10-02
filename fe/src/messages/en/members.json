@@ -63,7 +63,9 @@
     "genderNone": "Not specified",
     "genderMale": "Male",
     "genderFemale": "Female",
-    "genderOther": "Other"
+    "genderOther": "Other",
+    "namePlaceholder": "John Smith",
+    "addressPlaceholder": "123 Main Street"
   },
   "renewModal": {
     "title": "Renew membership",

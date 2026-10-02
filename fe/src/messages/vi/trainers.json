@@ -61,7 +61,9 @@
     "genderNone": "Không chọn",
     "genderMale": "Nam",
     "genderFemale": "Nữ",
-    "genderOther": "Khác"
+    "genderOther": "Khác",
+    "specializationsPlaceholder": "VD: Yoga, Strength, Cardio...",
+    "certificationsPlaceholder": "VD: ACE CPT, CrossFit L1..."
   },
   "toast": {
     "addSuccess": "Thêm huấn luyện viên thành công!",

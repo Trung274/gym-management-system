@@ -283,11 +283,11 @@ function TrainerModal({ open, editing, onClose, onSave, isLoading }: {
             </FormField>
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-text-secondary">{te('modal.specializations')}</label>
-              <TagInput value={form.specializations ?? []} onChange={(v) => setF('specializations', v)} placeholder="VD: Yoga, Strength, Cardio..." />
+              <TagInput value={form.specializations ?? []} onChange={(v) => setF('specializations', v)} placeholder={te('modal.specializationsPlaceholder')} />
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-text-secondary">{te('modal.certifications')}</label>
-              <TagInput value={form.certifications ?? []} onChange={(v) => setF('certifications', v)} placeholder="VD: ACE CPT, CrossFit L1..." />
+              <TagInput value={form.certifications ?? []} onChange={(v) => setF('certifications', v)} placeholder={te('modal.certificationsPlaceholder')} />
             </div>
             <FormField label={te('modal.bio')}>
               <textarea rows={3} value={form.bio ?? ''} onChange={(e) => setF('bio', e.target.value)} placeholder={te('modal.bioPlaceholder')} className={`${inputCls('bio')} resize-none`} />

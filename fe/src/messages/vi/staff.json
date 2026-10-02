@@ -51,7 +51,8 @@
     "cancel": "Huỷ",
     "confirm": "Xác nhận",
     "save": "Lưu thay đổi",
-    "add": "Thêm nhân viên"
+    "add": "Thêm nhân viên",
+    "namePlaceholder": "Nguyễn Văn A"
   },
   "validation": {
     "nameRequired": "Tên là bắt buộc",

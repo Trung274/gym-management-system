@@ -60,7 +60,10 @@
     "notes": "Ghi chú",
     "notesPlaceholder": "Lưu ý đặc biệt về thiết bị...",
     "submitCreate": "Thêm thiết bị",
-    "submitEdit": "Lưu thay đổi"
+    "submitEdit": "Lưu thay đổi",
+    "namePlaceholder": "VD: Máy chạy bộ NordicTrack",
+    "locationPlaceholder": "Zone Cardio, Tầng 1...",
+    "supplierPlaceholder": "Công ty ABC"
   },
   "toast": {
     "addSuccess": "Thêm thiết bị thành công!",

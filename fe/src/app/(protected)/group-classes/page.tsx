@@ -25,6 +25,7 @@ import { CLASS_STATUS_TONE } from '@/src/lib/statusTones';
 import SegmentedControl from '@/src/components/ui/SegmentedControl';
 import { TableSkeleton } from '@/src/components/ui/Skeleton';
 import EmptyState from '@/src/components/ui/EmptyState';
+import { useFormat } from '@/src/hooks/useFormat';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CATEGORY_ICONS: Record<ClassCategory, string> = {
@@ -39,20 +40,13 @@ const EMPTY_FORM: CreateClassPayload = {
 };
 
 // ─── Format Helpers ───────────────────────────────────────────────────────────
-const formatScheduleLabel = (schedule: ScheduleItem[], tc: any) => {
+const formatScheduleLabel = (schedule: ScheduleItem[], tc: (key: string) => string) => {
   if (!schedule?.length) return '—';
   const days = schedule
     .map((s) => tc(`daysShort.${s.dayOfWeek}`))
     .join(', ');
   const { startTime, endTime } = schedule[0];
   return `${days} · ${startTime} – ${endTime}`;
-};
-
-const formatDateLang = (dateStr: string | undefined, lang: string) => {
-  if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-  });
 };
 
 // ─── Status Badge + Dropdown ──────────────────────────────────────────────────
@@ -173,7 +167,7 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
       if (editing.trainer) {
         setSelectedTrainer({
           id: editing.trainer._id,
-          name: editing.trainer.user?.name ?? 'Huấn luyện viên',
+          name: editing.trainer.user?.name ?? '—',
           loginEmail: editing.trainer.user?.email ?? '',
           specializations: editing.trainer.specializations ?? [],
           experienceYears: editing.trainer.experienceYears ?? 0,
@@ -230,7 +224,7 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="sm:col-span-2 flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-text-secondary">{tc('modal.name')} <span className="text-danger-500">*</span></label>
-            <input type="text" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="VD: Yoga Buổi Sáng" className={inp('name')} />
+            <input type="text" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder={tc('modal.namePlaceholder')} className={inp('name')} />
             {errors.name && <p className="text-xs text-danger-500">{errors.name}</p>}
           </div>
           <FormField label={tc('modal.category')} required>
@@ -241,7 +235,7 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
             </select>
           </FormField>
           <FormField label={tc('modal.location')}>
-            <input type="text" value={form.location} onChange={(e) => set('location', e.target.value)} placeholder="Phòng Yoga, Tầng 2..." className={inp('location')} />
+            <input type="text" value={form.location} onChange={(e) => set('location', e.target.value)} placeholder={tc('modal.locationPlaceholder')} className={inp('location')} />
           </FormField>
           <FormField label={tc('modal.capacity')}>
             <input type="number" min="1" value={form.capacity} onChange={(e) => set('capacity', e.target.value)} placeholder="20" className={inp('capacity')} />
@@ -310,7 +304,7 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
           </FormField>
           <div className="sm:col-span-2 flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-text-secondary">{tc('modal.description')}</label>
-            <textarea rows={2} value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="Mô tả ngắn về lớp học..." className={`${inp('description')} resize-none`} />
+            <textarea rows={2} value={form.description} onChange={(e) => set('description', e.target.value)} placeholder={tc('modal.descriptionPlaceholder')} className={`${inp('description')} resize-none`} />
           </div>
           <div className="sm:col-span-2 flex flex-col gap-2">
             <label className="text-xs font-semibold text-text-secondary">{tc('modal.schedule')} <span className="text-danger-500">*</span></label>
@@ -336,7 +330,8 @@ export default function GroupClassesPage() {
   const [actingId, setActingId]             = useState<string | null>(null);
   const [saving, setSaving]                 = useState(false);
 
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
+  const fmt = useFormat();
   const tc = t('group-classes');
   const tCommon = t('common');
 
@@ -474,7 +469,7 @@ export default function GroupClassesPage() {
                       </td>
                       <td className="px-4 py-3">
                         <p className="text-xs text-text-primary font-medium">{formatScheduleLabel(c.schedule, tc)}</p>
-                        <p className="text-xs text-text-muted mt-0.5">{formatDateLang(c.startDate, lang)} → {formatDateLang(c.endDate, lang)}</p>
+                        <p className="text-xs text-text-muted mt-0.5">{fmt.date(c.startDate)} → {fmt.date(c.endDate)}</p>
                       </td>
                       <td className="px-4 py-3">
                         <p className="text-sm text-text-primary">{c.trainer?.user?.name ?? tc('categories.emptyTrainer')}</p>

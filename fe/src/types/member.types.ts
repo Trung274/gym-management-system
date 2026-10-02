@@ -46,10 +46,6 @@ export interface Member {
   createdAt: string;
   updatedAt: string;
   // Computed fields
-  statusLabel: string;
-  genderLabel: string;
-  endDateLabel: string;
-  lastCheckInLabel: string;
   daysRemaining: number;      // số ngày còn lại
   initials: string;
   planName: string;

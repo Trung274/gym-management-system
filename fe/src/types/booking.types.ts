@@ -32,8 +32,6 @@ export interface Booking {
   createdAt: string;
   updatedAt: string;
   // Computed fields
-  statusLabel: string;       // VD: "Chờ xác nhận", "Đã xác nhận"
-  sessionDateLabel: string;  // VD: "08/04/2026"
   timeRangeLabel: string;    // VD: "09:00 – 10:00"
 }
 

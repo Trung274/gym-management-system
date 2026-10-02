@@ -100,32 +100,6 @@ export const getGroupedPermissions = (user: User | null) => {
 };
 
 /**
- * Format date from ISO string
- */
-export const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('vi-VN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-};
-
-/**
- * Format datetime from ISO string
- */
-export const formatDateTime = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleString('vi-VN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
-
-/**
  * Get initials from name
  */
 export const getInitials = (name: string): string => {

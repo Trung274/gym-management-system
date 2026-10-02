@@ -21,13 +21,12 @@ import { BOOKING_STATUS_TONE } from '@/src/lib/statusTones';
 import SegmentedControl from '@/src/components/ui/SegmentedControl';
 import { SkeletonList } from '@/src/components/ui/Skeleton';
 import EmptyState from '@/src/components/ui/EmptyState';
+import { useFormat } from '@/src/hooks/useFormat';
 
 function BookingCard({ b, onCancel, cancelling }: { b: Booking; onCancel: () => void; cancelling: boolean }) {
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   const tp = t('portal');
-  const sessionDate = new Date(b.sessionDate).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-  });
+  const fmt = useFormat();
 
   return (
     <div className="bg-surface-base border border-surface-border rounded-xl p-4 flex flex-col gap-2">
@@ -39,7 +38,7 @@ function BookingCard({ b, onCancel, cancelling }: { b: Booking; onCancel: () => 
         <Badge tone={BOOKING_STATUS_TONE[b.status]}>{tp(`bookings.status.${b.status}`)}</Badge>
       </div>
       <div className="flex items-center gap-3 text-xs text-text-secondary">
-        <span className="flex items-center gap-1"><CalendarDays size={11} /> {sessionDate}</span>
+        <span className="flex items-center gap-1"><CalendarDays size={11} /> {fmt.date(b.sessionDate)}</span>
         <span className="flex items-center gap-1"><Clock size={11} /> {b.timeRangeLabel}</span>
       </div>
       {b.notes && <p className="text-xs text-text-muted italic">"{b.notes}"</p>}

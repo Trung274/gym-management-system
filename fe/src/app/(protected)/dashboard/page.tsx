@@ -15,6 +15,7 @@ import { usePageTitle } from '@/src/hooks/usePageTitle';
 import { getApiMessage } from '@/src/lib/errors';
 import Alert from '@/src/components/ui/Alert';
 import Skeleton from '@/src/components/ui/Skeleton';
+import { useFormat } from '@/src/hooks/useFormat';
 
 // ─── Stat card ────────────────────────────────────────────────────────────────
 // ─── Section header ───────────────────────────────────────────────────────────
@@ -45,7 +46,7 @@ export default function DashboardPage() {
   const [generatedAt, setGeneratedAt] = useState<string>('');
   const [isLoading,   setIsLoading]   = useState(true);
   const [error,       setError]       = useState<string | null>(null);
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   const td = t('dashboard');
   const tc = t('common');
   usePageTitle('dashboard');
@@ -67,8 +68,7 @@ export default function DashboardPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const fmtTime = (iso: string) =>
-    new Date(iso).toLocaleTimeString(lang === 'vi' ? 'vi-VN' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+  const fmt = useFormat();
 
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto">
@@ -78,7 +78,7 @@ export default function DashboardPage() {
           title={td('title')}
           subtitle={generatedAt && !isLoading ? (
             <span className="flex items-center gap-1">
-              <Clock size={11} /> {td('subtitle')} {fmtTime(generatedAt)}
+              <Clock size={11} /> {td('subtitle')} {fmt.time(generatedAt)}
             </span>
           ) : undefined}
         />

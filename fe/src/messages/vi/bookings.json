@@ -10,13 +10,15 @@
     "member": "Hội viên",
     "trainer": "Huấn luyện viên",
     "date": "Ngày / Giờ",
-    "notes": "Ghi chú"
+    "notes": "Ghi chú",
+    "status": "Trạng thái",
+    "actions": "Thao tác"
   },
   "status": {
     "pending": "Chờ xác nhận",
     "confirmed": "Đã xác nhận",
     "completed": "Hoàn thành",
-    "cancelled": "Đã hủ"
+    "cancelled": "Đã hủy"
   },
   "modal": {
     "title": "Đặt lịch PT mới",
@@ -34,17 +36,37 @@
     "cancel": "Hủy lịch",
     "cancelling": "Đang hủy..."
   },
-  "status": {
-    "pending": "Chờ xác nhận",
-    "confirmed": "Đã xác nhận",
-    "completed": "Hoàn thành",
-    "cancelled": "Đã hủy"
-  },
   "toast": {
     "bookSuccess": "Đặt lịch PT thành công!",
     "bookError": "Đặt lịch thất bại",
     "cancelSuccess": "Hủy lịch thành công!",
     "cancelError": "Hủy thất bại",
-    "loadError": "Tải dữ liệu thất bại"
+    "loadError": "Tải dữ liệu thất bại",
+    "confirmSuccess": "Đã xác nhận lịch đặt",
+    "completeSuccess": "Đã đánh dấu hoàn thành",
+    "actionError": "Thao tác thất bại"
+  },
+  "filters": {
+    "searchPlaceholder": "Tìm hội viên, HLV...",
+    "clearDate": "Xoá ngày",
+    "count": "{{count}} lịch đặt"
+  },
+  "empty": {
+    "title": "Không có lịch đặt nào",
+    "description": "Thử thay đổi bộ lọc hoặc tìm kiếm khác."
+  },
+  "actions": {
+    "confirm": "Xác nhận",
+    "complete": "Hoàn thành",
+    "cancel": "Huỷ"
+  },
+  "cancelModal": {
+    "title": "Huỷ lịch đặt",
+    "trainer": "HLV:",
+    "reason": "Lý do huỷ",
+    "optional": "(tuỳ chọn)",
+    "reasonPlaceholder": "Nhập lý do huỷ lịch...",
+    "back": "Quay lại",
+    "submit": "Xác nhận huỷ"
   }
 }

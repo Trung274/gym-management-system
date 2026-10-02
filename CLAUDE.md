@@ -24,7 +24,7 @@ Chưa có test tự động ở cả hai phía.
 - Frontend: tuân theo [fe/AGENTS.md](fe/AGENTS.md) (được nạp qua `fe/CLAUDE.md`). Những điểm hay sai:
   - Mọi text UI qua i18n; thêm key vào **cả** `fe/src/messages/vi/` và `en/` với cùng cấu trúc.
   - Không đưa translator (`tp`, `ts`, `tCommon`...) vào deps của `useEffect`/`useCallback` → vòng lặp fetch vô hạn.
-  - Ngày giờ format theo `lang === 'vi' ? 'vi-VN' : 'en-US'`, không hardcode.
+  - Ngày giờ, tiền, thời hạn format lúc render bằng `useFormat()` (`fmt.date`, `fmt.currency`, `fmt.duration`...). Không tính sẵn chuỗi hiển thị (`*Label`) trong `lib/*Helpers.ts`.
   - Dùng semantic color token (`bg-surface-*`, `text-text-*`), icon từ `lucide-react`, `PageHeader`/`AddButton`/`StatsGrid` cho UI chung.
 - Tên role luôn dùng constant `ROLES` — BE: `be/src/config/roles.js`, FE: `fe/src/lib/roles.ts` (hai file phải khớp nhau). Không viết chuỗi `'admin'`, `'member'`... trực tiếp.
 - Backend: route mới dùng `protect` + `checkPermission(resource, action)`; permission mới cần script seed và đưa vào `seedAll.js` (xem [be/README.md](be/README.md#thêm-một-domain-mới)). Thêm role mới: sửa `be/src/config/roles.js` (enum của `Role.model.js` lấy từ đây) và `fe/src/lib/roles.ts`.

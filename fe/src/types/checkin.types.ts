@@ -21,9 +21,6 @@ export interface CheckinLog {
   note?:       string;
   recordedBy:  CheckinRecordedByPopulated | null;
   // Computed
-  checkinAtLabel:  string;   // "22/05/2026 08:30"
-  checkinDateOnly: string;   // "22/05/2026"
-  checkinTimeOnly: string;   // "08:30"
   memberName:      string;
   recordedByName:  string;
 }

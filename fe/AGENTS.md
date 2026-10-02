@@ -1293,8 +1293,8 @@ export default function SomePage() {
       {/* Interpolation thủ công — không có template engine */}
       <span>{ts('filters.count').replace('{{count}}', String(total))}</span>
 
-      {/* Format ngày theo locale */}
-      <span>{new Date(date).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US')}</span>
+      {/* Format ngày theo ngôn ngữ — xem mục "Format dữ liệu hiển thị" */}
+      <span>{fmt.date(member.endDate)}</span>
     </div>
   );
 }
@@ -1427,6 +1427,23 @@ Mỗi namespace page JSON nên có các section sau (theo thứ tự):
 
 ---
 
+### Format dữ liệu hiển thị (`useFormat`, `src/lib/format.ts`)
+
+Ngày, giờ, tiền và thời hạn gói **format lúc render** theo ngôn ngữ đang chọn:
+
+```typescript
+const fmt = useFormat();
+fmt.date(member.endDate)        // 08/04/2026 · 04/08/2026
+fmt.time(log.checkinAt)         // 14:05
+fmt.currency(plan.price)        // 1.500.000 ₫ · ₫1,500,000
+fmt.duration(plan.durationDays) // "3 tháng" · "3 months" (key common.duration.*)
+```
+
+*   `lib/*Helpers.ts` chỉ chuyển đổi dữ liệu API → model và tính giá trị không phụ thuộc ngôn ngữ (`daysRemaining`, `initials`, `isMaintenanceDue`). **Không** lưu chuỗi hiển thị (`statusLabel`, `dateLabel`, ...) vào model — chúng sẽ kẹt ở một ngôn ngữ.
+*   Nhãn trạng thái / giới tính / role: dịch lúc render — `tCommon(`status.${x}`)`, `tCommon(`gender.${x}`)`, `ts(`roles.${x}`)`.
+*   Object trả về từ `useFormat()` chỉ đổi khi đổi ngôn ngữ → an toàn trong deps của hook (khác với translator).
+*   Hàm thuần trong `lib/format.ts` (`formatDate(value, lang)`...) dùng khi không ở trong component.
+
 ### Interpolation — Chuỗi có biến
 
 Hệ thống i18n **không có template engine** (không dùng `{count}` tự động). Dùng `.replace()` thủ công:
@@ -1461,6 +1478,7 @@ Quy ước placeholder: `{{variableName}}` (double curly braces).
 | `group-classes` | `group-classes.json` | `/group-classes` |
 | `gym-info` | `gym-info.json` | `/gym-info` |
 | `portal` | `portal.json` | `/portal/*` |
+| `auth` | `auth.json` | `/login` |
 
 ---
 
@@ -1492,7 +1510,7 @@ Quy ước placeholder: `{{variableName}}` (double curly braces).
 | `ts('key')` trả về `'key'` (không dịch được) | Key không tồn tại hoặc typo | Kiểm tra kỹ path dot-notation, console.warn sẽ báo |
 | TypeScript lỗi `Argument of type '{}' is not assignable` | Truyền object vào `fallback` parameter (chỉ nhận `string`) | Dùng `.replace()` thủ công, fallback phải là string |
 | `document.title` không cập nhật | Quên gọi `usePageTitle()` | Thêm vào mọi page component |
-| `toLocaleDateString` không đổi theo locale | Hardcode `'vi-VN'` thay vì dynamic | Dùng `lang === 'vi' ? 'vi-VN' : 'en-US'` |
+| Ngày / tiền không đổi theo ngôn ngữ | Hardcode `'vi-VN'` hoặc tính sẵn `*Label` trong helper | Dùng `useFormat()` lúc render |
 | Sub-component không nhận `lang` | Không gọi `useLanguage()` trong sub-component | Gọi `const { t, lang } = useLanguage()` trong mọi component cần dịch |
 | **Page bị refresh/fetch dữ liệu liên tục (infinite loop)** | Translator (`td`, `ts`...) bị đưa vào deps của `useCallback`/`useEffect` | **Không** đưa translator vào deps — xem mục dưới |
 

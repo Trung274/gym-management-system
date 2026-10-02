@@ -18,6 +18,7 @@ import Modal, { ModalFooter } from '@/src/components/ui/Modal';
 import FormField, { inputClass } from '@/src/components/ui/FormField';
 import { TableSkeleton } from '@/src/components/ui/Skeleton';
 import EmptyState from '@/src/components/ui/EmptyState';
+import { useFormat } from '@/src/hooks/useFormat';
 
 // ─── Record modal ─────────────────────────────────────────────────────────────
 function RecordModal({ open, onClose, onSubmit, isLoading }: {
@@ -151,6 +152,7 @@ export default function CheckinPage() {
   const { logs, stats, isLoading, error, fetchLogs, fetchStats, recordCheckin, clearError } = useCheckinStore();
   const { t } = useLanguage();
   const tc = t('checkins');
+  const fmt = useFormat();
   usePageTitle('checkins');
 
   const [dateFrom,       setDateFrom]       = useState('');
@@ -265,8 +267,8 @@ export default function CheckinPage() {
                   : logs.map((log) => (
                     <tr key={log.id} className="border-b border-surface-border hover:bg-surface-raised transition-colors">
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <p className="text-sm font-semibold text-text-primary">{log.checkinTimeOnly}</p>
-                        <p className="text-xs text-text-muted">{log.checkinDateOnly}</p>
+                        <p className="text-sm font-semibold text-text-primary">{fmt.time(log.checkinAt)}</p>
+                        <p className="text-xs text-text-muted">{fmt.date(log.checkinAt)}</p>
                       </td>
                       <td className="px-4 py-3">
                         <p className="text-sm font-medium text-text-primary">{log.memberName}</p>

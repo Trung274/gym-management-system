@@ -15,12 +15,7 @@ import { usePageTitle } from '@/src/hooks/usePageTitle';
 import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
 import { SkeletonList } from '@/src/components/ui/Skeleton';
-
-const fmtDate = (iso: string | undefined, locale: string) =>
-  iso ? new Date(iso).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
-
-const fmtTime = (iso: string, locale: string) =>
-  new Date(iso).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: false });
+import { useFormat } from '@/src/hooks/useFormat';
 
 const daysLeft = (endDate?: string) => {
   if (!endDate) return null;
@@ -30,9 +25,9 @@ const daysLeft = (endDate?: string) => {
 
 export default function PortalHomePage() {
   const { user } = useAuth();
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   const tp = t('portal');
-  const locale = lang === 'vi' ? 'vi-VN' : 'en-US';
+  const fmt = useFormat();
   usePageTitle('portal', 'layout.nav.home');
   const [profile,  setProfile]  = useState<MemberProfile | null>(null);
   const [checkins, setCheckins] = useState<CheckinLog[]>([]);
@@ -101,7 +96,7 @@ export default function PortalHomePage() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-text-muted">{tp('home.subscription.expiryDate')}</span>
-                <span className="font-semibold text-text-primary">{fmtDate(profile.subscriptionEnd, locale)}</span>
+                <span className="font-semibold text-text-primary">{fmt.date(profile.subscriptionEnd)}</span>
               </div>
               {days !== null && (
                 <div className={`text-center text-xs font-semibold mt-1 py-1.5 rounded-lg ${days <= 7 ? 'bg-danger-500/10 text-danger-500' : days <= 30 ? 'bg-warning-500/10 text-warning-500' : 'bg-success-500/10 text-success-500'}`}>
@@ -135,8 +130,8 @@ export default function PortalHomePage() {
             <div className="flex flex-col gap-1">
               {checkins.map(c => (
                 <div key={c.id} className="flex justify-between py-1.5 border-b border-surface-border last:border-0">
-                  <span className="text-sm text-text-primary">{fmtDate(c.checkinAt, locale)}</span>
-                  <span className="text-sm font-semibold text-text-primary">{fmtTime(c.checkinAt, locale)}</span>
+                  <span className="text-sm text-text-primary">{fmt.date(c.checkinAt)}</span>
+                  <span className="text-sm font-semibold text-text-primary">{fmt.time(c.checkinAt)}</span>
                 </div>
               ))}
             </div>
@@ -164,7 +159,7 @@ export default function PortalHomePage() {
                 <div key={b.id} className="flex flex-col gap-0.5 py-1.5 border-b border-surface-border last:border-0">
                   <span className="text-sm font-semibold text-text-primary">{b.trainerName}</span>
                   <span className="text-xs text-text-muted flex items-center gap-1">
-                    <Clock size={10} /> {fmtDate(b.sessionDate, locale)} · {b.startTime}–{b.endTime}
+                    <Clock size={10} /> {fmt.date(b.sessionDate)} · {b.startTime}–{b.endTime}
                   </span>
                 </div>
               ))}

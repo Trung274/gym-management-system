@@ -39,6 +39,8 @@ import viGymInfo      from '@/src/messages/vi/gym-info.json';
 import enGymInfo      from '@/src/messages/en/gym-info.json';
 import viPortal       from '@/src/messages/vi/portal.json';
 import enPortal       from '@/src/messages/en/portal.json';
+import viAuth         from '@/src/messages/vi/auth.json';
+import enAuth         from '@/src/messages/en/auth.json';
 
 // Register them into the sync cache
 registerMessages('vi', 'common',        viCommon);
@@ -67,6 +69,8 @@ registerMessages('vi', 'gym-info',      viGymInfo);
 registerMessages('en', 'gym-info',      enGymInfo);
 registerMessages('vi', 'portal',        viPortal);
 registerMessages('en', 'portal',        enPortal);
+registerMessages('vi', 'auth',          viAuth);
+registerMessages('en', 'auth',          enAuth);
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 

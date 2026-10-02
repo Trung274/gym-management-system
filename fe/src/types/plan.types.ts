@@ -13,9 +13,6 @@ export interface SubscriptionPlan {
   createdAt: string;
   updatedAt: string;
   // Computed fields (tính sẵn trong transform)
-  durationLabel: string;  // VD: "3 tháng", "1 năm", "30 ngày"
-  priceLabel: string;     // VD: "1.500.000 ₫"
-  typeLabel: string;      // VD: "Cơ bản", "Premium", "VIP"
 }
 
 // ─── API Raw Response (từ MongoDB) ────────────────────────────────────────────

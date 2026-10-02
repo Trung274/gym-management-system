@@ -34,12 +34,7 @@ export interface Trainer {
   createdAt: string;
   updatedAt: string;
   // Computed fields
-  statusLabel: string;
-  genderLabel: string;
-  experienceLabel: string;   // VD: "5 năm kinh nghiệm"
-  specializationsLabel: string; // VD: "Yoga, Strength"
   initials: string;
-  hireDateLabel: string;
 }
 
 // ─── API Raw Response (Trainer model với populate user) ───────────────────────

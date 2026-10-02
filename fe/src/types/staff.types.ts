@@ -17,7 +17,6 @@ export interface StaffMember {
   createdAt: string;
   updatedAt: string;
   // Computed fields
-  roleLabel: string;    // VD: "Quản lý", "Huấn luyện viên"
   initials: string;     // VD: "NA" từ "Nguyen Van A"
 }
 

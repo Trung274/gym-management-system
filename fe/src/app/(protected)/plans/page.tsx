@@ -15,6 +15,7 @@ import FormField, { inputClass } from '@/src/components/ui/FormField';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
 import { Ban, CheckCircle, CheckCircle2, Eye, Pencil, PieChart, XCircle } from 'lucide-react';
 import SegmentedControl from '@/src/components/ui/SegmentedControl';
+import { useFormat } from '@/src/hooks/useFormat';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const PLAN_TYPES: PlanType[] = ['basic', 'premium', 'vip'];
@@ -88,6 +89,7 @@ function PlanCard({
   const { t } = useLanguage();
   const te = t('plans');
   const tCommon = t('common');
+  const fmt = useFormat();
 
   const isToggling = toggling === plan.id;
   const features = getPlanFeatures(plan.type, te);
@@ -143,8 +145,8 @@ function PlanCard({
         {/* Pricing */}
         <div className="mb-6">
           <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-black text-text-primary font-headline tracking-tight">{plan.priceLabel}</span>
-            <span className="text-text-muted text-xs font-medium">/{plan.durationLabel}</span>
+            <span className="text-3xl font-black text-text-primary font-headline tracking-tight">{fmt.currency(plan.price)}</span>
+            <span className="text-text-muted text-xs font-medium">/{fmt.duration(plan.durationDays)}</span>
           </div>
         </div>
 

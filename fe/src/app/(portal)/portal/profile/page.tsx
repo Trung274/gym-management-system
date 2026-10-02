@@ -15,9 +15,7 @@ import FormField, { inputClass } from '@/src/components/ui/FormField';
 import Badge from '@/src/components/ui/Badge';
 import { MEMBER_STATUS_TONE } from '@/src/lib/statusTones';
 import { SkeletonList } from '@/src/components/ui/Skeleton';
-
-const fmtDate = (iso: string | undefined, locale: string) =>
-  iso ? new Date(iso).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
+import { useFormat } from '@/src/hooks/useFormat';
 
 function InfoRow({ label, value }: { label: string; value?: string }) {
   return (
@@ -29,9 +27,9 @@ function InfoRow({ label, value }: { label: string; value?: string }) {
 }
 
 export default function PortalProfilePage() {
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   const tp = t('portal');
-  const locale = lang === 'vi' ? 'vi-VN' : 'en-US';
+  const fmt = useFormat();
   usePageTitle('portal', 'profile.title');
 
   const [profile, setProfile] = useState<MemberProfile | null>(null);
@@ -113,7 +111,7 @@ export default function PortalProfilePage() {
             </Badge>
           )}
         </div>
-        <InfoRow label={tp('profile.fields.dateOfBirth')} value={fmtDate(profile?.dateOfBirth, locale)} />
+        <InfoRow label={tp('profile.fields.dateOfBirth')} value={fmt.date(profile?.dateOfBirth)} />
         <InfoRow label={tp('profile.fields.gender')}      value={profile?.gender ? tp(`shared.gender.${profile.gender}`, profile.gender) : undefined} />
         <InfoRow label={tp('profile.fields.address')}     value={profile?.address} />
         <InfoRow label={tp('profile.fields.memberId')}    value={profile?.memberId} />
@@ -156,8 +154,8 @@ export default function PortalProfilePage() {
           <>
             <InfoRow label={tp('profile.fields.planName')}  value={profile.subscriptionPlan.name} />
             <InfoRow label={tp('profile.fields.planType')}  value={profile.subscriptionPlan.type?.toUpperCase()} />
-            <InfoRow label={tp('profile.fields.startDate')} value={fmtDate(profile.subscriptionStart, locale)} />
-            <InfoRow label={tp('profile.fields.endDate')}   value={fmtDate(profile.subscriptionEnd, locale)} />
+            <InfoRow label={tp('profile.fields.startDate')} value={fmt.date(profile.subscriptionStart)} />
+            <InfoRow label={tp('profile.fields.endDate')}   value={fmt.date(profile.subscriptionEnd)} />
           </>
         ) : (
           <p className="text-sm text-text-muted">{tp('profile.noSubscription')}</p>

@@ -67,7 +67,10 @@
     "addScheduleItem": "Thêm buổi",
     "cancel": "Hủy",
     "save": "Lưu thay đổi",
-    "add": "Thêm lớp học"
+    "add": "Thêm lớp học",
+    "namePlaceholder": "VD: Yoga Buổi Sáng",
+    "locationPlaceholder": "Phòng Yoga, Tầng 2...",
+    "descriptionPlaceholder": "Mô tả ngắn về lớp học..."
   },
   "validation": {
     "nameRequired": "Tên lớp là bắt buộc",

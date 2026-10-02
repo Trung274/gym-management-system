@@ -67,7 +67,10 @@
     "addScheduleItem": "Add slot",
     "cancel": "Cancel",
     "save": "Save changes",
-    "add": "Add Class"
+    "add": "Add Class",
+    "namePlaceholder": "e.g. Morning Yoga",
+    "locationPlaceholder": "Yoga room, Floor 2...",
+    "descriptionPlaceholder": "Short description of the class..."
   },
   "validation": {
     "nameRequired": "Class name is required",

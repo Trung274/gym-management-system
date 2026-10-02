@@ -21,14 +21,16 @@ import StatusSelect from '@/src/components/ui/StatusSelect';
 import ConfirmDialog from '@/src/components/ui/ConfirmDialog';
 import { EQUIPMENT_STATUS_TONE } from '@/src/lib/statusTones';
 import EmptyState from '@/src/components/ui/EmptyState';
+import { useFormat } from '@/src/hooks/useFormat';
+import SegmentedControl from '@/src/components/ui/SegmentedControl';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const CATEGORY_OPTIONS: { value: EquipmentCategory; label: string; icon: string }[] = [
-  { value: 'cardio',       label: 'Cardio',      icon: '🏃' },
-  { value: 'strength',     label: 'Sức mạnh',    icon: '💪' },
-  { value: 'flexibility',  label: 'Linh hoạt',   icon: '🧘' },
-  { value: 'free_weights', label: 'Tạ tự do',    icon: '🏋️' },
-  { value: 'other',        label: 'Khác',         icon: '⚙️' },
+const CATEGORY_OPTIONS: { value: EquipmentCategory; icon: string }[] = [
+  { value: 'cardio',       icon: '🏃' },
+  { value: 'strength',     icon: '💪' },
+  { value: 'flexibility',  icon: '🧘' },
+  { value: 'free_weights', icon: '🏋️' },
+  { value: 'other',        icon: '⚙️' },
 ];
 
 const CATEGORY_ICON: Record<EquipmentCategory, string> = {
@@ -138,7 +140,7 @@ function EquipmentModal({ open, editing, onClose, onSave, isLoading }: {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5 sm:col-span-2">
               <label className="text-xs font-semibold text-text-secondary">{te('modal.name')} <span className="text-danger-500">*</span></label>
-              <input type="text" value={form.name} onChange={(e) => setF('name', e.target.value)} placeholder="VD: Máy chạy bộ NordicTrack" className={inputCls('name')} />
+              <input type="text" value={form.name} onChange={(e) => setF('name', e.target.value)} placeholder={te('modal.namePlaceholder')} className={inputCls('name')} />
               {errors.name && <p className="text-xs text-danger-500">{errors.name}</p>}
             </div>
             <FormField label={te('modal.category')} required>
@@ -161,7 +163,7 @@ function EquipmentModal({ open, editing, onClose, onSave, isLoading }: {
               <input type="text" value={form.serialNumber} onChange={(e) => setF('serialNumber', e.target.value)} placeholder="SN-12345678" className={inputCls('serialNumber')} />
             </FormField>
             <FormField label={te('modal.location')}>
-              <input type="text" value={form.location} onChange={(e) => setF('location', e.target.value)} placeholder="Zone Cardio, Tầng 1..." className={inputCls('location')} />
+              <input type="text" value={form.location} onChange={(e) => setF('location', e.target.value)} placeholder={te('modal.locationPlaceholder')} className={inputCls('location')} />
             </FormField>
           </div>
         </div>
@@ -177,7 +179,7 @@ function EquipmentModal({ open, editing, onClose, onSave, isLoading }: {
               <input type="number" min="0" value={form.purchasePrice} onChange={(e) => setF('purchasePrice', e.target.value)} placeholder="50000000" className={inputCls('purchasePrice')} />
             </FormField>
             <FormField label={te('modal.supplier')}>
-              <input type="text" value={form.supplier} onChange={(e) => setF('supplier', e.target.value)} placeholder="Công ty ABC" className={inputCls('supplier')} />
+              <input type="text" value={form.supplier} onChange={(e) => setF('supplier', e.target.value)} placeholder={te('modal.supplierPlaceholder')} className={inputCls('supplier')} />
             </FormField>
             <FormField label={te('modal.nextMaintenanceDate')}>
               <input type="date" value={form.nextMaintenanceDate} onChange={(e) => setF('nextMaintenanceDate', e.target.value)} className={inputCls('nextMaintenanceDate')} />
@@ -207,6 +209,7 @@ function EquipmentRow({ item, onEdit, onDelete, onStatusChange, actingId }: {
   const { t } = useLanguage();
   const te = t('equipment');
   const tCommon = t('common');
+  const fmt = useFormat();
 
   const isActing = actingId === item.id;
 
@@ -234,7 +237,7 @@ function EquipmentRow({ item, onEdit, onDelete, onStatusChange, actingId }: {
       <div className="hidden md:block col-span-2 text-sm text-text-secondary">
         <p className="text-xs text-text-muted">{te('table.nextMaintenanceLabel')}</p>
         <p className={`text-xs mt-0.5 font-semibold ${item.isMaintenanceDue ? 'text-warning-500' : 'text-text-secondary'}`}>
-          {item.nextMaintenanceDateLabel}
+          {fmt.date(item.nextMaintenanceDate)}
         </p>
       </div>
       <div className="col-span-3 md:col-span-2 text-right md:text-left flex items-center justify-end md:justify-start">
@@ -387,27 +390,15 @@ export default function EquipmentPage() {
             />
           </div>
           {/* Category filter */}
-          <div className="flex gap-1 p-1 bg-surface-overlay rounded-xl border border-surface-border">
-            <button onClick={() => setFilterCategory('all')} className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterCategory === 'all' ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-raised'}`}>{tCommon('filters.all')}</button>
-            {CATEGORY_OPTIONS.map((c) => (
-              <button key={c.value} onClick={() => setFilterCategory(c.value)}
-                className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterCategory === c.value ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-raised'}`}>
-                {c.icon} {te(`categories.${c.value}`)}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl<EquipmentCategory | 'all'> value={filterCategory} onChange={setFilterCategory} options={[
+            { value: 'all', label: tCommon('filters.all') },
+            ...CATEGORY_OPTIONS.map((c) => ({ value: c.value, label: <>{c.icon} {te(`categories.${c.value}`)}</> })),
+          ]} />
           {/* Status filter */}
-          <div className="flex gap-1 p-1 bg-surface-overlay rounded-xl border border-surface-border">
-            {([
-              { v: 'all', l: te('filters.allStatus') },
-              { v: 'operational', l: te('status.operational') },
-              { v: 'maintenance', l: te('status.maintenance') },
-              { v: 'out_of_order', l: te('status.out_of_order') }
-            ]).map((f) => (
-              <button key={f.v} onClick={() => setFilterStatus(f.v as any)}
-                className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${filterStatus === f.v ? 'bg-primary-500 text-white shadow' : 'text-text-secondary hover:bg-surface-raised'}`}>{f.l}</button>
-            ))}
-          </div>
+          <SegmentedControl<EquipmentStatus | 'all'> value={filterStatus} onChange={setFilterStatus} options={[
+            { value: 'all', label: te('filters.allStatus') },
+            ...(Object.keys(EQUIPMENT_STATUS_TONE) as EquipmentStatus[]).map((v) => ({ value: v, label: te(`status.${v}`) })),
+          ]} />
           <span className="ml-auto text-xs text-text-muted">{filtered.length} {te('count')}</span>
         </div>
 

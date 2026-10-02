@@ -63,7 +63,9 @@
     "genderNone": "Không chọn",
     "genderMale": "Nam",
     "genderFemale": "Nữ",
-    "genderOther": "Khác"
+    "genderOther": "Khác",
+    "namePlaceholder": "Nguyễn Văn B",
+    "addressPlaceholder": "123 Nguyễn Trãi, Hà Nội"
   },
   "renewModal": {
     "title": "Gia hạn thành viên",
