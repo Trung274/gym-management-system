@@ -4,6 +4,7 @@ const Member = require('../models/Member.model');
 const User = require('../models/User.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
+const { isMembershipExpired } = require('../utils/memberExpiry');
 
 // @desc    Record a member check-in
 // @route   POST /api/v1/checkins
@@ -42,6 +43,10 @@ exports.recordCheckin = asyncHandler(async (req, res, next) => {
 
   if (member.status === 'suspended') {
     return next(new ErrorResponse('Cannot check in a suspended member', 400));
+  }
+
+  if (isMembershipExpired(member)) {
+    return next(new ErrorResponse('Membership has expired. Renew it before checking in', 400));
   }
 
   const checkinAt = new Date();

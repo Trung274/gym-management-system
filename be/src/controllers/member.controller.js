@@ -5,6 +5,7 @@ const SubscriptionPlan = require('../models/SubscriptionPlan.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
 const { ROLES } = require('../config/roles');
+const { isMembershipExpired } = require('../utils/memberExpiry');
 
 // @desc    Get current member's own profile
 // @route   GET /api/v1/members/me
@@ -242,6 +243,11 @@ exports.changeStatus = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Member is already ${status}`, 400));
   }
 
+  // An overdue membership can only become active again through renewal
+  if (status === 'active' && isMembershipExpired(member)) {
+    return next(new ErrorResponse('Membership has expired. Renew it instead of activating', 400));
+  }
+
   member.status = status;
   await member.save({ validateBeforeSave: false });
 
@@ -287,7 +293,7 @@ exports.checkIn = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('Member not found', 404));
   }
 
-  if (member.status !== 'active') {
+  if (member.status !== 'active' || isMembershipExpired(member)) {
     return next(new ErrorResponse('Member is not active', 400));
   }
 

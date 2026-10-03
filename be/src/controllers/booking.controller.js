@@ -4,6 +4,8 @@ const Trainer = require('../models/Trainer.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
 const { ROLES } = require('../config/roles');
+const { isValidDateString, isValidTimeString, nowInGym } = require('../utils/gymTime');
+const { isMembershipExpired } = require('../utils/memberExpiry');
 
 // Helper: check if two time ranges overlap (all in HH:MM string)
 const timesOverlap = (start1, end1, start2, end2) => {
@@ -111,10 +113,24 @@ exports.createBooking = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('No member profile found. Only members can create bookings', 400));
   }
 
+  if (member.status === 'suspended') {
+    return next(new ErrorResponse('Your membership is suspended. Contact staff to book a session', 400));
+  }
+  if (isMembershipExpired(member)) {
+    return next(new ErrorResponse('Your membership has expired. Renew it to book a session', 400));
+  }
+
   // Validate trainer exists and is active
   const trainer = await Trainer.findById(trainerId);
   if (!trainer || trainer.status !== 'active') {
     return next(new ErrorResponse('Trainer not found or inactive', 400));
+  }
+
+  if (!isValidDateString(sessionDate)) {
+    return next(new ErrorResponse('Session date must be in YYYY-MM-DD format', 400));
+  }
+  if (!isValidTimeString(startTime) || !isValidTimeString(endTime)) {
+    return next(new ErrorResponse('Time must be in HH:MM format', 400));
   }
 
   // Validate end time > start time
@@ -122,9 +138,10 @@ exports.createBooking = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('End time must be after start time', 400));
   }
 
-  // Validate session date is in the future
-  if (new Date(sessionDate) < new Date()) {
-    return next(new ErrorResponse('Session date must be in the future', 400));
+  // Session must start in the future — compared in gym-local time, so today's later slots are allowed
+  const now = nowInGym();
+  if (sessionDate < now.date || (sessionDate === now.date && startTime <= now.time)) {
+    return next(new ErrorResponse('Session start time must be in the future', 400));
   }
 
   // Check for trainer schedule conflicts (against confirmed bookings)

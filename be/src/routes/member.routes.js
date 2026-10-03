@@ -293,7 +293,7 @@ router.put('/:id', protect, checkPermission('members', 'update'), memberControll
  *       200:
  *         description: Status changed
  *       400:
- *         description: Invalid status or already in that status
+ *         description: Invalid status, already in that status, or activating an expired membership (renew instead)
  *       401:
  *         description: Unauthorized
  *       403:

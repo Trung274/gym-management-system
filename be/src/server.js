@@ -8,9 +8,10 @@ const connectDB = require('./config/database');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 const errorHandler = require('./middleware/errorHandler');
+const { startMemberExpiryJob } = require('./utils/memberExpiry');
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB, then mark overdue memberships as expired (now, then hourly)
+connectDB().then(startMemberExpiryJob);
 
 const app = express();
 

@@ -31,6 +31,7 @@ npm start          # production
 | `CORS_ORIGIN` | | — | Danh sách origin, cách nhau bằng dấu phẩy. `http://localhost:3000` luôn được cho phép |
 | `RATE_LIMIT_WINDOW_MS` | | `900000` (15 phút) | |
 | `RATE_LIMIT_MAX_REQUESTS` | | `10000` | Số request mỗi IP trong một cửa sổ, áp dụng cho `/api/*` |
+| `GYM_TIMEZONE` | | `Asia/Ho_Chi_Minh` | Múi giờ IANA của phòng gym — dùng để xác định "hôm nay/bây giờ" khi đặt lịch PT (server có thể chạy UTC) |
 
 Khi deploy trên Render, `RENDER_EXTERNAL_HOSTNAME` (Render tự set) cũng được thêm vào danh sách CORS.
 

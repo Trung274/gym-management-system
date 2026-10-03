@@ -37,7 +37,7 @@ const { protect, checkPermission } = require('../middleware/auth');
  *       201:
  *         description: Check-in recorded. Member.lastCheckIn updated.
  *       400:
- *         description: Missing memberId or member is suspended
+ *         description: Missing memberId, member is suspended, or membership has expired
  *       401:
  *         description: Unauthorized
  *       403:

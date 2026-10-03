@@ -162,7 +162,7 @@ function PortalBookingsContent() {
               </select>
             </FormField>
             <FormField label={tp('bookings.modal.date')} required>
-              <input type="date" value={form.sessionDate} onChange={e => setForm(f => ({ ...f, sessionDate: e.target.value }))} required min={new Date().toISOString().slice(0,10)} className={inp} />
+              <input type="date" value={form.sessionDate} onChange={e => setForm(f => ({ ...f, sessionDate: e.target.value }))} required min={new Date().toLocaleDateString('en-CA')} className={inp} />
             </FormField>
             <div className="grid grid-cols-2 gap-2">
               <FormField label={tp('bookings.modal.startTime')} required>

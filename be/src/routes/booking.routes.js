@@ -131,7 +131,7 @@ router.get('/:id', protect, checkPermission('bookings', 'read'), bookingControll
  *       201:
  *         description: Booking created (status pending)
  *       400:
- *         description: Trainer unavailable, time conflict, or invalid input
+ *         description: Membership suspended or expired, trainer unavailable, time conflict, start time not in the future (gym-local time, GYM_TIMEZONE), or invalid input
  *       401:
  *         description: Unauthorized
  *       403:
