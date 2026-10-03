@@ -18,7 +18,7 @@ import { usePageTitle } from '@/src/hooks/usePageTitle';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
 import FormField, { Input } from '@/src/components/ui/FormField';
 import Spinner from '@/src/components/ui/Spinner';
-import { Eye, EyeOff, Check, Ban, CheckCircle, Pencil, Search, Tag } from 'lucide-react';
+import { Eye, EyeOff, Check, Ban, BriefcaseBusiness, CheckCircle, Pencil, Search, Tag } from 'lucide-react';
 import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
 import Badge from '@/src/components/ui/Badge';
@@ -503,7 +503,7 @@ export default function StaffPage() {
         {/* Empty state */}
         {!isLoading && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-            <span className="text-5xl">🧑‍💼</span>
+            <BriefcaseBusiness size={48} className="text-text-muted opacity-40" />
             <div>
               <p className="text-base font-semibold text-text-primary">{ts('empty.title')}</p>
               <p className="text-sm text-text-muted mt-1">

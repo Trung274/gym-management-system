@@ -311,7 +311,7 @@ export default function BookingsPage() {
                 {isLoading && bookings.length === 0 ? (
                   <TableSkeleton rows={5} cols={6} />
                 ) : filtered.length === 0 ? (
-                  <tr><td colSpan={6}><EmptyState icon="📅" title={tb('empty.title')} description={tb('empty.description')} /></td></tr>
+                  <tr><td colSpan={6}><EmptyState icon={<Calendar size={40} />} title={tb('empty.title')} description={tb('empty.description')} /></td></tr>
                 ) : (
                   filtered.map((booking) => (
                     <BookingRow key={booking.id} booking={booking}

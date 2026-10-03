@@ -13,17 +13,20 @@ import Alert from '@/src/components/ui/Alert';
 import Spinner from '@/src/components/ui/Spinner';
 import FormField, { inputClass } from '@/src/components/ui/FormField';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
-import { Ban, CheckCircle, CheckCircle2, Eye, Pencil, PieChart, XCircle } from 'lucide-react';
+import {
+  Ban, CheckCircle, CheckCircle2, ClipboardList, Cloud, Crown, Eye, Flame,
+  Pencil, PieChart, TrendingUp, XCircle, type LucideIcon,
+} from 'lucide-react';
 import SegmentedControl from '@/src/components/ui/SegmentedControl';
 import { useFormat } from '@/src/hooks/useFormat';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const PLAN_TYPES: PlanType[] = ['basic', 'premium', 'vip'];
 
-const TYPE_STYLES: Record<PlanType, { badge: string; card: string; icon: string }> = {
-  basic:   { badge: 'bg-sky-500/15 text-sky-500',      card: 'from-sky-500/10 to-transparent',    icon: '☁️' },
-  premium: { badge: 'bg-primary-500/15 text-primary-500', card: 'from-primary-500/10 to-transparent', icon: '🔥' },
-  vip:     { badge: 'bg-violet-500/15 text-violet-500', card: 'from-violet-500/10 to-transparent',  icon: '👑' },
+const TYPE_STYLES: Record<PlanType, { badge: string; card: string; icon: LucideIcon }> = {
+  basic:   { badge: 'bg-sky-500/15 text-sky-500',      card: 'from-sky-500/10 to-transparent',    icon: Cloud },
+  premium: { badge: 'bg-primary-500/15 text-primary-500', card: 'from-primary-500/10 to-transparent', icon: Flame },
+  vip:     { badge: 'bg-violet-500/15 text-violet-500', card: 'from-violet-500/10 to-transparent',  icon: Crown },
 };
 
 // ─── Empty form state ─────────────────────────────────────────────────────────
@@ -301,20 +304,23 @@ function PlanModal({
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-semibold text-text-secondary">{te('modal.type')} <span className="text-danger-500">*</span></label>
           <div className="grid grid-cols-3 gap-2">
-            {PLAN_TYPES.map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setForm((f) => ({ ...f, type: t }))}
-                className={`py-2.5 rounded-xl text-sm font-semibold border transition-all cursor-pointer
-                  ${form.type === t
-                    ? 'border-primary-500 bg-primary-500/10 text-primary-500'
-                    : 'border-surface-border bg-surface-raised text-text-secondary hover:border-primary-500/50'
-                  }`}
-              >
-                {TYPE_STYLES[t].icon} {te(`types.${t}`)}
-              </button>
-            ))}
+            {PLAN_TYPES.map((t) => {
+              const TypeIcon = TYPE_STYLES[t].icon;
+              return (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, type: t }))}
+                  className={`py-2.5 rounded-xl text-sm font-semibold border transition-all cursor-pointer inline-flex items-center justify-center gap-1.5
+                    ${form.type === t
+                      ? 'border-primary-500 bg-primary-500/10 text-primary-500'
+                      : 'border-surface-border bg-surface-raised text-text-secondary hover:border-primary-500/50'
+                    }`}
+                >
+                  <TypeIcon size={15} /> {te(`types.${t}`)}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -508,9 +514,9 @@ export default function PlansPage() {
           items={[
             { label: te('stats.total'), value: stats.total, color: 'primary' },
             { label: te('stats.active'), value: stats.active, color: 'success' },
-            { label: `☁️ ${te('types.basic')}`, value: stats.basic, color: 'secondary' },
-            { label: `🔥 ${te('types.premium')}`, value: stats.premium, color: 'primary' },
-            { label: `👑 ${te('types.vip')}`, value: stats.vip, color: 'warning' },
+            { label: te('types.basic'), value: stats.basic, color: 'secondary', icon: <Cloud size={40} /> },
+            { label: te('types.premium'), value: stats.premium, color: 'primary', icon: <Flame size={40} /> },
+            { label: te('types.vip'), value: stats.vip, color: 'warning', icon: <Crown size={40} /> },
           ]}
         />
 
@@ -556,7 +562,7 @@ export default function PlansPage() {
         {/* Empty state */}
         {!isLoading && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-            <span className="text-5xl">📋</span>
+            <ClipboardList size={48} className="text-text-muted opacity-40" />
             <div>
               <p className="text-base font-semibold text-text-primary">{te('empty.title')}</p>
               <p className="text-sm text-text-muted mt-1">
@@ -594,7 +600,7 @@ export default function PlansPage() {
           <div id="plan-analytics" className="mt-12 grid grid-cols-1 lg:grid-cols-4 gap-6 pt-10 border-t border-surface-border">
             <div className="lg:col-span-1 bg-surface-raised p-6 rounded-2xl flex flex-col justify-between border border-surface-border">
               <div>
-                <span className="text-primary-500 text-2xl mb-4 block">📈</span>
+                <TrendingUp size={24} className="text-primary-500 mb-4" />
                 <h4 className="text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 font-headline">{te('analytics.churnRate')}</h4>
                 <p className="text-3xl font-black text-text-primary font-headline">2.4%</p>
               </div>

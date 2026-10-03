@@ -799,8 +799,8 @@ useSessionTimeout(30 * 60 * 1000); // 30 phút
 export const toast = {
   success: (message: string, duration?: number) => hotToast.success(message, { ... }),
   error: (message: string, duration?: number) => hotToast.error(message, { ... }),
-  info: (message: string, duration?: number) => hotToast(message, { icon: 'ℹ️', ... }),
-  warning: (message: string, duration?: number) => hotToast(message, { icon: '⚠️', ... }),
+  info: (message: string, duration?: number) => hotToast(message, { icon: createElement(Info, { size: 18 }), ... }),
+  warning: (message: string, duration?: number) => hotToast(message, { icon: createElement(TriangleAlert, { size: 18 }), ... }),
   custom: (message: string, icon: string, duration?: number) => hotToast(message, { icon, ... }),
 };
 ```

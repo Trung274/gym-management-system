@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Loader2, Pencil, Search, Trash2 } from 'lucide-react';
+import { Dumbbell, Loader2, Pencil, Search, Trash2 } from 'lucide-react';
 import { useEquipmentStore } from '@/src/stores/equipmentStore';
 import { toast } from '@/src/utils/toast';
 import StatsGrid from '@/src/components/ui/StatsGrid';
@@ -23,19 +23,10 @@ import { EQUIPMENT_STATUS_TONE } from '@/src/lib/statusTones';
 import EmptyState from '@/src/components/ui/EmptyState';
 import { useFormat } from '@/src/hooks/useFormat';
 import SegmentedControl from '@/src/components/ui/SegmentedControl';
+import { EQUIPMENT_CATEGORY_ICONS } from '@/src/lib/categoryIcons';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const CATEGORY_OPTIONS: { value: EquipmentCategory; icon: string }[] = [
-  { value: 'cardio',       icon: '🏃' },
-  { value: 'strength',     icon: '💪' },
-  { value: 'flexibility',  icon: '🧘' },
-  { value: 'free_weights', icon: '🏋️' },
-  { value: 'other',        icon: '⚙️' },
-];
-
-const CATEGORY_ICON: Record<EquipmentCategory, string> = {
-  cardio: '🏃', strength: '💪', flexibility: '🧘', free_weights: '🏋️', other: '⚙️',
-};
+const CATEGORIES = Object.keys(EQUIPMENT_CATEGORY_ICONS) as EquipmentCategory[];
 
 const EMPTY_CREATE: CreateEquipmentPayload = {
   name: '', category: 'cardio',
@@ -145,8 +136,8 @@ function EquipmentModal({ open, editing, onClose, onSave, isLoading }: {
             </div>
             <FormField label={te('modal.category')} required>
               <select value={form.category} onChange={(e) => setF('category', e.target.value)} className={inputCls('category')}>
-                {CATEGORY_OPTIONS.map((c) => (
-                  <option key={c.value} value={c.value}>{c.icon} {te(`categories.${c.value}`)}</option>
+                {CATEGORIES.map((c) => (
+                  <option key={c} value={c}>{te(`categories.${c}`)}</option>
                 ))}
               </select>
             </FormField>
@@ -212,6 +203,7 @@ function EquipmentRow({ item, onEdit, onDelete, onStatusChange, actingId }: {
   const fmt = useFormat();
 
   const isActing = actingId === item.id;
+  const CategoryIcon = EQUIPMENT_CATEGORY_ICONS[item.category];
 
   const statusStyles: Record<EquipmentStatus, string> = {
     operational: 'border-primary-500/20 hover:border-primary-500/40',
@@ -222,8 +214,8 @@ function EquipmentRow({ item, onEdit, onDelete, onStatusChange, actingId }: {
   return (
     <div className={`grid grid-cols-12 items-center px-6 py-4 bg-surface-overlay rounded-xl hover:bg-surface-raised transition-all group border-l-4 ${statusStyles[item.status]}`}>
       <div className="col-span-6 md:col-span-4 flex items-center gap-4">
-        <div className="w-12 h-12 rounded-lg bg-surface-border flex items-center justify-center text-xl shrink-0">
-          {CATEGORY_ICON[item.category]}
+        <div className="w-12 h-12 rounded-lg bg-surface-border flex items-center justify-center text-text-secondary shrink-0">
+          <CategoryIcon size={22} />
         </div>
         <div className="min-w-0">
           <p className="font-headline font-bold text-text-primary group-hover:text-primary-500 transition-colors truncate text-sm sm:text-base">{item.name}</p>
@@ -392,7 +384,10 @@ export default function EquipmentPage() {
           {/* Category filter */}
           <SegmentedControl<EquipmentCategory | 'all'> value={filterCategory} onChange={setFilterCategory} options={[
             { value: 'all', label: tCommon('filters.all') },
-            ...CATEGORY_OPTIONS.map((c) => ({ value: c.value, label: <>{c.icon} {te(`categories.${c.value}`)}</> })),
+            ...CATEGORIES.map((c) => {
+              const Icon = EQUIPMENT_CATEGORY_ICONS[c];
+              return { value: c, label: <span className="inline-flex items-center gap-1.5"><Icon size={13} />{te(`categories.${c}`)}</span> };
+            }),
           ]} />
           {/* Status filter */}
           <SegmentedControl<EquipmentStatus | 'all'> value={filterStatus} onChange={setFilterStatus} options={[
@@ -435,7 +430,7 @@ export default function EquipmentPage() {
               </div>
             ))
           ) : filtered.length === 0 ? (
-            <EmptyState icon="🏋️" title={te('empty.title')} description={te('empty.description')}
+            <EmptyState icon={<Dumbbell size={40} />} title={te('empty.title')} description={te('empty.description')}
               className="bg-surface-overlay rounded-xl border border-surface-border/50" />
           ) : (
             filtered.map((item) => (

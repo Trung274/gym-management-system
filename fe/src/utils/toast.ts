@@ -1,4 +1,6 @@
-import { toast as hotToast } from 'react-hot-toast';
+import { createElement } from 'react';
+import { toast as hotToast, type Renderable } from 'react-hot-toast';
+import { Info, TriangleAlert } from 'lucide-react';
 
 /**
  * Centralized toast notification utility
@@ -66,7 +68,7 @@ export const toast = {
         hotToast(message, {
             ...defaultOptions,
             duration: duration || defaultOptions.duration,
-            icon: 'ℹ️',
+            icon: createElement(Info, { size: 18, color: '#3b82f6' }),
             style: {
                 ...defaultStyle,
                 border: '1px solid rgba(59, 130, 246, 0.5)',
@@ -83,7 +85,7 @@ export const toast = {
         hotToast(message, {
             ...defaultOptions,
             duration: duration || defaultOptions.duration,
-            icon: '⚠️',
+            icon: createElement(TriangleAlert, { size: 18, color: '#f59e0b' }),
             style: {
                 ...defaultStyle,
                 border: '1px solid rgba(245, 158, 11, 0.5)',
@@ -94,10 +96,10 @@ export const toast = {
     /**
      * Show custom toast with icon
      * @param message - Message to display
-     * @param icon - Custom icon/emoji
+     * @param icon - Custom icon element (e.g. a lucide icon)
      * @param duration - Optional custom duration (default: 4000ms)
      */
-    custom: (message: string, icon: string, duration?: number) => {
+    custom: (message: string, icon: Renderable, duration?: number) => {
         hotToast(message, {
             ...defaultOptions,
             duration: duration || defaultOptions.duration,

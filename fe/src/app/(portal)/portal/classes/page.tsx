@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getClasses } from '@/src/lib/classService';
-import { Users2 } from 'lucide-react';
+import { User, Users2 } from 'lucide-react';
 import type { GymClass, ClassCategory } from '@/src/types/class.types';
 import PageHeader from '@/src/components/ui/PageHeader';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
@@ -12,13 +12,9 @@ import { getApiMessage } from '@/src/lib/errors';
 import SegmentedControl from '@/src/components/ui/SegmentedControl';
 import { SkeletonList } from '@/src/components/ui/Skeleton';
 import EmptyState from '@/src/components/ui/EmptyState';
+import { CLASS_CATEGORY_ICONS } from '@/src/lib/categoryIcons';
 
-const CATEGORY_ICONS: Record<ClassCategory, string> = {
-  yoga: '🧘', zumba: '💃', cycling: '🚴', hiit: '⚡',
-  pilates: '🤸', boxing: '🥊', other: '🏋️',
-};
-
-const CATEGORIES = Object.keys(CATEGORY_ICONS) as ClassCategory[];
+const CATEGORIES = Object.keys(CLASS_CATEGORY_ICONS) as ClassCategory[];
 const DAYS = [0, 1, 2, 3, 4, 5, 6];
 
 const TODAY_DOW = new Date().getDay(); // 0=Sun
@@ -63,7 +59,10 @@ export default function PortalClassesPage() {
         {/* Category filter */}
         <SegmentedControl<ClassCategory | 'all'> value={category} onChange={setCategory} options={[
           { value: 'all', label: tp('classes.filters.allCategories') },
-          ...CATEGORIES.map(v => ({ value: v, label: <>{CATEGORY_ICONS[v]} {tp(`shared.categories.${v}`)}</> })),
+          ...CATEGORIES.map(v => {
+            const Icon = CLASS_CATEGORY_ICONS[v];
+            return { value: v, label: <span className="inline-flex items-center gap-1.5"><Icon size={13} />{tp(`shared.categories.${v}`)}</span> };
+          }),
         ]} />
       </div>
 
@@ -73,15 +72,17 @@ export default function PortalClassesPage() {
         : filtered.length === 0
         ? <EmptyState icon={<Users2 size={40} />} title={tp('classes.empty')} />
         : <div className="grid sm:grid-cols-2 gap-3">
-            {filtered.map(c => (
+            {filtered.map(c => {
+              const CategoryIcon = CLASS_CATEGORY_ICONS[c.category];
+              return (
               <div key={c.id} className="bg-surface-base border border-surface-border rounded-xl p-4 flex flex-col gap-2">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{CATEGORY_ICONS[c.category]}</span>
+                  <span className="w-10 h-10 rounded-lg bg-primary-500/10 flex items-center justify-center text-primary-500 shrink-0"><CategoryIcon size={20} /></span>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-text-primary truncate">{c.name}</p>
                     <p className="text-xs text-text-muted">{tp(`shared.categories.${c.category}`)}</p>
                   </div>
-                  {c.capacity && <span className="text-xs text-text-muted shrink-0">👤 {c.capacity}</span>}
+                  {c.capacity && <span className="text-xs text-text-muted shrink-0 inline-flex items-center gap-1"><User size={12} /> {c.capacity}</span>}
                 </div>
                 {c.schedule.length > 0 && (
                   <p className="text-xs text-primary-500 font-medium">
@@ -93,7 +94,8 @@ export default function PortalClassesPage() {
                   <span>{c.location ?? ''}</span>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
       }
     </div>

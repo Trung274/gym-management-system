@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getTrainers } from '@/src/lib/trainerService';
-import { UserCheck } from 'lucide-react';
+import { Award, UserCheck } from 'lucide-react';
 import type { Trainer } from '@/src/types/trainer.types';
 import PageHeader from '@/src/components/ui/PageHeader';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
@@ -84,7 +84,7 @@ function TrainerModal({ trainer, onClose, onBook }: { trainer: Trainer; onClose:
           <div className="flex flex-col gap-1.5">
             <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">{tp('trainers.modal.certifications')}</p>
             <ul className="flex flex-col gap-1">
-              {trainer.certifications.map(c => <li key={c} className="text-sm text-text-secondary flex items-center gap-1.5">🏅 {c}</li>)}
+              {trainer.certifications.map(c => <li key={c} className="text-sm text-text-secondary flex items-center gap-1.5"><Award size={14} className="text-primary-500 shrink-0" /> {c}</li>)}
             </ul>
           </div>
         )}

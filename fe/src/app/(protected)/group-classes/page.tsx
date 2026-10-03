@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, Pencil, X, Search, Loader2 } from 'lucide-react';
+import { Plus, Pencil, X, Search, Loader2, CalendarX } from 'lucide-react';
 import { useClassStore } from '@/src/stores/classStore';
 import StatsGrid from '@/src/components/ui/StatsGrid';
 import AddButton from '@/src/components/ui/AddButton';
@@ -26,12 +26,10 @@ import SegmentedControl from '@/src/components/ui/SegmentedControl';
 import { TableSkeleton } from '@/src/components/ui/Skeleton';
 import EmptyState from '@/src/components/ui/EmptyState';
 import { useFormat } from '@/src/hooks/useFormat';
+import { CLASS_CATEGORY_ICONS } from '@/src/lib/categoryIcons';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const CATEGORY_ICONS: Record<ClassCategory, string> = {
-  yoga: '🧘', zumba: '💃', cycling: '🚴', hiit: '⚡',
-  pilates: '🤸', boxing: '🥊', other: '🏋️',
-};
+const CATEGORIES = Object.keys(CLASS_CATEGORY_ICONS) as ClassCategory[];
 
 const EMPTY_FORM: CreateClassPayload = {
   name: '', category: 'yoga', description: '', trainer: '',
@@ -229,8 +227,8 @@ function ClassModal({ open, editing, onClose, onSave, isLoading }: {
           </div>
           <FormField label={tc('modal.category')} required>
             <select value={form.category} onChange={(e) => set('category', e.target.value)} className={inp('category')}>
-              {(Object.keys(CATEGORY_ICONS) as ClassCategory[]).map((v) => (
-                <option key={v} value={v}>{CATEGORY_ICONS[v]} {tc(`categories.${v}`)}</option>
+              {CATEGORIES.map((v) => (
+                <option key={v} value={v}>{tc(`categories.${v}`)}</option>
               ))}
             </select>
           </FormField>
@@ -419,7 +417,10 @@ export default function GroupClassesPage() {
           {/* Category pills */}
           <SegmentedControl<ClassCategory | 'all'> value={filterCategory} onChange={setFilterCategory} options={[
             { value: 'all', label: tCommon('filters.all') },
-            ...(Object.keys(CATEGORY_ICONS) as ClassCategory[]).map((v) => ({ value: v, label: <>{CATEGORY_ICONS[v]} {tc(`categories.${v}`)}</> })),
+            ...CATEGORIES.map((v) => {
+              const Icon = CLASS_CATEGORY_ICONS[v];
+              return { value: v, label: <span className="inline-flex items-center gap-1.5"><Icon size={13} />{tc(`categories.${v}`)}</span> };
+            }),
           ]} />
           {/* Status pills */}
           <SegmentedControl<ClassStatus | 'all'> value={filterStatus} onChange={setFilterStatus} options={[
@@ -455,12 +456,14 @@ export default function GroupClassesPage() {
                 {isLoading && !classes.length
                   ? <TableSkeleton rows={5} cols={6} />
                   : filtered.length === 0
-                  ? <tr><td colSpan={6}><EmptyState icon="📅" title={tc('empty.title')} description={tc('empty.description')} /></td></tr>
-                  : filtered.map((c) => (
+                  ? <tr><td colSpan={6}><EmptyState icon={<CalendarX size={40} />} title={tc('empty.title')} description={tc('empty.description')} /></td></tr>
+                  : filtered.map((c) => {
+                    const CategoryIcon = CLASS_CATEGORY_ICONS[c.category];
+                    return (
                     <tr key={c.id} className="border-b border-surface-border hover:bg-surface-raised transition-colors group">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <span className="text-xl">{CATEGORY_ICONS[c.category]}</span>
+                          <span className="w-9 h-9 rounded-lg bg-surface-raised flex items-center justify-center text-primary-500 shrink-0"><CategoryIcon size={18} /></span>
                           <div>
                             <p className="text-sm font-semibold text-text-primary">{c.name}</p>
                             <p className="text-xs text-text-muted">{tc(`categories.${c.category}`)}</p>
@@ -491,7 +494,8 @@ export default function GroupClassesPage() {
                         }
                       </td>
                     </tr>
-                  ))
+                    );
+                  })
                 }
               </tbody>
             </table>

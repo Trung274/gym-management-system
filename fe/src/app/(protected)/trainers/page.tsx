@@ -15,7 +15,7 @@ import { getApiMessage } from '@/src/lib/errors';
 import Spinner from '@/src/components/ui/Spinner';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
 import FormField, { inputClass } from '@/src/components/ui/FormField';
-import { Ban, CheckCircle, Eye, EyeOff, Pencil, Search } from 'lucide-react';
+import { Ban, CheckCircle, Dumbbell, Eye, EyeOff, Pencil, Search } from 'lucide-react';
 import SegmentedControl from '@/src/components/ui/SegmentedControl';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -443,7 +443,7 @@ export default function TrainersPage() {
         {/* Empty */}
         {!isLoading && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-            <span className="text-5xl">🏋️</span>
+            <Dumbbell size={48} className="text-text-muted opacity-40" />
             <p className="text-base font-semibold text-text-primary">{te('empty.title')}</p>
             <p className="text-sm text-text-muted">{searchQ || filterStatus !== 'all' || filterSpec ? te('empty.noResult') : te('empty.description')}</p>
           </div>

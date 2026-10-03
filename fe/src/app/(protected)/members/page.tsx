@@ -18,7 +18,7 @@ import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
 import FormField, { inputClass } from '@/src/components/ui/FormField';
-import { CheckCircle, Eye, EyeOff, LogIn, Pause, RefreshCw, Search } from 'lucide-react';
+import { CheckCircle, Eye, EyeOff, LogIn, Pause, RefreshCw, Search, Users } from 'lucide-react';
 import Spinner from '@/src/components/ui/Spinner';
 import Badge from '@/src/components/ui/Badge';
 import { MEMBER_STATUS_TONE } from '@/src/lib/statusTones';
@@ -510,7 +510,7 @@ export default function MembersPage() {
                   ? <TableSkeleton rows={5} cols={6} />
                   : members.length === 0
                   ? (
-                    <tr><td colSpan={6}><EmptyState icon="👥" title={tm('empty.title')} description={tm('empty.description')} /></td></tr>
+                    <tr><td colSpan={6}><EmptyState icon={<Users size={40} />} title={tm('empty.title')} description={tm('empty.description')} /></td></tr>
                   )
                   : members.map((m) => (
                     <MemberRow key={m.id} member={m}
