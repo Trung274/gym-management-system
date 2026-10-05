@@ -18,4 +18,20 @@ export const ADMIN_ROLES: readonly string[] = [ROLES.ADMIN, ROLES.MANAGER, ROLES
 /** Roles that use the member portal (/portal) */
 export const PORTAL_ROLES: readonly string[] = [ROLES.MEMBER, ROLES.USER];
 
+/** Only admins may grant these roles or modify accounts that hold them */
+export const PRIVILEGED_ROLES: readonly string[] = [ROLES.ADMIN, ROLES.MANAGER];
+
+/** Accounts tied to a Member / Trainer profile — their role is managed from those pages */
+export const PROFILE_ROLES: readonly string[] = [ROLES.MEMBER, ROLES.TRAINER];
+
+/** Roles an admin can switch an account between on the Users page */
+export const ACCOUNT_ROLES: readonly RoleName[] = [ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF];
+
+/** Display order for role lists and columns */
+export const ROLE_ORDER: readonly RoleName[] = [ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF, ROLES.TRAINER, ROLES.MEMBER, ROLES.USER];
+
 export const isAdmin = (roleName?: string | null): boolean => roleName === ROLES.ADMIN;
+
+/** Whether an actor with `actorRole` may grant `roleName` or act on an account holding it (mirrors the API rule) */
+export const canManageRole = (actorRole: string | null | undefined, roleName: string): boolean =>
+  isAdmin(actorRole) || !PRIVILEGED_ROLES.includes(roleName);

@@ -31,7 +31,8 @@
     "edit": "Sửa",
     "assignRole": "Phân quyền",
     "deactivate": "Vô hiệu",
-    "activate": "Kích hoạt"
+    "activate": "Kích hoạt",
+    "adminOnly": "Chỉ admin mới chỉnh sửa được tài khoản này"
   },
   "empty": {
     "title": "Chưa có nhân viên nào",

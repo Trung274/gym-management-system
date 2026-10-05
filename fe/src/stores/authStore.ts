@@ -136,6 +136,17 @@ export const useAuthStore = create<AuthState>()(
           tokenStorage.setUser(user, !!tokenStorage.getRefreshToken());
         },
 
+        // Re-read the current user (role + permissions) without toggling isLoading,
+        // so menus follow permission changes made by an admin
+        refreshUser: async () => {
+          try {
+            const response = await apiClient.get<{ success: boolean; data: User }>('/auth/me');
+            get().setUser(response.data.data);
+          } catch {
+            // Expired / deactivated sessions are handled by the axios interceptor (refresh or redirect to /login)
+          }
+        },
+
         // Clear error
         clearError: () => {
           set({ error: null });

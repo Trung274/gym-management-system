@@ -23,6 +23,7 @@ import Spinner from '@/src/components/ui/Spinner';
 import Badge from '@/src/components/ui/Badge';
 import { MEMBER_STATUS_TONE } from '@/src/lib/statusTones';
 import SegmentedControl from '@/src/components/ui/SegmentedControl';
+import Pagination from '@/src/components/ui/Pagination';
 import { TableSkeleton } from '@/src/components/ui/Skeleton';
 import EmptyState from '@/src/components/ui/EmptyState';
 import { useFormat } from '@/src/hooks/useFormat';
@@ -523,16 +524,9 @@ export default function MembersPage() {
             </table>
           </div>
           {/* Pagination */}
-          {pagination && pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-surface-border">
-              <p className="text-xs text-text-muted">{tCommon('pagination.page')} {pagination.currentPage}{tCommon('pagination.of')}{pagination.totalPages} · {pagination.total} {tm('count')}</p>
-              <div className="flex gap-1">
-                <button onClick={() => handlePageChange(pagination.currentPage - 1)} disabled={pagination.currentPage <= 1}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay disabled:opacity-40 transition-all cursor-pointer">{tCommon('pagination.previous')}</button>
-                <button onClick={() => handlePageChange(pagination.currentPage + 1)} disabled={pagination.currentPage >= pagination.totalPages}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-text-secondary border border-surface-border hover:bg-surface-overlay disabled:opacity-40 transition-all cursor-pointer">{tCommon('pagination.next')}</button>
-              </div>
-            </div>
+          {pagination && (
+            <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages}
+              summary={`${pagination.total} ${tm('count')}`} onPageChange={handlePageChange} />
           )}
         </div>
       </div>

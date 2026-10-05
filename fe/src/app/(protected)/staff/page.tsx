@@ -12,7 +12,7 @@ import type {
   CreateStaffPayload,
   UpdateStaffPayload,
 } from '@/src/types/staff.types';
-import { ROLES } from '@/src/lib/roles';
+import { ROLES, canManageRole } from '@/src/lib/roles';
 import { useLanguage } from '@/src/components/providers/LanguageProvider';
 import { usePageTitle } from '@/src/hooks/usePageTitle';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
@@ -25,6 +25,7 @@ import Badge from '@/src/components/ui/Badge';
 import { ROLE_TONE } from '@/src/lib/statusTones';
 import SegmentedControl from '@/src/components/ui/SegmentedControl';
 import { useFormat } from '@/src/hooks/useFormat';
+import { useAuth } from '@/src/hooks/useAuth';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -42,6 +43,18 @@ const getAvatarColor = (id: string) =>
 const EMPTY_CREATE_FORM = { name: '', email: '', password: '', roleName: ROLES.STAFF as RoleName };
 
 const EMPTY_EDIT_FORM = { name: '', email: '' };
+
+const STAFF_ROLES: RoleName[] = [ROLES.ADMIN, ROLES.MANAGER, ROLES.TRAINER, ROLES.STAFF];
+
+/** Roles the current user may assign — non-admins can't grant admin / manager (the API enforces it too) */
+function useAssignableRoles() {
+  const { user } = useAuth();
+  const { t } = useLanguage();
+  const ts = t('staff');
+  return STAFF_ROLES
+    .filter((role) => canManageRole(user?.role?.name, role))
+    .map((role) => ({ value: role, label: ts(`stats.${role}`) }));
+}
 
 // ─── Staff Card ───────────────────────────────────────────────────────────────
 function StaffCard({
@@ -61,6 +74,10 @@ function StaffCard({
   const { t } = useLanguage();
   const ts = t('staff');
   const fmt = useFormat();
+  const { user } = useAuth();
+  // Only admins may touch admin / manager accounts; nobody changes their own role or status here
+  const canManage = canManageRole(user?.role?.name, member.role.name);
+  const isSelf = member.id === user?._id;
 
   return (
     <div className={`
@@ -96,10 +113,13 @@ function StaffCard({
       </div>
 
       {/* Actions */}
-      <div className="grid grid-cols-3 gap-2 pt-1 border-t border-surface-border">
+      {!canManage ? (
+        <p className="pt-3 border-t border-surface-border text-xs text-text-muted text-center">{ts('card.adminOnly')}</p>
+      ) : (
+      <div className="flex gap-2 pt-1 border-t border-surface-border">
         <button
           onClick={() => onEdit(member)}
-          className="flex flex-col items-center gap-1 py-2 rounded-xl text-xs font-medium
+          className="flex-1 flex flex-col items-center gap-1 py-2 rounded-xl text-xs font-medium
             text-text-secondary hover:text-text-primary hover:bg-surface-overlay
             transition-all cursor-pointer"
         >
@@ -107,20 +127,23 @@ function StaffCard({
           {ts('card.edit')}
         </button>
 
+        {!isSelf && (
         <button
           onClick={() => onAssignRole(member)}
-          className="flex flex-col items-center gap-1 py-2 rounded-xl text-xs font-medium
+          className="flex-1 flex flex-col items-center gap-1 py-2 rounded-xl text-xs font-medium
             text-text-secondary hover:text-primary-500 hover:bg-primary-500/10
             transition-all cursor-pointer"
         >
           <Tag size={16} />
           {ts('card.assignRole')}
         </button>
+        )}
 
+        {!isSelf && (
         <button
           onClick={() => onToggle(member)}
           disabled={isActing}
-          className={`flex flex-col items-center gap-1 py-2 rounded-xl text-xs font-medium
+          className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-xl text-xs font-medium
             transition-all cursor-pointer disabled:opacity-50
             ${member.isActive
               ? 'text-danger-500 hover:bg-danger-500/10'
@@ -134,7 +157,9 @@ function StaffCard({
           )}
           {member.isActive ? ts('card.deactivate') : ts('card.activate')}
         </button>
+        )}
       </div>
+      )}
     </div>
   );
 }
@@ -157,12 +182,7 @@ function CreateStaffModal({
   const { t } = useLanguage();
   const ts = t('staff');
 
-  const STAFF_ROLES_LIST = [
-    { value: ROLES.ADMIN as RoleName,   label: ts('stats.admin') },
-    { value: ROLES.MANAGER as RoleName, label: ts('stats.manager') },
-    { value: ROLES.TRAINER as RoleName, label: ts('stats.trainer') },
-    { value: ROLES.STAFF as RoleName,   label: ts('stats.staff') },
-  ];
+  const STAFF_ROLES_LIST = useAssignableRoles();
 
   useEffect(() => {
     if (open) { setForm(EMPTY_CREATE_FORM); setErrors({}); }
@@ -305,12 +325,7 @@ function AssignRoleModal({
   const { t } = useLanguage();
   const ts = t('staff');
 
-  const STAFF_ROLES_LIST = [
-    { value: ROLES.ADMIN as RoleName,   label: ts('stats.admin') },
-    { value: ROLES.MANAGER as RoleName, label: ts('stats.manager') },
-    { value: ROLES.TRAINER as RoleName, label: ts('stats.trainer') },
-    { value: ROLES.STAFF as RoleName,   label: ts('stats.staff') },
-  ];
+  const STAFF_ROLES_LIST = useAssignableRoles();
 
   useEffect(() => {
     if (member) setSelectedRole(member.role.name);

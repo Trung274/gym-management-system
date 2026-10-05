@@ -1,0 +1,44 @@
+{
+  "title": "Phân quyền",
+  "subtitle": "Quyết định mỗi vai trò được xem và thao tác những gì",
+  "table": {
+    "permission": "Quyền",
+    "fullAccess": "Toàn quyền"
+  },
+  "note": "Thay đổi có hiệu lực ngay khi lưu. Chạy lại seed:staff-role, seed:trainer-role hoặc seed:all sẽ đưa quyền về mặc định.",
+  "adminNote": "Admin luôn có toàn quyền. Quản lý người dùng và phân quyền chỉ dành cho admin, không cấp được cho vai trò khác.",
+  "unsaved": "{{count}} vai trò có thay đổi chưa lưu",
+  "save": "Lưu thay đổi",
+  "discard": "Hủy thay đổi",
+  "toast": {
+    "saveSuccess": "Đã lưu phân quyền",
+    "saveError": "Lưu phân quyền thất bại"
+  },
+  "resources": {
+    "dashboard": "Tổng quan",
+    "members": "Hội viên",
+    "checkins": "Check-in",
+    "bookings": "Lịch PT",
+    "classes": "Lớp học nhóm",
+    "trainers": "Huấn luyện viên",
+    "plans": "Gói tập",
+    "equipment": "Thiết bị",
+    "staff": "Nhân viên",
+    "gym": "Thông tin phòng gym"
+  },
+  "actions": {
+    "view": "Xem",
+    "list": "Xem danh sách",
+    "read": "Xem chi tiết",
+    "create": "Thêm mới",
+    "update": "Chỉnh sửa",
+    "delete": "Xóa",
+    "status": "Đổi trạng thái",
+    "checkin": "Check-in hội viên",
+    "record": "Ghi check-in",
+    "manage": "Xác nhận / hoàn thành / hủy lịch",
+    "toggle": "Bật / tắt",
+    "deactivate": "Vô hiệu hóa / kích hoạt"
+  },
+  "empty": "Chưa có quyền nào. Chạy npm run seed:all trong thư mục be."
+}

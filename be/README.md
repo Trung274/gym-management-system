@@ -64,8 +64,9 @@ Tài khoản mặc định: **`admin@example.com` / `Admin@123`** — đổi m�
 ## Phân quyền
 
 - **Role**: `admin`, `manager`, `staff`, `trainer`, `member`, `user` — định nghĩa trong [src/config/roles.js](src/config/roles.js) (`ROLES`), là nguồn của enum trong `Role.model.js`. Trong code luôn dùng `ROLES.ADMIN`... thay vì viết chuỗi. Thêm role mới: sửa file này và `fe/src/lib/roles.ts`.
-- **Permission** là cặp `resource:action`, gán vào role qua các script seed hoặc API `/roles`.
-- `admin` bỏ qua mọi kiểm tra permission.
+- **Permission** là cặp `resource:action`, gán vào role qua các script seed, API `/roles` hoặc trang **Phân quyền** (`/permissions`, chỉ admin). Chạy lại `seed:staff-role` / `seed:trainer-role` / `seed:all` sẽ đưa quyền về mặc định.
+- `admin` bỏ qua mọi kiểm tra permission. Quản lý người dùng (`/users`) và role / permission (`/roles`, `/permissions`) luôn chỉ dành cho admin.
+- **Tài khoản admin / quản lý** (`PRIVILEGED_ROLES`): chỉ admin mới được tạo, gán role này, hoặc sửa / vô hiệu hóa / đổi role các tài khoản đang giữ nó — kể cả qua API `/staff` mà quản lý có quyền dùng. Không ai tự đổi role hay tự vô hiệu hóa chính mình.
 
 | Role | Quyền chính |
 |---|---|
@@ -94,8 +95,12 @@ Chi tiết request/response xem Swagger. Cột quyền: 🌐 công khai · 🔑 
 | **Auth** `/auth` | `POST /login`, `POST /refresh-token` | 🌐 |
 | | `POST /logout`, `GET /me` | 🔑 |
 | | `POST /create-user` | admin + `users:create` |
-| **Users** `/users` | `GET /`, `DELETE /:id` | admin |
-| | `GET /:id`, `PUT /:id` | 🔑 |
+| **Users** `/users` | `GET /` (`search`, `role`, `isActive`) | admin |
+| | `PATCH /:id/status` — vô hiệu hóa / kích hoạt (đăng xuất mọi thiết bị) | admin |
+| | `PATCH /:id/role` — đổi giữa admin / manager / staff | admin |
+| | `PATCH /:id/password` — đặt mật khẩu mới (đăng xuất mọi thiết bị) | admin |
+| | `DELETE /:id` — không cho tài khoản của mình, hội viên, HLV | admin |
+| | `GET /:id`, `PUT /:id` (name, email) | 🔑 |
 | **Roles** `/roles`, **Permissions** `/permissions` | CRUD | admin |
 | **Staff** `/staff` | `GET /`, `GET /:id`, `POST /`, `PUT /:id`, `PUT /:id/role` | `staff:list/read/create/update` |
 | | `PATCH /:id/deactivate`, `PATCH /:id/activate` | `staff:deactivate` |

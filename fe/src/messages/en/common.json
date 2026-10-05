@@ -63,5 +63,13 @@
     "male": "Male",
     "female": "Female",
     "other": "Other"
+  },
+  "roles": {
+    "admin": "Admin",
+    "manager": "Manager",
+    "staff": "Staff",
+    "trainer": "Trainer",
+    "member": "Member",
+    "user": "User"
   }
 }

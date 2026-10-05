@@ -41,6 +41,10 @@ import viPortal       from '@/src/messages/vi/portal.json';
 import enPortal       from '@/src/messages/en/portal.json';
 import viAuth         from '@/src/messages/vi/auth.json';
 import enAuth         from '@/src/messages/en/auth.json';
+import viUsers        from '@/src/messages/vi/users.json';
+import enUsers        from '@/src/messages/en/users.json';
+import viPermissions  from '@/src/messages/vi/permissions.json';
+import enPermissions  from '@/src/messages/en/permissions.json';
 
 // Register them into the sync cache
 registerMessages('vi', 'common',        viCommon);
@@ -71,6 +75,10 @@ registerMessages('vi', 'portal',        viPortal);
 registerMessages('en', 'portal',        enPortal);
 registerMessages('vi', 'auth',          viAuth);
 registerMessages('en', 'auth',          enAuth);
+registerMessages('vi', 'users',         viUsers);
+registerMessages('en', 'users',         enUsers);
+registerMessages('vi', 'permissions',   viPermissions);
+registerMessages('en', 'permissions',   enPermissions);
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 

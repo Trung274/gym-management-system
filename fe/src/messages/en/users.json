@@ -1,0 +1,66 @@
+{
+  "title": "Users",
+  "subtitle": "Login accounts of every role",
+  "filters": {
+    "searchPlaceholder": "Search name, email...",
+    "allRoles": "All roles",
+    "allStatus": "All statuses",
+    "active": "Active",
+    "inactive": "Deactivated",
+    "count": "{{count}} accounts"
+  },
+  "table": {
+    "user": "User",
+    "role": "Role",
+    "status": "Status",
+    "createdAt": "Created",
+    "actions": "Actions"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Deactivated"
+  },
+  "you": "You",
+  "actions": {
+    "changeRole": "Change role",
+    "resetPassword": "Reset password",
+    "deactivate": "Deactivate",
+    "activate": "Reactivate"
+  },
+  "profileManaged": "Member / trainer roles are changed from the Members / Trainers pages",
+  "roleModal": {
+    "title": "Change role",
+    "description": "Choose a new role for",
+    "submit": "Save role"
+  },
+  "passwordModal": {
+    "title": "Reset password",
+    "account": "Account",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "placeholder": "At least 6 characters",
+    "hint": "The user will be signed out of every device and must sign in again with the new password.",
+    "submit": "Reset password"
+  },
+  "deactivateDialog": {
+    "title": "Deactivate account",
+    "message": "{{name}} will no longer be able to sign in and will be signed out of every device.",
+    "note": "Their profile, check-in history and bookings are kept. You can reactivate the account at any time.",
+    "confirm": "Deactivate"
+  },
+  "validation": {
+    "passwordMin": "Password must be at least 6 characters",
+    "passwordMismatch": "Passwords do not match"
+  },
+  "toast": {
+    "roleSuccess": "Role changed",
+    "passwordSuccess": "Password reset",
+    "deactivateSuccess": "Account deactivated",
+    "activateSuccess": "Account reactivated",
+    "error": "Action failed"
+  },
+  "empty": {
+    "title": "No accounts",
+    "description": "Try changing the filters or search."
+  }
+}

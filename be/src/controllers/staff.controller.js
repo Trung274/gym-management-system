@@ -2,7 +2,9 @@ const User = require('../models/User.model');
 const Role = require('../models/Role.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
-const { ROLES } = require('../config/roles');
+const { ROLES, canManageRole } = require('../config/roles');
+
+const PRIVILEGED_ACCOUNT_ERROR = 'Only admins can manage admin or manager accounts';
 
 // @desc    Get all staff (paginated, filterable by role name and isActive)
 // @route   GET /api/v1/staff
@@ -68,6 +70,10 @@ exports.getStaffById = asyncHandler(async (req, res, next) => {
 exports.createStaff = asyncHandler(async (req, res, next) => {
   const { name, email, password, roleName } = req.body;
 
+  if (!canManageRole(req.user, roleName)) {
+    return next(new ErrorResponse(PRIVILEGED_ACCOUNT_ERROR, 403));
+  }
+
   // Lookup role by name
   const role = await Role.findOne({ name: roleName });
   if (!role) {
@@ -89,6 +95,14 @@ exports.createStaff = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/v1/staff/:id
 // @access  Private (Requires: staff:update)
 exports.updateStaff = asyncHandler(async (req, res, next) => {
+  const target = await User.findById(req.params.id);
+  if (!target) {
+    return next(new ErrorResponse('Staff not found', 404));
+  }
+  if (!canManageRole(req.user, target.role?.name)) {
+    return next(new ErrorResponse(PRIVILEGED_ACCOUNT_ERROR, 403));
+  }
+
   const fieldsToUpdate = {};
   if (req.body.name !== undefined) fieldsToUpdate.name = req.body.name;
   if (req.body.email !== undefined) fieldsToUpdate.email = req.body.email;
@@ -98,10 +112,6 @@ exports.updateStaff = asyncHandler(async (req, res, next) => {
     fieldsToUpdate,
     { new: true, runValidators: true }
   );
-
-  if (!staff) {
-    return next(new ErrorResponse('Staff not found', 404));
-  }
 
   res.status(200).json({ success: true, data: staff });
 });
@@ -119,11 +129,16 @@ exports.deactivateStaff = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('Staff not found', 404));
   }
 
+  if (!canManageRole(req.user, staff.role?.name)) {
+    return next(new ErrorResponse(PRIVILEGED_ACCOUNT_ERROR, 403));
+  }
+
   if (!staff.isActive) {
     return next(new ErrorResponse('Account is already deactivated', 400));
   }
 
   staff.isActive = false;
+  staff.refreshTokens = []; // sign out of every device
   await staff.save({ validateBeforeSave: false });
 
   res.status(200).json({ success: true, data: staff });
@@ -136,6 +151,10 @@ exports.activateStaff = asyncHandler(async (req, res, next) => {
   const staff = await User.findById(req.params.id);
   if (!staff) {
     return next(new ErrorResponse('Staff not found', 404));
+  }
+
+  if (!canManageRole(req.user, staff.role?.name)) {
+    return next(new ErrorResponse(PRIVILEGED_ACCOUNT_ERROR, 403));
   }
 
   if (staff.isActive) {
@@ -153,6 +172,19 @@ exports.activateStaff = asyncHandler(async (req, res, next) => {
 // @access  Private (Requires: staff:update)
 exports.assignRole = asyncHandler(async (req, res, next) => {
   const { roleName } = req.body;
+
+  if (req.user._id.toString() === req.params.id) {
+    return next(new ErrorResponse('Cannot change your own role', 400));
+  }
+
+  const target = await User.findById(req.params.id);
+  if (!target) {
+    return next(new ErrorResponse('Staff not found', 404));
+  }
+  // Non-admins can neither promote to nor demote from admin / manager
+  if (!canManageRole(req.user, target.role?.name) || !canManageRole(req.user, roleName)) {
+    return next(new ErrorResponse(PRIVILEGED_ACCOUNT_ERROR, 403));
+  }
 
   const role = await Role.findOne({ name: roleName });
   if (!role) {

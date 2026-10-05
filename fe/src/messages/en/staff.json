@@ -31,7 +31,8 @@
     "edit": "Edit",
     "assignRole": "Assign Role",
     "deactivate": "Deactivate",
-    "activate": "Activate"
+    "activate": "Activate",
+    "adminOnly": "Only admins can change this account"
   },
   "empty": {
     "title": "No staff members yet",

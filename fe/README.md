@@ -29,9 +29,12 @@ Sau khi đăng nhập ở `/login`, người dùng được chuyển theo role (
 | Khu vực | Route group | Role | Trang |
 |---|---|---|---|
 | Quản trị | `src/app/(protected)/` | admin, manager, staff, trainer | `/dashboard`, `/members`, `/plans`, `/trainers`, `/staff`, `/bookings`, `/group-classes`, `/equipment`, `/checkins`, `/gym-info` |
+| Quản trị hệ thống | `src/app/(protected)/` | chỉ admin | `/users` (tài khoản mọi role), `/permissions` (ma trận role × quyền) |
 | Portal hội viên | `src/app/(portal)/portal/` | member | `/portal`, `/portal/profile`, `/portal/checkins`, `/portal/bookings`, `/portal/classes`, `/portal/trainers`, `/portal/gym-info` |
 
 `src/middleware.ts` chặn các route trên khi chưa có cookie `access_token`. Mỗi layout tự đẩy người dùng sai role sang khu vực còn lại.
+
+Trong khu quản trị, sidebar chỉ hiện trang mà role có quyền (cấu hình ở `src/lib/navigation.ts`); mở thẳng URL trang không có quyền sẽ bị chuyển về trang đầu tiên được phép. Quyền được đồng bộ lại từ `/auth/me` mỗi lần tải trang.
 
 ## Cấu trúc
 

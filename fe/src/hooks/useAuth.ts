@@ -12,6 +12,7 @@ export const useAuth = () => {
     login: authStore.login,
     logout: authStore.logout,
     setUser: authStore.setUser,
+    refreshUser: authStore.refreshUser,
     clearError: authStore.clearError,
     checkAuth: authStore.checkAuth,
   };

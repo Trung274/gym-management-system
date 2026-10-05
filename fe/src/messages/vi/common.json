@@ -63,5 +63,13 @@
     "male": "Nam",
     "female": "Nữ",
     "other": "Khác"
+  },
+  "roles": {
+    "admin": "Quản trị viên",
+    "manager": "Quản lý",
+    "staff": "Nhân viên",
+    "trainer": "Huấn luyện viên",
+    "member": "Hội viên",
+    "user": "Người dùng"
   }
 }

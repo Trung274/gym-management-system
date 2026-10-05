@@ -1049,7 +1049,7 @@ return (
 - [ ] Tạo `src/stores/[entity]Store.ts` (Zustand store)
 - [ ] Tạo `src/app/(protected)/[entity]/page.tsx`
 - [ ] Thêm route prefix vào `protectedPrefixes` trong `middleware.ts` *(nếu chưa dùng whitelist approach)*
-- [ ] Thêm nav item vào `Sidebar.tsx` với icon từ **lucide-react**
+- [ ] Thêm nav item vào `src/lib/navigation.ts` (icon **lucide-react** + quyền cần có — xem mục "Thêm nav item mới")
 
 ---
 
@@ -1110,17 +1110,23 @@ import {
 
 ### Thêm nav item mới
 
-Khi thêm domain mới vào `Sidebar.tsx`, chỉ cần thêm 1 dòng vào `NAV_ITEMS`:
+Menu khu quản trị nằm ở `src/lib/navigation.ts` — dùng chung cho Sidebar **và** bộ chặn route trong `(protected)/layout.tsx`. Mỗi item khai báo quyền cần có:
 
 ```tsx
-// src/components/layout/Sidebar.tsx
+// src/lib/navigation.ts
 import { Package } from 'lucide-react'; // chọn icon phù hợp từ lucide.dev
 
-const NAV_ITEMS = [
+export const NAV_ITEMS = [
     // ... các item hiện có
-    { label: 'Tên module', href: '/route', Icon: Package },
-] as const;
+    { labelKey: 'nav.packages', href: '/packages', Icon: Package, access: { permission: ['packages', 'list'] } },
+];
+// Trang chỉ admin: thêm vào ADMIN_NAV_ITEMS với access: { adminOnly: true }
 ```
+
+*   Role không có quyền sẽ không thấy mục đó, và mở thẳng URL sẽ bị chuyển về trang đầu tiên được phép.
+*   Quyền `list` / `view` quyết định trang có hiện hay không; quyền ghi (`create`, `update`...) vẫn do API kiểm tra.
+*   Thêm `labelKey` vào `layout.json` (vi + en) và route vào `PROTECTED_PREFIXES` + `matcher` trong `src/middleware.ts`.
+*   Ẩn nút theo quyền trong trang: `hasPermission(user, resource, action)` (`src/lib/auth.ts`); ai được thao tác tài khoản admin / quản lý: `canManageRole(actorRole, roleName)` (`src/lib/roles.ts`).
 
 ### Tìm icon phù hợp
 
@@ -1479,6 +1485,8 @@ Quy ước placeholder: `{{variableName}}` (double curly braces).
 | `gym-info` | `gym-info.json` | `/gym-info` |
 | `portal` | `portal.json` | `/portal/*` |
 | `auth` | `auth.json` | `/login` |
+| `users` | `users.json` | `/users` |
+| `permissions` | `permissions.json` | `/permissions` |
 
 ---
 

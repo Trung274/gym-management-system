@@ -57,6 +57,7 @@ export interface AuthState {
   logout: () => Promise<void>;
   refreshAccessToken: () => Promise<boolean>;
   setUser: (user: User) => void;
+  refreshUser: () => Promise<void>;
   clearError: () => void;
   checkAuth: () => Promise<void>;
 }

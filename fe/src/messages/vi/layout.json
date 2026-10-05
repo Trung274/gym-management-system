@@ -9,7 +9,10 @@
     "bookings": "Đặt lịch PT",
     "groupClasses": "Lớp học nhóm",
     "equipment": "Thiết bị",
-    "gymInfo": "Thông tin phòng gym"
+    "gymInfo": "Thông tin phòng gym",
+    "users": "Người dùng",
+    "permissions": "Phân quyền",
+    "adminSection": "Quản trị hệ thống"
   },
   "header": {
     "darkMode": "Giao diện tối",
@@ -27,5 +30,6 @@
     "classes": "Lớp học",
     "trainers": "HLV",
     "gymInfo": "Phòng gym"
-  }
+  },
+  "noAccess": "Tài khoản của bạn chưa được cấp quyền vào trang nào. Hãy liên hệ admin."
 }

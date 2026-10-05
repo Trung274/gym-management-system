@@ -1,0 +1,44 @@
+{
+  "title": "Permissions",
+  "subtitle": "Decide what each role can see and do",
+  "table": {
+    "permission": "Permission",
+    "fullAccess": "Full access"
+  },
+  "note": "Changes take effect as soon as they are saved. Re-running seed:staff-role, seed:trainer-role or seed:all resets permissions to the defaults.",
+  "adminNote": "Admins always have full access. User and permission management is admin-only and cannot be granted to other roles.",
+  "unsaved": "{{count}} roles have unsaved changes",
+  "save": "Save changes",
+  "discard": "Discard changes",
+  "toast": {
+    "saveSuccess": "Permissions saved",
+    "saveError": "Failed to save permissions"
+  },
+  "resources": {
+    "dashboard": "Dashboard",
+    "members": "Members",
+    "checkins": "Check-ins",
+    "bookings": "PT bookings",
+    "classes": "Group classes",
+    "trainers": "Trainers",
+    "plans": "Plans",
+    "equipment": "Equipment",
+    "staff": "Staff",
+    "gym": "Gym info"
+  },
+  "actions": {
+    "view": "View",
+    "list": "View list",
+    "read": "View details",
+    "create": "Create",
+    "update": "Edit",
+    "delete": "Delete",
+    "status": "Change status",
+    "checkin": "Check in members",
+    "record": "Record check-ins",
+    "manage": "Confirm / complete / cancel bookings",
+    "toggle": "Enable / disable",
+    "deactivate": "Deactivate / reactivate"
+  },
+  "empty": "No permissions yet. Run npm run seed:all in the be folder."
+}

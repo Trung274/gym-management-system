@@ -9,7 +9,10 @@
     "bookings": "PT Bookings",
     "groupClasses": "Group Classes",
     "equipment": "Equipment",
-    "gymInfo": "Gym Info"
+    "gymInfo": "Gym Info",
+    "users": "Users",
+    "permissions": "Permissions",
+    "adminSection": "Administration"
   },
   "header": {
     "darkMode": "Dark mode",
@@ -27,5 +30,6 @@
     "classes": "Classes",
     "trainers": "Trainers",
     "gymInfo": "Gym Info"
-  }
+  },
+  "noAccess": "Your account has not been given access to any page yet. Please contact an admin."
 }

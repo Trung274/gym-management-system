@@ -12,6 +12,8 @@ const PROTECTED_PREFIXES = [
   '/trainers',
   '/equipment',
   '/checkins',
+  '/users',
+  '/permissions',
   '/portal',
 ];
 
@@ -51,6 +53,8 @@ export const config = {
     '/trainers/:path*',
     '/equipment/:path*',
     '/checkins/:path*',
+    '/users/:path*',
+    '/permissions/:path*',
     '/portal/:path*',
     '/login',
   ],
