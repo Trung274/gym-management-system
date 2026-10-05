@@ -71,7 +71,7 @@ src/
 ```
 Browser
   │
-  ├─► middleware.ts          ─── Kiểm tra cookie → redirect nếu cần
+  ├─► proxy.ts               ─── Kiểm tra cookie → redirect nếu cần
   │
   ├─► AuthProvider           ─── Khởi tạo global state khi app load
   │
@@ -83,7 +83,7 @@ Browser
 ```
 
 **Luồng xác thực:**
-1. `middleware.ts` chạy ở Edge Runtime, đọc cookie để kiểm tra auth.
+1. `proxy.ts` (trước Next.js 16 gọi là `middleware.ts`) chạy trước khi render, đọc cookie để kiểm tra auth.
 2. Nếu cần auth mà không có token → redirect `/login?from=<returnUrl>`.
 3. `AuthProvider` (client component) sync state từ `zustand persist` + gọi data toàn cục.
 4. Các store gọi service functions → service gọi `apiClient`.
@@ -258,9 +258,9 @@ export const tokenStorage = {
 
 ---
 
-## Protected Routes — Middleware
+## Protected Routes — Proxy
 
-File `src/middleware.ts` xử lý bảo vệ route ở **Edge Runtime** (chạy trước khi render):
+File `src/proxy.ts` xử lý bảo vệ route (chạy trước khi render; Next.js 16 đổi tên convention `middleware` → `proxy`, hàm export tên `proxy`, mặc định chạy Node.js runtime):
 
 ```typescript
 import { NextResponse } from 'next/server';
@@ -270,7 +270,7 @@ const publicRoutes = ['/', '/login', '/forgot-password'];
 const authRoutes = ['/login', '/forgot-password'];
 const protectedPrefixes = ['/dashboard', '/settings', '/admin', /* ... */];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get('access_token')?.value;
   const refreshToken = request.cookies.get('refresh_token')?.value;
@@ -297,7 +297,7 @@ export const config = {
 ```
 
 **Lưu ý quan trọng:**
-- Middleware **chỉ kiểm tra sự tồn tại** của cookie, không verify JWT signature (không thể gọi DB ở Edge Runtime).
+- Proxy **chỉ kiểm tra sự tồn tại** của cookie, không verify JWT signature.
 - Việc verify token thực sự xảy ra khi API backend nhận request.
 - Khi token hết hạn, Axios interceptor sẽ tự refresh và retry.
 
@@ -1048,7 +1048,7 @@ return (
 - [ ] Tạo `src/lib/[entity]Helpers.ts` (transform + error message)
 - [ ] Tạo `src/stores/[entity]Store.ts` (Zustand store)
 - [ ] Tạo `src/app/(protected)/[entity]/page.tsx`
-- [ ] Thêm route prefix vào `protectedPrefixes` trong `middleware.ts` *(nếu chưa dùng whitelist approach)*
+- [ ] Thêm route prefix vào `protectedPrefixes` trong `proxy.ts` *(nếu chưa dùng whitelist approach)*
 - [ ] Thêm nav item vào `src/lib/navigation.ts` (icon **lucide-react** + quyền cần có — xem mục "Thêm nav item mới")
 
 ---
@@ -1125,7 +1125,7 @@ export const NAV_ITEMS = [
 
 *   Role không có quyền sẽ không thấy mục đó, và mở thẳng URL sẽ bị chuyển về trang đầu tiên được phép.
 *   Quyền `list` / `view` quyết định trang có hiện hay không; quyền ghi (`create`, `update`...) vẫn do API kiểm tra.
-*   Thêm `labelKey` vào `layout.json` (vi + en) và route vào `PROTECTED_PREFIXES` + `matcher` trong `src/middleware.ts`.
+*   Thêm `labelKey` vào `layout.json` (vi + en) và route vào `PROTECTED_PREFIXES` + `matcher` trong `src/proxy.ts`.
 *   Ẩn nút theo quyền trong trang: `hasPermission(user, resource, action)` (`src/lib/auth.ts`); ai được thao tác tài khoản admin / quản lý: `canManageRole(actorRole, roleName)` (`src/lib/roles.ts`).
 
 ### Tìm icon phù hợp
@@ -1160,7 +1160,6 @@ Một số icon thường dùng trong gym management:
 | Không có error boundary | Thêm React Error Boundary để catch runtime errors |
 | `any` type ở nhiều chỗ (user data, API response) | Tạo generic `ApiResponse<T>` type, type rõ mọi chỗ |
 | Dùng palette tĩnh (`secondary-*`) cho layout shell | Dùng semantic tokens (`surface-*`, `text-text-*`) — xem mục "Theming & Màu sắc" |
-| Next.js 16 báo `middleware.ts` đã deprecated | Đổi tên sang `proxy.ts` theo convention mới của Next.js 16 |
 
 ---
 

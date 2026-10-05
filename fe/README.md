@@ -32,7 +32,7 @@ Sau khi đăng nhập ở `/login`, người dùng được chuyển theo role (
 | Quản trị hệ thống | `src/app/(protected)/` | chỉ admin | `/users` (tài khoản mọi role), `/permissions` (ma trận role × quyền) |
 | Portal hội viên | `src/app/(portal)/portal/` | member | `/portal`, `/portal/profile`, `/portal/checkins`, `/portal/bookings`, `/portal/classes`, `/portal/trainers`, `/portal/gym-info` |
 
-`src/middleware.ts` chặn các route trên khi chưa có cookie `access_token`. Mỗi layout tự đẩy người dùng sai role sang khu vực còn lại.
+`src/proxy.ts` chặn các route trên khi chưa có cookie `access_token`. Mỗi layout tự đẩy người dùng sai role sang khu vực còn lại.
 
 Trong khu quản trị, sidebar chỉ hiện trang mà role có quyền (cấu hình ở `src/lib/navigation.ts`); mở thẳng URL trang không có quyền sẽ bị chuyển về trang đầu tiên được phép. Quyền được đồng bộ lại từ `/auth/me` mỗi lần tải trang.
 
@@ -48,7 +48,7 @@ src/
 ├── lib/            # axios.ts, *Service.ts (gọi API), *Helpers.ts (transform dữ liệu)
 ├── stores/         # Zustand store theo domain
 ├── types/          # Kiểu dữ liệu theo domain
-└── middleware.ts   # Bảo vệ route
+└── proxy.ts        # Bảo vệ route
 ```
 
 ## Đa ngôn ngữ
