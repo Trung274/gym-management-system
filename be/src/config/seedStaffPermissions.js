@@ -2,6 +2,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
+const User = require('../models/User.model');
 const { ROLES } = require('./roles');
 
 mongoose.connect(process.env.MONGODB_URI)
@@ -72,6 +73,12 @@ const seedStaffPermissions = async () => {
       } else {
         console.log('  – manager already has all staff permissions');
       }
+    }
+
+    // 4. Sample manager account (idempotent) — password Gym@123
+    if (!(await User.findOne({ email: 'manager@example.com' }))) {
+      await User.create({ name: 'Trịnh Quang Huy', email: 'manager@example.com', password: 'Gym@123', role: managerRole._id });
+      console.log('  ✓ Created sample account: manager@example.com');
     }
 
     console.log('\n🎉 Done!');

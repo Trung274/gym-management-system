@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
 const CheckinLog = require('../models/CheckinLog.model');
+const Member = require('../models/Member.model');
+require('../models/SubscriptionPlan.model'); // needed by Member populate
+const User = require('../models/User.model');
 const { ROLES } = require('./roles');
 
 mongoose.connect(process.env.MONGODB_URI)
@@ -49,6 +52,31 @@ const seedCheckinPermissions = async () => {
         }
       }
     }
+
+    // Sample check-ins over the last 14 days for the sample members (deterministic pattern;
+    // none for suspended members or after a membership ended), recorded by the sample manager
+    const recorder = await User.findOne({ email: 'manager@example.com' });
+    const DAY = 24 * 60 * 60 * 1000;
+    let created = 0;
+    for (let i = 1; i <= 8; i++) {
+      const user = await User.findOne({ email: `member${i}@example.com` });
+      const member = user && await Member.findOne({ user: user._id });
+      if (!member || member.status === 'suspended') continue;
+      let last = null;
+      for (let d = 14; d >= 1; d--) {
+        if ((i * 7 + d * 3) % 5 >= 3) continue;
+        const at = new Date(Date.now() - d * DAY);
+        at.setHours(6 + ((i + d) % 14), (i * 13 + d * 7) % 60, 0, 0);
+        if (at > member.endDate) continue;
+        await CheckinLog.create({ member: member._id, checkinAt: at, recordedBy: recorder?._id });
+        last = at;
+        created++;
+      }
+      if (last) await Member.updateOne({ _id: member._id }, { lastCheckIn: last });
+    }
+    console.log(created
+      ? `\n  ✓ Created ${created} sample check-ins (last 14 days)`
+      : '\n  ⚠ Sample members not found — run seed:members first. Skipping sample check-ins.');
 
     console.log('\n🎉 Done!');
     console.log('   Permissions assigned to: admin, manager');

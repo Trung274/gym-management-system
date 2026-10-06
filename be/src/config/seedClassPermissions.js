@@ -2,9 +2,18 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
-require('../models/Trainer.model'); // required by Class pre-hook populate
+const Trainer = require('../models/Trainer.model');
+const User = require('../models/User.model');
 const Class = require('../models/Class.model');
 const { ROLES } = require('./roles');
+
+// Sample trainer (from seed:trainers) for each sample class category
+const CLASS_TRAINERS = { yoga: 'trainer1@example.com', zumba: 'trainer2@example.com', cycling: 'trainer3@example.com' };
+
+const findTrainerByEmail = async (email) => {
+  const user = email && await User.findOne({ email });
+  return user ? Trainer.findOne({ user: user._id }) : null;
+};
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -95,7 +104,8 @@ const seedClassPermissions = async () => {
     for (const cls of samples) {
       const exists = await Class.findOne({ name: cls.name });
       if (!exists) {
-        await Class.create(cls);
+        const trainer = await findTrainerByEmail(CLASS_TRAINERS[cls.category]);
+        await Class.create({ ...cls, trainer: trainer?._id ?? null });
         console.log(`  ✓ Created class: ${cls.name}`);
       } else {
         console.log(`  – Already exists: ${cls.name}`);

@@ -44,22 +44,34 @@ Khi deploy trên Render, `RENDER_EXTERNAL_HOSTNAME` (Render tự set) cũng đư
 | # | Script | Làm gì |
 |---|---|---|
 | 1 | `seed:roles` | Xóa Permission/Role/User → tạo permission cơ bản, role `admin` + `user`, tài khoản admin |
-| 2 | `seed:staff` | Permission `staff:*`, role `manager` |
-| 3 | `seed:members` | Xóa Member **và tài khoản User của họ** → permission hội viên, role `member` |
-| 4 | `seed:plans` | Xóa SubscriptionPlan → permission gói tập + 3 gói mẫu |
-| 5 | `seed:trainers` | Xóa Trainer **và tài khoản User của họ** → permission HLV, role `trainer` |
-| 6 | `seed:bookings` | Xóa Booking → permission booking (member được `create`/`read`) |
+| 2 | `seed:staff` | Permission `staff:*`, role `manager` + tài khoản quản lý mẫu |
+| 3 | `seed:plans` | Xóa SubscriptionPlan → permission gói tập + 3 gói mẫu (chạy trước `seed:members` vì hội viên tham chiếu gói) |
+| 4 | `seed:members` | Xóa Member **và tài khoản User của họ** → permission hội viên, role `member` + 8 hội viên mẫu |
+| 5 | `seed:trainers` | Xóa Trainer **và tài khoản User của họ** → permission HLV, role `trainer` + 3 HLV mẫu |
+| 6 | `seed:bookings` | Xóa Booking → permission booking (member được `create`/`read`) + lịch đặt mẫu |
 | 7 | `seed:gym` | Xóa GymInfo → permission + thông tin phòng gym mặc định |
 | 8 | `seed:equipment` | Xóa Equipment → permission + 5 thiết bị mẫu |
-| 9 | `seed:classes` | Xóa Class → permission + 3 lớp mẫu |
-| 10 | `seed:checkins` | Xóa CheckinLog → permission check-in |
+| 9 | `seed:classes` | Xóa Class → permission + 3 lớp mẫu, gán cho 3 HLV mẫu |
+| 10 | `seed:checkins` | Xóa CheckinLog → permission check-in + check-in mẫu 14 ngày qua |
 | 11 | `seed:dashboard` | Permission `dashboard:view` |
-| 12 | `seed:staff-role` | Role `staff` (lễ tân) — chạy cuối vì cần permission của mọi domain |
+| 12 | `seed:staff-role` | Role `staff` (lễ tân) — chạy cuối vì cần permission của mọi domain + tài khoản lễ tân mẫu |
 | 13 | `seed:trainer-role` | Quyền role `trainer` — chạy cuối vì cần permission của mọi domain |
 
 Mỗi script cũng chạy riêng được (`npm run seed:<tên>`). `seed:staff-role` và `seed:trainer-role` an toàn để chạy lại bất kỳ lúc nào (dùng chung `seedRoleHelper.js`).
 
-Tài khoản mặc định: **`admin@example.com` / `Admin@123`** — đổi mật khẩu khi dùng thật. Các tài khoản khác (hội viên, HLV, nhân viên) được tạo qua API / trang quản trị kèm mật khẩu.
+Tài khoản mặc định: **`admin@example.com` / `Admin@123`** — đổi mật khẩu khi dùng thật.
+
+Tài khoản mẫu (mật khẩu chung **`Gym@123`**) — để thử từng vai trò:
+
+| Email | Role | Ghi chú |
+|---|---|---|
+| `manager@example.com` | manager | Quản lý |
+| `staff@example.com` | staff | Nhân viên lễ tân |
+| `trainer1@example.com` … `trainer3@example.com` | trainer | 3 HLV có hồ sơ, gán vào lớp yoga / zumba / cycling, có lịch PT |
+| `member1@example.com` | member | Hội viên VIP đang hoạt động — dùng thử portal (có đủ 4 trạng thái lịch PT) |
+| `member2@` … `member8@example.com` | member | Đủ trạng thái: đang hoạt động, sắp hết hạn (`member3`), hết hạn (`member4`), tạm dừng (`member5`), tài khoản bị vô hiệu hóa (`member7`) |
+
+Dữ liệu mẫu đầy đủ (lịch đặt, check-in, HLV gán vào lớp) có khi chạy `seed:all`; chạy riêng một script chỉ tạo lại phần mẫu của nó.
 
 ## Phân quyền
 

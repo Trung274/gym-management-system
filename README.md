@@ -41,7 +41,7 @@ npm install
 npm run dev
 ```
 
-Đăng nhập bằng tài khoản admin do seed tạo: `admin@example.com` / `Admin@123`. Tài khoản hội viên, HLV, nhân viên được tạo từ trang quản trị.
+Đăng nhập bằng tài khoản admin do seed tạo: `admin@example.com` / `Admin@123`. Seed cũng tạo tài khoản mẫu cho mọi vai trò (quản lý, lễ tân, HLV, hội viên — mật khẩu `Gym@123`), xem [be/README.md](be/README.md#seed-dữ-liệu).
 
 ## Vai trò
 

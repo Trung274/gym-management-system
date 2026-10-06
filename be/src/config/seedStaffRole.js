@@ -12,6 +12,8 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const { ROLES } = require('./roles');
 const { upsertRolePermissions } = require('./seedRoleHelper');
+const Role = require('../models/Role.model');
+const User = require('../models/User.model');
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -56,6 +58,13 @@ const seedStaffRole = async () => {
       'Nhân viên vận hành / lễ tân — check-in, quản lý hội viên, xem lịch tập',
       required
     );
+
+    // Sample staff account (idempotent) — password Gym@123
+    if (!(await User.findOne({ email: 'staff@example.com' }))) {
+      const staffRole = await Role.findOne({ name: ROLES.STAFF });
+      await User.create({ name: 'Phan Ngọc Mai', email: 'staff@example.com', password: 'Gym@123', role: staffRole._id });
+      console.log('  ✓ Created sample account: staff@example.com');
+    }
     process.exit(0);
   } catch (error) {
     console.error('❌ Seed error:', error);

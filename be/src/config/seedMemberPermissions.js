@@ -4,8 +4,24 @@ const Permission = require('../models/Permission.model');
 const Role = require('../models/Role.model');
 const Member = require('../models/Member.model');
 const User = require('../models/User.model');
-require('../models/SubscriptionPlan.model'); // needed by Member populate
+const SubscriptionPlan = require('../models/SubscriptionPlan.model');
 const { ROLES } = require('./roles');
+
+const DAY = 24 * 60 * 60 * 1000;
+const daysFromNow = (n) => new Date(Date.now() + n * DAY);
+
+// Sample members (password Gym@123). endInDays < 0 → membership already over;
+// status matches what the hourly expiry job would set.
+const SAMPLE_MEMBERS = [
+  { name: 'Nguyễn Minh Anh', email: 'member1@example.com', plan: 'vip',     endInDays: 300, status: 'active',    gender: 'female', phone: '0912000001' },
+  { name: 'Trần Văn Bình',   email: 'member2@example.com', plan: 'premium', endInDays: 60,  status: 'active',    gender: 'male',   phone: '0912000002' },
+  { name: 'Lê Thu Cúc',      email: 'member3@example.com', plan: 'basic',   endInDays: 5,   status: 'active',    gender: 'female', phone: '0912000003', notes: 'Sắp hết hạn — nhắc gia hạn' },
+  { name: 'Phạm Quốc Dũng',  email: 'member4@example.com', plan: 'basic',   endInDays: -10, status: 'expired',   gender: 'male',   phone: '0912000004' },
+  { name: 'Hoàng Thị Em',    email: 'member5@example.com', plan: 'premium', endInDays: 40,  status: 'suspended', gender: 'female', phone: '0912000005', notes: 'Tạm dừng do chấn thương' },
+  { name: 'Vũ Đức Phúc',     email: 'member6@example.com', plan: 'vip',     endInDays: 200, status: 'active',    gender: 'male',   phone: '0912000006' },
+  { name: 'Đặng Thảo Giang', email: 'member7@example.com', plan: 'basic',   endInDays: 20,  status: 'active',    gender: 'female', phone: '0912000007', accountActive: false },
+  { name: 'Bùi Hải Hà',      email: 'member8@example.com', plan: 'premium', endInDays: 80,  status: 'active',    gender: 'female', phone: '0912000008' },
+];
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
@@ -99,6 +115,28 @@ const seedMemberPermissions = async () => {
       } else {
         console.log('  – member role already has profile permissions');
       }
+    }
+
+    // 5. Sample members with a plan (needs seed:plans first)
+    const plans = {};
+    for (const type of ['basic', 'premium', 'vip']) {
+      plans[type] = await SubscriptionPlan.findOne({ type });
+    }
+    if (!plans.basic || !plans.premium || !plans.vip) {
+      console.log('\n  ⚠ Plans not found — run npm run seed:plans first. Skipping sample members.');
+    } else {
+      await User.deleteMany({ email: { $in: SAMPLE_MEMBERS.map((m) => m.email) } }); // leftovers without a profile
+      for (const m of SAMPLE_MEMBERS) {
+        const plan = plans[m.plan];
+        const user = await User.create({
+          name: m.name, email: m.email, password: 'Gym@123', role: memberRole._id, isActive: m.accountActive !== false,
+        });
+        await Member.create({
+          user: user._id, phone: m.phone, gender: m.gender, notes: m.notes, subscriptionPlan: plan._id, status: m.status,
+          endDate: daysFromNow(m.endInDays), startDate: daysFromNow(m.endInDays - plan.durationDays),
+        });
+      }
+      console.log(`\n  ✓ Created ${SAMPLE_MEMBERS.length} sample members (active, expiring, expired, suspended, deactivated account)`);
     }
 
     console.log('\n🎉 Done!');

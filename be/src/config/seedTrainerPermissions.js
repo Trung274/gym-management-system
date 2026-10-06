@@ -6,6 +6,16 @@ const Trainer = require('../models/Trainer.model');
 const User = require('../models/User.model');
 const { ROLES } = require('./roles');
 
+// Sample trainers (password Gym@123) — seed:classes links them to the sample classes
+const SAMPLE_TRAINERS = [
+  { name: 'Đỗ Thu Hương', email: 'trainer1@example.com', phone: '0901000001', gender: 'female', experienceYears: 6,
+    specializations: ['Yoga', 'Pilates'], certifications: ['RYT 200'], bio: 'Chuyên yoga trị liệu và pilates cho người mới bắt đầu.' },
+  { name: 'Ngô Minh Khoa', email: 'trainer2@example.com', phone: '0901000002', gender: 'male', experienceYears: 8,
+    specializations: ['Strength', 'HIIT'], certifications: ['ACE CPT', 'CrossFit L1'], bio: 'Tăng cơ, giảm mỡ và các chương trình HIIT cường độ cao.' },
+  { name: 'Lý Gia Tuấn', email: 'trainer3@example.com', phone: '0901000003', gender: 'male', experienceYears: 4,
+    specializations: ['Cycling', 'Boxing'], certifications: ['Spinning Instructor'], bio: 'Cardio, sức bền và boxing cơ bản.' },
+];
+
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB Connected'))
   .catch(err => { console.error('MongoDB connection error:', err); process.exit(1); });
@@ -72,6 +82,14 @@ const seedTrainerPermissions = async () => {
     } else {
       console.log('  – Role trainer already exists');
     }
+
+    // Sample trainers with a profile
+    await User.deleteMany({ email: { $in: SAMPLE_TRAINERS.map((t) => t.email) } }); // leftovers without a profile
+    for (const { name, email, ...profile } of SAMPLE_TRAINERS) {
+      const user = await User.create({ name, email, password: 'Gym@123', role: trainerRole._id });
+      await Trainer.create({ user: user._id, ...profile });
+    }
+    console.log(`\n  ✓ Created ${SAMPLE_TRAINERS.length} sample trainers`);
 
     console.log('\n🎉 Done!');
     console.log('   Permissions assigned to: admin, manager');
