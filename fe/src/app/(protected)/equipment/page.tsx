@@ -28,11 +28,14 @@ import { EQUIPMENT_CATEGORY_ICONS } from '@/src/lib/categoryIcons';
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CATEGORIES = Object.keys(EQUIPMENT_CATEGORY_ICONS) as EquipmentCategory[];
 
-const EMPTY_CREATE: CreateEquipmentPayload = {
+// Form state: numeric inputs hold '' when empty so they stay controlled (undefined would make them uncontrolled)
+type EquipmentForm = Omit<CreateEquipmentPayload, 'purchasePrice'> & { purchasePrice: number | '' };
+
+const EMPTY_CREATE: EquipmentForm = {
   name: '', category: 'cardio',
   brand: '', model: '', serialNumber: '',
   quantity: 1, location: '',
-  purchaseDate: '', purchasePrice: undefined,
+  purchaseDate: '', purchasePrice: '',
   supplier: '', nextMaintenanceDate: '', notes: '',
 };
 

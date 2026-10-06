@@ -31,9 +31,12 @@ import { CLASS_CATEGORY_ICONS } from '@/src/lib/categoryIcons';
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CATEGORIES = Object.keys(CLASS_CATEGORY_ICONS) as ClassCategory[];
 
-const EMPTY_FORM: CreateClassPayload = {
+// Form state: numeric inputs hold '' when empty so they stay controlled (undefined would make them uncontrolled)
+type ClassForm = Omit<CreateClassPayload, 'capacity'> & { capacity: number | '' };
+
+const EMPTY_FORM: ClassForm = {
   name: '', category: 'yoga', description: '', trainer: '',
-  location: '', capacity: undefined, schedule: [{ dayOfWeek: 1, startTime: '06:00', endTime: '07:00' }],
+  location: '', capacity: '', schedule: [{ dayOfWeek: 1, startTime: '06:00', endTime: '07:00' }],
   startDate: '', endDate: '', notes: '',
 };
 
