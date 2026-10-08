@@ -18,7 +18,7 @@ import { usePageTitle } from '@/src/hooks/usePageTitle';
 import Modal, { ModalFooter } from '@/src/components/ui/Modal';
 import FormField, { Input } from '@/src/components/ui/FormField';
 import Spinner from '@/src/components/ui/Spinner';
-import { Eye, EyeOff, Check, Ban, BriefcaseBusiness, CheckCircle, Pencil, Search, Tag } from 'lucide-react';
+import { Eye, EyeOff, Check, Ban, BriefcaseBusiness, CheckCircle, Lock, Pencil, Search, Tag } from 'lucide-react';
 import Alert from '@/src/components/ui/Alert';
 import { getApiMessage } from '@/src/lib/errors';
 import Badge from '@/src/components/ui/Badge';
@@ -26,6 +26,9 @@ import { ROLE_TONE } from '@/src/lib/statusTones';
 import SegmentedControl from '@/src/components/ui/SegmentedControl';
 import { useFormat } from '@/src/hooks/useFormat';
 import { useAuth } from '@/src/hooks/useAuth';
+import Pagination from '@/src/components/ui/Pagination';
+import EmptyState from '@/src/components/ui/EmptyState';
+import { TableSkeleton } from '@/src/components/ui/Skeleton';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -44,6 +47,10 @@ const EMPTY_CREATE_FORM = { name: '', email: '', password: '', roleName: ROLES.S
 
 const EMPTY_EDIT_FORM = { name: '', email: '' };
 
+// Staff lists are small: load them all once, then filter / paginate in the browser so the stats stay exact
+const STAFF_FETCH_LIMIT = 500;
+const PAGE_SIZE = 10;
+
 const STAFF_ROLES: RoleName[] = [ROLES.ADMIN, ROLES.MANAGER, ROLES.TRAINER, ROLES.STAFF];
 
 /** Roles the current user may assign — non-admins can't grant admin / manager (the API enforces it too) */
@@ -56,8 +63,8 @@ function useAssignableRoles() {
     .map((role) => ({ value: role, label: ts(`stats.${role}`) }));
 }
 
-// ─── Staff Card ───────────────────────────────────────────────────────────────
-function StaffCard({
+// ─── Staff Row ────────────────────────────────────────────────────────────────
+function StaffRow({
   member,
   onEdit,
   onToggle,
@@ -80,87 +87,64 @@ function StaffCard({
   const isSelf = member.id === user?._id;
 
   return (
-    <div className={`
-      bg-surface-base border border-surface-border rounded-2xl p-5
-      flex flex-col gap-4 transition-all duration-200 hover:shadow-md
-      ${!member.isActive ? 'opacity-60' : ''}
-    `}>
-      {/* Header: avatar + name + status */}
-      <div className="flex items-start gap-3">
-        <div className={`
-          w-11 h-11 rounded-xl bg-gradient-to-br ${getAvatarColor(member.id)}
-          flex items-center justify-center text-white font-bold text-sm shrink-0
-        `}>
-          {member.initials}
+    <tr className={`border-b border-surface-border hover:bg-surface-raised transition-colors ${member.isActive ? '' : 'opacity-60'}`}>
+      {/* Staff */}
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${getAvatarColor(member.id)} flex items-center justify-center text-white font-bold text-xs shrink-0`}>
+            {member.initials}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-text-primary truncate flex items-center gap-2">
+              {member.name}
+              {isSelf && <Badge tone="primary">{ts('you')}</Badge>}
+            </p>
+            <p className="text-xs text-text-muted truncate">{member.email}</p>
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-text-primary text-sm truncate">{member.name}</p>
-          <p className="text-xs text-text-muted truncate">{member.email}</p>
-        </div>
-        <Badge tone={member.isActive ? 'success' : 'neutral'}>
+      </td>
+      {/* Role */}
+      <td className="px-4 py-3">
+        <Badge tone={ROLE_TONE[member.role.name] ?? 'neutral'}>{ts(`roles.${member.role.name}`, member.role.name)}</Badge>
+      </td>
+      {/* Status */}
+      <td className="px-4 py-3">
+        <Badge tone={member.isActive ? 'success' : 'neutral'} dot>
           {member.isActive ? ts('card.active') : ts('card.inactive')}
         </Badge>
-      </div>
-
-      {/* Role badge */}
-      <div className="flex items-center gap-2">
-        <Badge tone={ROLE_TONE[member.role.name] ?? 'neutral'}>
-          {ts(`roles.${member.role.name}`, member.role.name)}
-        </Badge>
-        <span className="text-xs text-text-muted ml-auto">
-          {fmt.date(member.createdAt)}
-        </span>
-      </div>
-
+      </td>
+      {/* Created */}
+      <td className="px-4 py-3 text-xs text-text-muted whitespace-nowrap">{fmt.date(member.createdAt)}</td>
       {/* Actions */}
-      {!canManage ? (
-        <p className="pt-3 border-t border-surface-border text-xs text-text-muted text-center">{ts('card.adminOnly')}</p>
-      ) : (
-      <div className="flex gap-2 pt-1 border-t border-surface-border">
-        <button
-          onClick={() => onEdit(member)}
-          className="flex-1 flex flex-col items-center gap-1 py-2 rounded-xl text-xs font-medium
-            text-text-secondary hover:text-text-primary hover:bg-surface-overlay
-            transition-all cursor-pointer"
-        >
-          <Pencil size={16} />
-          {ts('card.edit')}
-        </button>
-
-        {!isSelf && (
-        <button
-          onClick={() => onAssignRole(member)}
-          className="flex-1 flex flex-col items-center gap-1 py-2 rounded-xl text-xs font-medium
-            text-text-secondary hover:text-primary-500 hover:bg-primary-500/10
-            transition-all cursor-pointer"
-        >
-          <Tag size={16} />
-          {ts('card.assignRole')}
-        </button>
+      <td className="px-4 py-3">
+        {!canManage ? (
+          <span title={ts('card.adminOnly')} className="inline-flex p-1.5 text-text-muted">
+            <Lock size={16} />
+          </span>
+        ) : isActing ? (
+          <Spinner className="text-primary-500" />
+        ) : (
+          <div className="flex items-center gap-1">
+            <button onClick={() => onEdit(member)} title={ts('card.edit')}
+              className="p-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-overlay transition-all cursor-pointer">
+              <Pencil size={16} />
+            </button>
+            {!isSelf && (
+              <>
+                <button onClick={() => onAssignRole(member)} title={ts('card.assignRole')}
+                  className="p-1.5 rounded-lg text-primary-500 hover:bg-primary-500/10 transition-all cursor-pointer">
+                  <Tag size={16} />
+                </button>
+                <button onClick={() => onToggle(member)} title={member.isActive ? ts('card.deactivate') : ts('card.activate')}
+                  className={`p-1.5 rounded-lg transition-all cursor-pointer ${member.isActive ? 'text-danger-500 hover:bg-danger-500/10' : 'text-success-500 hover:bg-success-500/10'}`}>
+                  {member.isActive ? <Ban size={16} /> : <CheckCircle size={16} />}
+                </button>
+              </>
+            )}
+          </div>
         )}
-
-        {!isSelf && (
-        <button
-          onClick={() => onToggle(member)}
-          disabled={isActing}
-          className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-xl text-xs font-medium
-            transition-all cursor-pointer disabled:opacity-50
-            ${member.isActive
-              ? 'text-danger-500 hover:bg-danger-500/10'
-              : 'text-success-500 hover:bg-success-500/10'
-            }`}
-        >
-          {isActing ? (
-            <Spinner />
-          ) : (
-            (member.isActive ? <Ban size={16} /> : <CheckCircle size={16} />)
-          )}
-          {member.isActive ? ts('card.deactivate') : ts('card.activate')}
-        </button>
-        )}
-      </div>
-      )}
-    </div>
+      </td>
+    </tr>
   );
 }
 
@@ -358,7 +342,7 @@ function AssignRoleModal({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function StaffPage() {
-  const { staff, pagination, isLoading, error, fetchStaff, createStaff, updateStaff, assignRole, deactivateStaff, activateStaff, clearError } = useStaffStore();
+  const { staff, isLoading, error, fetchStaff, createStaff, updateStaff, assignRole, deactivateStaff, activateStaff, clearError } = useStaffStore();
   const { t } = useLanguage();
   const ts = t('staff');
   const tCommon = t('common');
@@ -367,6 +351,10 @@ export default function StaffPage() {
   const [filterRole, setFilterRole] = useState<RoleName | 'all'>('all');
   const [filterActive, setFilterActive] = useState<'all' | 'active' | 'inactive'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+
+  // Any filter change goes back to the first page
+  const onFilter = <T,>(setter: (value: T) => void) => (value: T) => { setter(value); setPage(1); };
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editMember, setEditMember] = useState<StaffMember | null>(null);
@@ -374,7 +362,7 @@ export default function StaffPage() {
   const [actingId, setActingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { fetchStaff({}).catch(() => {}); }, [fetchStaff]);
+  useEffect(() => { fetchStaff({ limit: STAFF_FETCH_LIMIT }).catch(() => {}); }, [fetchStaff]);
   useEffect(() => () => clearError(), [clearError]);
 
   const filtered = staff.filter((m) => {
@@ -383,6 +371,9 @@ export default function StaffPage() {
     const searchOk = !searchQuery || m.name.toLowerCase().includes(searchQuery.toLowerCase()) || m.email.toLowerCase().includes(searchQuery.toLowerCase());
     return roleOk && statusOk && searchOk;
   });
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageItems = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const stats = {
     total:   staff.length,
@@ -472,14 +463,14 @@ export default function StaffPage() {
           {/* Search */}
           <div className="relative">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
-            <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+            <input type="text" value={searchQuery} onChange={(e) => onFilter(setSearchQuery)(e.target.value)}
               placeholder={ts('filters.searchPlaceholder')}
               className="pl-9 pr-4 py-2 rounded-xl border border-surface-border bg-surface-raised text-sm text-text-primary placeholder-text-muted outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all w-52"
             />
           </div>
 
           {/* Role filter */}
-          <SegmentedControl<RoleName | 'all'> value={filterRole} onChange={setFilterRole} options={[
+          <SegmentedControl<RoleName | 'all'> value={filterRole} onChange={onFilter(setFilterRole)} options={[
             { value: 'all',         label: tCommon('filters.all') },
             { value: ROLES.ADMIN,   label: ts('roles.admin') },
             { value: ROLES.MANAGER, label: ts('roles.manager') },
@@ -488,7 +479,7 @@ export default function StaffPage() {
           ]} />
 
           {/* Status filter */}
-          <SegmentedControl<'all' | 'active' | 'inactive'> value={filterActive} onChange={setFilterActive} options={[
+          <SegmentedControl<'all' | 'active' | 'inactive'> value={filterActive} onChange={onFilter(setFilterActive)} options={[
             { value: 'all',      label: tCommon('filters.all') },
             { value: 'active',   label: ts('card.active') },
             { value: 'inactive', label: ts('card.inactive') },
@@ -499,58 +490,41 @@ export default function StaffPage() {
           </span>
         </div>
 
-        {/* Skeleton loading */}
-        {isLoading && staff.length === 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-surface-base border border-surface-border rounded-2xl p-5 flex flex-col gap-4 animate-pulse">
-                <div className="flex items-start gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-surface-overlay shrink-0" />
-                  <div className="flex-1 flex flex-col gap-2"><div className="h-4 w-3/4 bg-surface-overlay rounded" /><div className="h-3 w-full bg-surface-overlay rounded" /></div>
-                </div>
-                <div className="h-6 w-24 bg-surface-overlay rounded-full" />
-                <div className="h-10 w-full bg-surface-overlay rounded-xl" />
-              </div>
-            ))}
+        {/* Table */}
+        <div className="bg-surface-base border border-surface-border rounded-2xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-surface-border bg-surface-raised">
+                  {[ts('table.staff'), ts('table.role'), ts('table.status'), ts('table.createdAt'), ts('table.actions')].map((h) => (
+                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading && staff.length === 0
+                  ? <TableSkeleton rows={6} cols={5} />
+                  : filtered.length === 0
+                  ? (
+                    <tr><td colSpan={5}>
+                      <EmptyState icon={<BriefcaseBusiness size={40} />} title={ts('empty.title')}
+                        description={searchQuery || filterRole !== 'all' || filterActive !== 'all' ? ts('empty.noResults') : ts('empty.description')} />
+                    </td></tr>
+                  )
+                  : pageItems.map((member) => (
+                    <StaffRow key={member.id} member={member}
+                      onEdit={setEditMember}
+                      onToggle={handleToggle}
+                      onAssignRole={setAssignMember}
+                      actingId={actingId}
+                    />
+                  ))}
+              </tbody>
+            </table>
           </div>
-        )}
-
-        {/* Empty state */}
-        {!isLoading && filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-            <BriefcaseBusiness size={48} className="text-text-muted opacity-40" />
-            <div>
-              <p className="text-base font-semibold text-text-primary">{ts('empty.title')}</p>
-              <p className="text-sm text-text-muted mt-1">
-                {searchQuery || filterRole !== 'all' || filterActive !== 'all' ? ts('empty.noResults') : ts('empty.description')}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Staff grid */}
-        {!isLoading && filtered.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filtered.map((member) => (
-              <StaffCard key={member.id} member={member}
-                onEdit={setEditMember}
-                onToggle={handleToggle}
-                onAssignRole={setAssignMember}
-                actingId={actingId}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Pagination info */}
-        {pagination && pagination.totalPages > 1 && (
-          <p className="text-center text-xs text-text-muted">
-            {ts('pagination')
-              .replace('{{current}}', pagination.currentPage.toString())
-              .replace('{{total}}', pagination.totalPages.toString())
-              .replace('{{count}}', pagination.total.toString())}
-          </p>
-        )}
+          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setPage}
+            summary={ts('filters.count').replace('{{count}}', filtered.length.toString())} />
+        </div>
       </div>
 
       <CreateStaffModal open={createOpen} onClose={() => setCreateOpen(false)} onSave={handleCreate} isLoading={saving} />

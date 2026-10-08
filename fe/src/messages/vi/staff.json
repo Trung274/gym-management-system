@@ -72,5 +72,12 @@
     "activateSuccess": "Đã kích hoạt tài khoản!",
     "error": "Có lỗi xảy ra, vui lòng thử lại."
   },
-  "pagination": "Trang {{current}}/{{total}} · {{count}} nhân viên"
+  "table": {
+    "staff": "Nhân viên",
+    "role": "Vai trò",
+    "status": "Trạng thái",
+    "createdAt": "Ngày tạo",
+    "actions": "Thao tác"
+  },
+  "you": "Bạn"
 }

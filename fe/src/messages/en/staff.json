@@ -72,5 +72,12 @@
     "activateSuccess": "Account activated!",
     "error": "An error occurred, please try again."
   },
-  "pagination": "Page {{current}}/{{total}} · {{count}} staff"
+  "table": {
+    "staff": "Staff",
+    "role": "Role",
+    "status": "Status",
+    "createdAt": "Created",
+    "actions": "Actions"
+  },
+  "you": "You"
 }
