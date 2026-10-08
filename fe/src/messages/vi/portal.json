@@ -75,7 +75,15 @@
       "viewAll": "Tất cả",
       "empty": "Không có lịch PT sắp tới."
     },
-    "loadError": "Không thể tải dữ liệu"
+    "loadError": "Không thể tải dữ liệu",
+    "classes": {
+      "title": "Lịch lớp 7 ngày tới",
+      "viewAll": "Tất cả",
+      "today": "Hôm nay",
+      "tomorrow": "Ngày mai",
+      "live": "Đang diễn ra",
+      "empty": "Không có lớp nào trong 7 ngày tới."
+    }
   },
   "profile": {
     "title": "Hồ sơ cá nhân",

@@ -75,7 +75,15 @@
       "viewAll": "View all",
       "empty": "No upcoming PT sessions."
     },
-    "loadError": "Failed to load data"
+    "loadError": "Failed to load data",
+    "classes": {
+      "title": "Classes in the next 7 days",
+      "viewAll": "All",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "live": "Live now",
+      "empty": "No classes in the next 7 days."
+    }
   },
   "profile": {
     "title": "My Profile",
