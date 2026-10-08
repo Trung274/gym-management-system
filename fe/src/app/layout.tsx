@@ -3,6 +3,7 @@ import { Manrope, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/src/components/providers/ThemeProvider";
 import { LanguageProvider } from "@/src/components/providers/LanguageProvider";
+import ToastProvider from "@/src/components/providers/ToastProvider";
 
 const manrope = Manrope({
   variable: "--font-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({
         <ThemeProvider>
           <LanguageProvider>
             {children}
+            <ToastProvider />
           </LanguageProvider>
         </ThemeProvider>
       </body>

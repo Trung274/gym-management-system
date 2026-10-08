@@ -26,7 +26,7 @@ Mục đích: làm tài liệu tham khảo cho **dự án tương tự** về sa
 ```
 src/
 ├── app/                        # Next.js App Router
-│   ├── layout.tsx              # Root layout (AuthProvider + Toaster)
+│   ├── layout.tsx              # Root layout (ThemeProvider + LanguageProvider + ToastProvider)
 │   ├── page.tsx                # Landing/redirect page
 │   ├── globals.css
 │   ├── (auth)/                 # Route group: không cần auth
@@ -43,7 +43,8 @@ src/
 │   ├── ProtectedComponent.tsx  # Wrapper kiểm tra permission/role
 │   ├── providers/
 │   │   ├── LanguageProvider.tsx # Context i18n (lang, setLang, t)
-│   │   └── ThemeProvider.tsx    # Light/dark mode
+│   │   ├── ThemeProvider.tsx    # Light/dark mode
+│   │   └── ToastProvider.tsx    # <Toaster /> — bắt buộc để toast hiển thị
 │   ├── layout/                 # Sidebar, Header
 │   └── ui/                     # PageHeader, AddButton, StatsGrid, LoadingSpinner
 ├── hooks/
